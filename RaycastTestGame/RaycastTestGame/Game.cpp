@@ -5,6 +5,7 @@
 #include "ConsoleUtils.h"
 #include "Map.h"
 #include "Rectangle.h"
+#include "Viewport.h"
 
 Game::Game()
 	: oldTime{ 0 }, time{ 0 }, gameIsRunning{ true }
@@ -46,8 +47,10 @@ int Game::Run()
 	defaultMap->SetContents(tempMap, Vector2i(24, 24));
 
 	setConsoleBufferResolution(128, 128);
-	drawRect(1, 2, 1, 20, '#');
-	drawRect(3, 2, 1, 20, '#');
+	
+	Viewport* mainViewport = new Viewport();
+	mainViewport->Fill('#');
+	mainViewport->Clear();
 
 	return EXIT_SUCCESS;
 }
