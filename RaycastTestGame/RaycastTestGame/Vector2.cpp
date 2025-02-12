@@ -24,7 +24,7 @@ Vector2i::Vector2i()
 {
 }
 
-Vector2i::Vector2i(int x, float y)
+Vector2i::Vector2i(int x, int y)
 	: x{ x }, y{ y }
 {
 }

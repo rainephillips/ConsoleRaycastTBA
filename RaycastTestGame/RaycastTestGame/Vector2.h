@@ -19,7 +19,7 @@ public:
 	int y;
 public:
 	Vector2i();
-	Vector2i(int x, float y);
+	Vector2i(int x, int y);
 	Vector2i ONE();
 };
 
