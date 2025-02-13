@@ -5,6 +5,11 @@
 
 int main()
 {
-	Game newGame;
-	return newGame.Run();
+	Game* newGame = new Game();
+
+	int returnValue = newGame->Run();
+
+	delete newGame;
+
+	return returnValue;
 }

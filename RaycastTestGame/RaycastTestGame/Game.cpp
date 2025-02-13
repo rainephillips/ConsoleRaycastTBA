@@ -1,11 +1,14 @@
 #include "Game.h"
 
 #include <iostream>
+#include <cmath>
 
 #include "ConsoleUtils.h"
 #include "Map.h"
 #include "Rectangle.h"
 #include "Viewport.h"
+#include "Player.h"
+#include "Camera.h"
 
 Game::Game()
 	: oldTime{ 0 }, time{ 0 }, gameIsRunning{ true }
@@ -49,8 +52,24 @@ int Game::Run()
 	setConsoleBufferResolution(128, 128);
 	
 	Viewport* mainViewport = new Viewport();
-	mainViewport->Fill('#');
-	mainViewport->Clear();
+
+	Player* player = new Player();
+
+	Camera* mainCam = new Camera();
+
+	while (gameIsRunning)
+	{
+		
+		int width = mainViewport->size.x;
+		// Calculate ray pos and dir
+		for (int i = 0; i < width; i++)
+		{
+			float cameraX = 2 * i / static_cast<float>(width) - 1;
+			float rayDirX = player->rotation.x + mainCam->size.x;
+			float rayDirY = player->rotation.y + mainCam->size.x;
+		}
+
+	}
 
 	return EXIT_SUCCESS;
 }
