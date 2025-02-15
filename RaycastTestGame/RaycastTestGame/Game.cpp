@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <ctime>
-#include <conio.h>
+#include <stdlib.h> 
 
 #include "ConsoleUtils.h"
 #include "Map.h"
@@ -49,11 +49,11 @@ int Game::Run()
 	Map* map = new Map(24, 24);
 	map->SetContents(tempMap, Vector2i(24, 24));
 
-	SetConsoleBufferResolution(128, 128);
+	SetConsoleBufferResolution(512, 128);
 	
-	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(200, 60));
+	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(125, 38));
 
-	Player* player = new Player(Vector2(22.f, 12.f), Vector2(-1.f, 0.f));
+	Player* player = new Player(Vector2(22.f, 12.f), Vector2(1.f, 0.f));
 
 	Camera* mainCam = new Camera();
 
@@ -68,20 +68,72 @@ int Game::Run()
 		m_oldTime = clock();
 		
 		float moveSpeed = deltaTime * 5.0f; // Cells per second
-		float rotSpeed = deltaTime * 3.0f; // radians / second
+		float rotSpeed = deltaTime * 1.0f; // radians / second
+
+		float& plPosX = player->position.x;
+		float& plPosY = player->position.y;
+
+		float& plDirX = player->direction.x;
+		float& plDirY = player->direction.y;
 
 		// Keyboard Inputs
+		// Move Forward if not crash into wall
+		if (GetAsyncKeyState(VK_UP))
+		{
+			if (map->contents[int(plPosX + plDirX * moveSpeed)][int(plPosY)] == 0)
+			{
+				plPosX += plDirX * moveSpeed;
+			}
+			if (map->contents[int(plPosX)][int(plPosY + plDirY * moveSpeed)] == 0)
+			{
+				plPosY += plDirY * moveSpeed;
+			}
+		}
+		if (GetAsyncKeyState(VK_DOWN))
+		{
+			if (map->contents[int(plPosX - plDirX * moveSpeed)][int(plPosY)] == 0)
+			{
+				plPosX -= plDirX * moveSpeed;
+			}
+			if (map->contents[int(plPosX)][int(plPosY - plDirY * moveSpeed)] == 0)
+			{
+				plPosY -= plDirY * moveSpeed;
+			}
+		}
+		if (GetAsyncKeyState(VK_LEFT))
+		{
+			float oldDirX = plDirX;
+			float oldPLaneX = mainCam->size.x;
+
+			plDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
+			plDirY = oldDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
+
+			mainCam->size.x = mainCam->size.x * cos(-rotSpeed) - mainCam->size.y * sin(-rotSpeed);
+			mainCam->size.y = oldPLaneX * sin(-rotSpeed) + mainCam->size.y * cos(-rotSpeed);
+		}
+		if (GetAsyncKeyState(VK_RIGHT))
+		{
+			float oldDirX = plDirX;
+			float oldPLaneX = mainCam->size.x;
+
+			plDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
+			plDirY = oldDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
+
+			mainCam->size.x = mainCam->size.x * cos(rotSpeed) - mainCam->size.y * sin(rotSpeed);
+			mainCam->size.y = oldPLaneX * sin(rotSpeed) + mainCam->size.y * cos(rotSpeed);
+		}
 
 		// Raycasting Loop
+
 		for (int i = 0; i < width; i++)
 		{
 			//  Right of Screen = 1, Left of Screen = - 1
-			float cameraX = 2 * i / static_cast<float>(width) - 1.f; // Camera X Position
+			float cameraX = 2 * i / (float)width - 1.f; // Camera X Position
 
 			Vector2 rayDir = Vector2
 			(
-				player->rotation.x + mainCam->size.x * cameraX,
-				player->rotation.y + mainCam->size.x * cameraX
+				plDirX + mainCam->size.x * cameraX,
+				plDirY + mainCam->size.y * cameraX
 			);
 
 			// Which map cell the array is in
@@ -102,7 +154,7 @@ int Game::Run()
 				(rayDir.x == 0) ? FLT_MAX : std::abs(1.f / rayDir.x),
 				(rayDir.y == 0) ? FLT_MAX : std::abs(1.f / rayDir.y)
 			);
-			
+
 			// Will be used to calculate total ray length (Perpendicular Wall Distance)
 			float perpWallDist;
 
@@ -146,11 +198,11 @@ int Game::Run()
 				}
 				else
 				{
-					sideDist.x += deltaDist.y;
+					sideDist.y += deltaDist.y;
 					mapPos.y += step.y;
 					horizontalWall = true;
 				}
-				
+
 				// Check if ray has hit a wall
 				if (map->contents[mapPos.x][mapPos.y] > 0)
 				{
@@ -193,40 +245,37 @@ int Game::Run()
 			switch (map->contents[mapPos.x][mapPos.y])
 
 			{
-				case 1:
-				{
-					color = (horizontalWall) ? CLR_RED : CLR_LIGHTRED;
-					break;
-				}
-				case 2:
-				{
-					color = (horizontalWall) ? CLR_GREEN : CLR_LIGHTGREEN;
-					break;
-				}
-				case 3:
-				{
-					color = (horizontalWall) ? CLR_CYAN : CLR_LIGHTCYAN;
-					break;
-				}
-				case 4:
-				{
-					color = (horizontalWall) ? CLR_MAGENTA : CLR_LIGHTMAGENTA;
-					break;
-				}
-				default:
-				{
-					color = (horizontalWall) ? CLR_LIGHTGRAY : CLR_WHITE;
-					break;
-				}
-
-				
+			case 1:
+			{
+				color = (horizontalWall) ? CLR_RED : CLR_LIGHTRED;
+				break;
+			}
+			case 2:
+			{
+				color = (horizontalWall) ? CLR_GREEN : CLR_LIGHTGREEN;
+				break;
+			}
+			case 3:
+			{
+				color = (horizontalWall) ? CLR_CYAN : CLR_LIGHTCYAN;
+				break;
+			}
+			case 4:
+			{
+				color = (horizontalWall) ? CLR_MAGENTA : CLR_LIGHTMAGENTA;
+				break;
+			}
+			default:
+			{
+				color = (horizontalWall) ? CLR_LIGHTGRAY : CLR_WHITE;
+				break;
 			}
 
-			DrawVertLine(i, drawStart, drawEnd, '#', color, 0);
+
+			}
+
+			DrawVertLine(i, height, drawStart, drawEnd, '#', color, 0);
 		}
-
-		player->rotation.x += 0.01f;
-
 
 	}
 

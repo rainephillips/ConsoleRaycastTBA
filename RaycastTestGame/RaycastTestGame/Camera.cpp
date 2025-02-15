@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera()
-	: size{ 0, 0.66f }
+	: size{ 0.f, 0.66f }
 {
 }
 

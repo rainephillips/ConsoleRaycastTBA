@@ -4,11 +4,11 @@
 #include "Camera.h"
 
 Player::Player()
-	: position{ 0.f, 0.f }, rotation{ -1.f, 0.f }
+	: position{ 0.f, 0.f }, direction{ -1.f, 0.f }
 {
 }
 
-Player::Player(Vector2 position, Vector2 rotation)
-	: position{ position }, rotation{ rotation }
+Player::Player(Vector2 position, Vector2 direction)
+	: position{ position }, direction{ direction }
 {
 }

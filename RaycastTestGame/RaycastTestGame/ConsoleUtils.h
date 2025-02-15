@@ -29,7 +29,7 @@ void DrawRect(int x, int y, int w, int h, char character);
 
 void DrawRect(Vector2i position, Vector2i size, char character);
 
-void DrawVertLine(int x, int start, int end, char character, unsigned char textColor, unsigned char bgColor);
+void DrawVertLine(int x, int height, int start, int end, char character, unsigned char textColor, unsigned char bgColor);
 
 void SetConsoleBufferResolution(unsigned int x, unsigned int y);
 

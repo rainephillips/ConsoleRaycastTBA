@@ -6,13 +6,15 @@ public:
 	Game();
 	int Run();
 
+public:
+	float deltaTime;
+
 private:
 	void Raycast();
 
 private:
 	float m_time;
 	float m_oldTime;
-	float deltaTime;
 
 	bool gameIsRunning;
 };

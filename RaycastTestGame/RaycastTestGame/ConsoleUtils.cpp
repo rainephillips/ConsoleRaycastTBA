@@ -47,12 +47,12 @@ void DrawRect(Vector2i position, Vector2i size, char character)
 	DrawRect(position.x, position.y, size.x, size.y, character);
 }
 
-void DrawVertLine(int x, int start, int end, char character, unsigned char textColor, unsigned char bgColor)
+void DrawVertLine(int x, int height, int start, int end, char character, unsigned char textColor, unsigned char bgColor)
 {
 	SetConsoleColor(textColor, bgColor);
-	for (int i = 0; i < end; i++)
+	for (int i = 0; i < height; i++)
 	{
-		if (i < start || i > end)
+		if (i < start || i > end - 1)
 		{
 			DrawPoint(x, i, ' ');
 		}

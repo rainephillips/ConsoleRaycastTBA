@@ -7,11 +7,11 @@ class Player
 {
 public:
 	Vector2 position;
-	Vector2 rotation;
+	Vector2 direction;
 	Camera playerCam;
 
 public:
 	Player();
-	Player(Vector2 position, Vector2 rotation);
+	Player(Vector2 position, Vector2 direction);
 };
 
