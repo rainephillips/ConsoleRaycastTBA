@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Vector2.h"
 #include "Camera.h"
+#include "Vector2.h"
 
 class Player
 {
@@ -12,5 +12,6 @@ public:
 
 public:
 	Player();
+	Player(Vector2 position, Vector2 rotation);
 };
 

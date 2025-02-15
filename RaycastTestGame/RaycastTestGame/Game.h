@@ -7,8 +7,12 @@ public:
 	int Run();
 
 private:
-	float time;
-	float oldTime;
+	void Raycast();
+
+private:
+	float m_time;
+	float m_oldTime;
+	float deltaTime;
 
 	bool gameIsRunning;
 };

@@ -5,9 +5,6 @@
 class Rectangle
 {
 public:
-	Vector2 position;
-	Vector2 scale;
-public:
 	Rectangle(float x, float y, float w, float h);
 
 	void SetPos(float x, float y);
@@ -15,5 +12,8 @@ public:
 
 	void SetSize(float x, float y);
 	void SetSize(Vector2 size);
-};
 
+public:
+	Vector2 position;
+	Vector2 scale;
+};

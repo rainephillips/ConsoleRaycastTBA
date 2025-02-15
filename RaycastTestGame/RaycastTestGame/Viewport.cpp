@@ -1,7 +1,10 @@
 #include "Viewport.h"
 
+#include "ConsoleUtils.h"
+#include "Vector2.h"
+
 Viewport::Viewport()
-	: position{ 1, 1 }, size{ 80, 60 }
+	: position{ 1, 1 }, size{100, 30 }
 {
 }
 
@@ -13,10 +16,10 @@ Viewport::Viewport(Vector2i position, Vector2i size)
 
 void Viewport::Clear()
 {
-	drawRect(position, size, ' ');
+	DrawRect(position, size, ' ');
 }
 
 void Viewport::Fill(char character)
 {
-	drawRect(position, size, '#');
+	DrawRect(position, size, '#');
 }

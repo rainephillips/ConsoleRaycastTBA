@@ -13,9 +13,9 @@ public:
 	void SetContents(int map[24][24], Vector2i size);
 	void SetContents(int map[24][24], int x_size, int y_size);
 
+	int contents[24][24];
+
 private:
 	Vector2i size;
-
-	int contents[24][24];
 };
 

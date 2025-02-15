@@ -1,5 +1,7 @@
 #include "Map.h"
 
+#include "Vector2.h"
+
 Map::Map(int x, int y)
 	: size{ x, y }
 {
