@@ -51,14 +51,16 @@ int Game::Run()
 
 	SetConsoleBufferResolution(512, 128);
 	
-	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(125, 38));
+	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(360, 160));
 
-	Player* player = new Player(Vector2(22.f, 12.f), Vector2(1.f, 0.f));
+	Player* player = new Player(Vector2(22.f, 11.f), Vector2(1.f, 0.f));
 
 	Camera* mainCam = new Camera();
 
 	int width = mainViewport->size.x;
 	int height = mainViewport->size.y;
+
+	SetCursorVis(false);
 
 	while (gameIsRunning)
 	{
@@ -121,6 +123,11 @@ int Game::Run()
 
 			mainCam->size.x = mainCam->size.x * cos(rotSpeed) - mainCam->size.y * sin(rotSpeed);
 			mainCam->size.y = oldPLaneX * sin(rotSpeed) + mainCam->size.y * cos(rotSpeed);
+		}
+		if (GetAsyncKeyState(VK_ESCAPE))
+		{
+			gameIsRunning = false;
+			break;
 		}
 
 		// Raycasting Loop
@@ -267,15 +274,19 @@ int Game::Run()
 			}
 			default:
 			{
-				color = (horizontalWall) ? CLR_LIGHTGRAY : CLR_WHITE;
+				color = (horizontalWall) ? CLR_DARKGREY : CLR_WHITE;
 				break;
 			}
 
 
 			}
 
-			DrawVertLine(i, height, drawStart, drawEnd, '#', color, 0);
+			char pixel = mainViewport->GetCharFromDepth( float( (lineHeight >= height) ? height : lineHeight ) / float(height) );
+
+			mainViewport->AddScanlineToBuffer(i, height, drawStart, drawEnd, pixel, color, 0);
 		}
+
+		DrawViewPort(mainViewport);
 
 	}
 

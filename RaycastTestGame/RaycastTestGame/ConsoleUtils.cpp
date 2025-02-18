@@ -3,6 +3,7 @@
 
 #include "Windows.h"
 #include "Vector2.h"
+#include "Viewport.h"
 #include "Rectangle.h"
 
 extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -52,12 +53,18 @@ void DrawVertLine(int x, int height, int start, int end, char character, unsigne
 	SetConsoleColor(textColor, bgColor);
 	for (int i = 0; i < height; i++)
 	{
-		if (i < start || i > end - 1)
+		if (i < start)
 		{
 			DrawPoint(x, i, ' ');
 		}
+		else if (i > end)
+		{
+			SetConsoleColor(CLR_BROWN, bgColor);
+			DrawPoint(x, i, '`');
+		}
 		else 
 		{
+			SetConsoleColor(textColor, bgColor);
 			DrawPoint(x, i, character);
 		}
 		
@@ -79,4 +86,31 @@ void SetConsoleColor(unsigned char textColor, unsigned char bgColor)
 void ClearConsoleColor()
 {
 	SetConsoleTextAttribute(console, (0) | 1);
+}
+
+void SetCursorVis(bool visibility)
+{
+	CONSOLE_CURSOR_INFO cursorInfo;
+	cursorInfo.bVisible = visibility;
+	cursorInfo.dwSize = 20;
+	SetConsoleCursorInfo(console, &cursorInfo);
+}
+
+void DrawViewPort(Viewport* viewport)
+{
+	int& width = viewport->size.x;
+	int& height = viewport->size.y;
+
+	CHAR_INFO* buffer = viewport->GetScreenBuffer();
+
+	COORD bufferSize = { width, height };
+	COORD bufferPos = { viewport->position.x, viewport->position.y };
+	SMALL_RECT bufferRect = { 
+		viewport->position.x,
+		viewport->position.y,
+		viewport->position.x + width - 1,
+		viewport->position.y + height - 1};
+
+	WriteConsoleOutputA(console, buffer, bufferSize, bufferPos, &bufferRect);
+
 }
