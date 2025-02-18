@@ -15,7 +15,7 @@ void DrawPoint(int x, int y, char character)
 	char charArray[2] = { character };
 
 	SetConsoleCursorPosition(console, pos);
-	WriteConsole(console, charArray, 1, NULL, NULL);
+	WriteConsoleA(console, charArray, 1, NULL, NULL);
 }
 
 void DrawPoint(int x, int y, char character, unsigned char textColor, unsigned char bgColor)
