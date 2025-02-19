@@ -1,6 +1,7 @@
 #include "Color.h"
 
 Color::Color()
+	: r{ 255 }, g{ 0 }, b{ 255 }
 {
 }
 
@@ -10,12 +11,7 @@ Color::Color(byte r, byte g, byte b)
 
 }
 
-Color::~Color()
+string Color::ToStringValue(byte colorValue)
 {
-	delete[] m_ColorString;
-}
-
-char* Color::GetColorString()
-{
-	return m_ColorString;
+	return string(std::to_string(short(colorValue)));
 }

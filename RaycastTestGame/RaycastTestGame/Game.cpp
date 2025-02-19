@@ -49,9 +49,9 @@ int Game::Run()
 	Map* map = new Map(24, 24);
 	map->SetContents(tempMap, Vector2i(24, 24));
 
-	SetConsoleBufferResolution(512, 128);
+	SetConsoleBufferResolution(512, 512);
 	
-	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(360, 160));
+	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(256, 64));
 
 	Player* player = new Player(Vector2(22.f, 11.f), Vector2(1.f, 0.f));
 
@@ -61,6 +61,8 @@ int Game::Run()
 	int height = mainViewport->size.y;
 
 	SetCursorVis(false);
+
+	ToggleANSI(true);
 
 	while (gameIsRunning)
 	{
@@ -227,7 +229,7 @@ int Game::Run()
 				perpWallDist = (sideDist.y - deltaDist.y);
 			}
 
-			// Calculat height of line to draw on screen
+			// Calculate height of line to draw on screen
 			int lineHeight = (int)(height / perpWallDist);
 
 			// Calculate the lowest and highest pixel to fill in current line
@@ -247,6 +249,7 @@ int Game::Run()
 				drawEnd = height - 1;
 			}
 
+			/*
 			// Choose Wall Color
 			unsigned char color;
 			switch (map->contents[mapPos.x][mapPos.y])
@@ -284,9 +287,42 @@ int Game::Run()
 			char pixel = mainViewport->GetCharFromDepth( float( (lineHeight >= height) ? height : lineHeight ) / float(height) );
 
 			mainViewport->AddScanlineToBuffer(i, height, drawStart, drawEnd, pixel, color, 0);
+			*/
+
+			// Choose Wall Color
+			Color color;
+			switch (map->contents[mapPos.x][mapPos.y])
+			{
+			case 1:
+			{
+				color = (horizontalWall) ? Color() : Color();
+				break;
+			}
+			case 2:
+			{
+				color = (horizontalWall) ? Color() : Color();
+				break;
+			}
+			case 3:
+			{
+				color = (horizontalWall) ? Color() : Color();
+				break;
+			}
+			case 4:
+			{
+				color = (horizontalWall) ? Color() : Color();
+				break;
+			}
+			default:
+			{
+				color = (horizontalWall) ? Color() : Color();
+				break;
+			}
+			}
 		}
 
-		DrawViewPort(mainViewport);
+		DrawColorViewport(mainViewport);
+		// DrawASCIIViewport(mainViewport);
 
 	}
 
@@ -300,4 +336,5 @@ int Game::Run()
 
 void Game::Raycast()
 {
+
 }

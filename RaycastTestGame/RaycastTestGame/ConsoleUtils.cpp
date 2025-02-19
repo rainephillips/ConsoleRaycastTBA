@@ -1,10 +1,13 @@
 #include "ConsoleUtils.h"
 
+#include <string>
 
 #include "Windows.h"
 #include "Vector2.h"
 #include "Viewport.h"
 #include "Rectangle.h"
+
+using std::string;
 
 extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -96,12 +99,41 @@ void SetCursorVis(bool visibility)
 	SetConsoleCursorInfo(console, &cursorInfo);
 }
 
-void DrawViewPort(Viewport* viewport)
+void DrawColorViewport(Viewport* viewport)
+{
+	Color* buffer = viewport->GetColorScreenBuffer();
+	Color currentColor;
+
+	string outputString = "";
+	int& posX = viewport->position.x;
+	int& posY = viewport->position.y;
+	int& width = viewport->size.x;
+	int& height = viewport->size.y;
+	
+	for (int y = 0; y < height; y++)
+	{
+		outputString += ("\033[" + std::to_string(posX) + ";" + std::to_string(y + posY) + "f");
+
+		for (int x = 0; x < width; x++)
+		{
+			currentColor = buffer[y * width + x];
+			outputString += ("\033[48;2;" 
+				+ currentColor.ToStringValue(currentColor.r) + ";"
+				+ currentColor.ToStringValue(currentColor.g) + ";"
+				+ currentColor.ToStringValue(currentColor.b) + "m ");
+		}
+		outputString += "\033[0m"; // Reset Color
+	}
+
+	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
+}
+
+void DrawASCIIViewport(Viewport* viewport)
 {
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
 
-	CHAR_INFO* buffer = viewport->GetScreenBuffer();
+	CHAR_INFO* buffer = viewport->GetASCIIScreenBuffer();
 
 	COORD bufferSize = { width, height };
 	COORD bufferPos = { viewport->position.x, viewport->position.y };
@@ -113,4 +145,12 @@ void DrawViewPort(Viewport* viewport)
 
 	WriteConsoleOutputA(console, buffer, bufferSize, bufferPos, &bufferRect);
 
+}
+
+void ToggleANSI(bool enabled)
+{
+	DWORD consoleFlags = 0;
+	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0;
+
+	SetConsoleMode(console, consoleFlags);
 }

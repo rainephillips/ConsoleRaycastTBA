@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include "Vector2.h"
+#include "Color.h"
 
 #define CLR_BLACK			0
 #define CLR_BLUE			1
@@ -35,11 +36,15 @@ public:
 public:
 	void AddScanlineToBuffer(int x, int height, int start, int end, char character, WORD textColor, WORD bgColor);
 	void AddCharToBuffer(int x, int y, char character, WORD textColor, WORD bgColor);
+	void AddColorToBuffer(int x, int y, Color color);
+	void AddScanlineToColorBuffer(int x, int height, int start, int end, Color color);
 
 	char GetCharFromDepth(float depth);
-	CHAR_INFO* GetScreenBuffer();
+	CHAR_INFO* GetASCIIScreenBuffer();
+	Color* GetColorScreenBuffer();
 
 private:
 	CHAR_INFO* m_screenBuffer;
+	Color* m_colorScreenBuffer;
 };
 

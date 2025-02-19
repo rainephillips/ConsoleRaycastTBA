@@ -21,4 +21,8 @@ void ClearConsoleColor();
 
 void SetCursorVis(bool visibility);
 
-void DrawViewPort(Viewport* viewport);
+void DrawASCIIViewport(Viewport* viewport);
+
+void ToggleANSI(bool enabled);
+
+void DrawColorViewport(Viewport* viewport);
