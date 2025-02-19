@@ -3,9 +3,6 @@
 #include "Color.h"
 #include "Vector2.h"
 
-Color errorTexture[] = { Color(255,0,255), Color(0,0,0), 
-					Color(255,0,255), Color(0,0,0) };
-
 class Texture
 {
 public:

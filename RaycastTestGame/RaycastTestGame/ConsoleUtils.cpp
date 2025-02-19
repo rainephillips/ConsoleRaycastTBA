@@ -137,9 +137,9 @@ void DrawColorViewport(Viewport* viewport)
 			// Set a blank ' ' (space) character with the background of the
 			// RGB Color value using ANSII Escape
 			outputString.append("\033[48;2;"
-				+ currentColor.ToStringValue(currentColor.r) + ";"
-				+ currentColor.ToStringValue(currentColor.g) + ";"
-				+ currentColor.ToStringValue(currentColor.b) + "m ");
+				+ std::to_string(static_cast<short>(currentColor.r)) + ";"
+				+ std::to_string(static_cast<short>(currentColor.g)) + ";"
+				+ std::to_string(static_cast<short>(currentColor.b)) + "m ");
 		}
 
 	}
