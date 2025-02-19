@@ -112,7 +112,7 @@ void DrawColorViewport(Viewport* viewport)
 	
 	for (int y = 0; y < height; y++)
 	{
-		outputString += ("\033[" + std::to_string(posX) + ";" + std::to_string(y + posY) + "f");
+		outputString += ("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
 
 		for (int x = 0; x < width; x++)
 		{
@@ -122,9 +122,9 @@ void DrawColorViewport(Viewport* viewport)
 				+ currentColor.ToStringValue(currentColor.g) + ";"
 				+ currentColor.ToStringValue(currentColor.b) + "m ");
 		}
-		outputString += "\033[0m"; // Reset Color
+		//outputString += "\n";
 	}
-
+	outputString += "\033[0m";
 	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 }
 
@@ -150,6 +150,7 @@ void DrawASCIIViewport(Viewport* viewport)
 void ToggleANSI(bool enabled)
 {
 	DWORD consoleFlags = 0;
+	GetConsoleMode(console, &consoleFlags);
 	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0;
 
 	SetConsoleMode(console, consoleFlags);

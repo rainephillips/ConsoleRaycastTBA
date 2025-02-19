@@ -295,30 +295,32 @@ int Game::Run()
 			{
 			case 1:
 			{
-				color = (horizontalWall) ? Color() : Color();
+				color = (horizontalWall) ? Color(235, 64, 52) : Color(235, 64, 52);
 				break;
 			}
 			case 2:
 			{
-				color = (horizontalWall) ? Color() : Color();
+				color = (horizontalWall) ? Color(50, 168, 82) : Color(44, 222, 93);
 				break;
 			}
 			case 3:
 			{
-				color = (horizontalWall) ? Color() : Color();
+				color = (horizontalWall) ? Color(66, 135, 245) : Color(142, 245, 250);
 				break;
 			}
 			case 4:
 			{
-				color = (horizontalWall) ? Color() : Color();
+				color = (horizontalWall) ? Color(173, 28, 159) : Color(250, 112, 236);
 				break;
 			}
 			default:
 			{
-				color = (horizontalWall) ? Color() : Color();
+				color = (horizontalWall) ? Color(80, 90, 99) : Color(195, 213, 230);
 				break;
 			}
 			}
+
+			mainViewport->AddScanlineToColorBuffer(i, height, drawStart, drawEnd, color);
 		}
 
 		DrawColorViewport(mainViewport);
