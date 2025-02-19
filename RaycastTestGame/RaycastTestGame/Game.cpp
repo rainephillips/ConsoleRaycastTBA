@@ -3,12 +3,15 @@
 #include <iostream>
 #include <cmath>
 #include <ctime>
-#include <stdlib.h> 
+#include <vector>
 
 #include "ConsoleUtils.h"
 #include "Map.h"
 #include "Viewport.h"
 #include "Player.h"
+#include "Texture.h"
+
+using std::vector;
 
 Game::Game()
 	: m_oldTime{ 0 }, m_time{ 0 }, gameIsRunning{ true }, deltaTime{ 0.f }
@@ -49,13 +52,18 @@ int Game::Run()
 	Map* map = new Map(24, 24);
 	map->SetContents(tempMap, Vector2i(24, 24));
 
-	SetConsoleBufferResolution(512, 512);
+	SetConsoleBufferResolution(2048, 512);
 	
 	Viewport* mainViewport = new Viewport(Vector2i(10, 6), Vector2i(240, 64));
 
 	Player* player = new Player(Vector2(22.f, 11.f), Vector2(1.f, 0.f));
 
 	Camera* mainCam = new Camera();
+
+	Vector2i defaultTextureSize = Vector2i(64, 64);
+
+	vector<Texture> textureList;
+	textureList.reserve(8);
 
 	int& width = mainViewport->size.x;
 	int& height = mainViewport->size.y;
@@ -70,72 +78,14 @@ int Game::Run()
 		deltaTime = (clock() - m_oldTime) / 1000.f;
 		int fps = (1.f / deltaTime);
 		m_oldTime = clock();
+
 		
-		float moveSpeed = deltaTime * 5.0f; // Cells per second
-		float rotSpeed = deltaTime * 1.0f; // radians / second
-
-		float& plPosX = player->position.x;
-		float& plPosY = player->position.y;
-
-		float& plDirX = player->direction.x;
-		float& plDirY = player->direction.y;
-
-		// Keyboard Inputs
-		// Move Forward if not crash into wall
-		if (GetAsyncKeyState(VK_UP))
-		{
-			if (map->contents[int(plPosX + plDirX * moveSpeed)][int(plPosY)] == 0)
-			{
-				plPosX += plDirX * moveSpeed;
-			}
-			if (map->contents[int(plPosX)][int(plPosY + plDirY * moveSpeed)] == 0)
-			{
-				plPosY += plDirY * moveSpeed;
-			}
-		}
-		if (GetAsyncKeyState(VK_DOWN))
-		{
-			if (map->contents[int(plPosX - plDirX * moveSpeed)][int(plPosY)] == 0)
-			{
-				plPosX -= plDirX * moveSpeed;
-			}
-			if (map->contents[int(plPosX)][int(plPosY - plDirY * moveSpeed)] == 0)
-			{
-				plPosY -= plDirY * moveSpeed;
-			}
-		}
-		if (GetAsyncKeyState(VK_LEFT))
-		{
-			float oldDirX = plDirX;
-			float oldPLaneX = mainCam->size.x;
-
-			plDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
-			plDirY = oldDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
-
-			mainCam->size.x = mainCam->size.x * cos(-rotSpeed) - mainCam->size.y * sin(-rotSpeed);
-			mainCam->size.y = oldPLaneX * sin(-rotSpeed) + mainCam->size.y * cos(-rotSpeed);
-		}
-		if (GetAsyncKeyState(VK_RIGHT))
-		{
-			float oldDirX = plDirX;
-			float oldPLaneX = mainCam->size.x;
-
-			plDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
-			plDirY = oldDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
-
-			mainCam->size.x = mainCam->size.x * cos(rotSpeed) - mainCam->size.y * sin(rotSpeed);
-			mainCam->size.y = oldPLaneX * sin(rotSpeed) + mainCam->size.y * cos(rotSpeed);
-		}
-		if (GetAsyncKeyState(VK_ESCAPE))
-		{
-			gameIsRunning = false;
-			break;
-		}
+		GetAsyncKeyboardInput(player, mainCam, map);
 
 		Raycast(mainViewport, player, mainCam, map, false);
 
 		DrawColorViewport(mainViewport);
-		// DrawASCIIViewport(mainViewport);
+		//DrawASCIIViewport(mainViewport);
 
 	}
 
@@ -299,6 +249,74 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 			viewport->AddScanlineToColorBuffer(i, height, drawStart, drawEnd, color);
 		}
 	}
+}
+
+void Game::GetAsyncKeyboardInput(Player*& player, Camera*& camera, Map*& map)
+{
+	float moveSpeed = deltaTime * 5.0f; // Cells per second
+	float rotSpeed = deltaTime * 3.0f; // radians / second
+
+	float& plPosX = player->position.x;
+	float& plPosY = player->position.y;
+
+	float& plDirX = player->direction.x;
+	float& plDirY = player->direction.y;
+
+	// Keyboard Inputs
+	// Move Forward if not crash into wall
+	if (GetAsyncKeyState(VK_UP))
+	{
+		if (map->contents[int(plPosX + plDirX * moveSpeed)][int(plPosY)] == 0)
+		{
+			plPosX += plDirX * moveSpeed;
+		}
+		if (map->contents[int(plPosX)][int(plPosY + plDirY * moveSpeed)] == 0)
+		{
+			plPosY += plDirY * moveSpeed;
+		}
+	}
+	if (GetAsyncKeyState(VK_DOWN))
+	{
+		if (map->contents[int(plPosX - plDirX * moveSpeed)][int(plPosY)] == 0)
+		{
+			plPosX -= plDirX * moveSpeed;
+		}
+		if (map->contents[int(plPosX)][int(plPosY - plDirY * moveSpeed)] == 0)
+		{
+			plPosY -= plDirY * moveSpeed;
+		}
+	}
+	if (GetAsyncKeyState(VK_LEFT))
+	{
+		float oldDirX = plDirX;
+		float oldPLaneX = camera->size.x;
+
+		plDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
+		plDirY = oldDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
+
+		camera->size.x = camera->size.x * cos(-rotSpeed) - camera->size.y * sin(-rotSpeed);
+		camera->size.y = oldPLaneX * sin(-rotSpeed) + camera->size.y * cos(-rotSpeed);
+	}
+	if (GetAsyncKeyState(VK_RIGHT))
+	{
+		float oldDirX = plDirX;
+		float oldPLaneX = camera->size.x;
+
+		plDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
+		plDirY = oldDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
+
+		camera->size.x = camera->size.x * cos(rotSpeed) - camera->size.y * sin(rotSpeed);
+		camera->size.y = oldPLaneX * sin(rotSpeed) + camera->size.y * cos(rotSpeed);
+	}
+	if (GetAsyncKeyState(VK_ESCAPE))
+	{
+		gameIsRunning = false;
+		return;
+	}
+}
+
+void Game::CreateDefaultTextures(std::vector<Texture>& textureList, Vector2i textureSize)
+{
 }
 
 Color Game::GetColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
