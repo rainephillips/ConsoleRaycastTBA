@@ -51,7 +51,7 @@ int Game::Run()
 
 	SetConsoleBufferResolution(512, 512);
 	
-	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(256, 64));
+	Viewport* mainViewport = new Viewport(Vector2i(10, 6), Vector2i(240, 64));
 
 	Player* player = new Player(Vector2(22.f, 11.f), Vector2(1.f, 0.f));
 
@@ -295,7 +295,7 @@ int Game::Run()
 			{
 			case 1:
 			{
-				color = (horizontalWall) ? Color(235, 64, 52) : Color(235, 64, 52);
+				color = (horizontalWall) ? Color(179, 39, 29) : Color(235, 64, 52);
 				break;
 			}
 			case 2:

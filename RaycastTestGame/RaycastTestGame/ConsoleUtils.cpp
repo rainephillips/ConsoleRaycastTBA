@@ -101,55 +101,75 @@ void SetCursorVis(bool visibility)
 
 void DrawColorViewport(Viewport* viewport)
 {
+	// Get the 2D Color Array Buffer for the viewport
 	Color* buffer = viewport->GetColorScreenBuffer();
+
+	// Create Color Variable to decide the color of each "pixel"
 	Color currentColor;
 
+	// Create Empty String
 	string outputString = "";
+
+	// Create References for cleaner programming
 	int& posX = viewport->position.x;
 	int& posY = viewport->position.y;
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
 	
+	// For each row
 	for (int y = 0; y < height; y++)
 	{
+		// Reposition Cursor using ANSI escape
 		outputString += ("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
 
+		// For each column in row
 		for (int x = 0; x < width; x++)
 		{
+			// Get Color from y and x cord
 			currentColor = buffer[y * width + x];
+
+			// Set a blank ' ' (space) character with the background of the
+			// RGB Color value using ANSII Escape
 			outputString += ("\033[48;2;" 
 				+ currentColor.ToStringValue(currentColor.r) + ";"
 				+ currentColor.ToStringValue(currentColor.g) + ";"
 				+ currentColor.ToStringValue(currentColor.b) + "m ");
 		}
-		//outputString += "\n";
+
 	}
+	// Reset Color on Text
 	outputString += "\033[0m";
+
+	// Output to the console the final string with the total length of the string
 	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 }
 
 void DrawASCIIViewport(Viewport* viewport)
 {
+
+	// Create References for cleaner programming
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
 
+	// Get 2D char info array from viewport
 	CHAR_INFO* buffer = viewport->GetASCIIScreenBuffer();
 
-	COORD bufferSize = { width, height };
-	COORD bufferPos = { viewport->position.x, viewport->position.y };
-	SMALL_RECT bufferRect = { 
+	COORD bufferSize = { width, height }; // Set Scale of output  
+	COORD bufferPos = { viewport->position.x, viewport->position.y }; // Set Position of Output
+	SMALL_RECT bufferRect = {  // Set Rectangle Boundary of Output
 		viewport->position.x,
 		viewport->position.y,
 		viewport->position.x + width - 1,
 		viewport->position.y + height - 1};
 
+	// Ouput Data to Console
 	WriteConsoleOutputA(console, buffer, bufferSize, bufferPos, &bufferRect);
 
 }
 
 void ToggleANSI(bool enabled)
 {
-	DWORD consoleFlags = 0;
+	DWORD consoleFlags;
 	GetConsoleMode(console, &consoleFlags);
 	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0;
 
