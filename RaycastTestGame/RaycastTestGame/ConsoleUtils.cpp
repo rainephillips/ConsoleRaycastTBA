@@ -108,19 +108,25 @@ void DrawColorViewport(Viewport* viewport)
 	Color currentColor;
 
 	// Create Empty String
-	string outputString = "";
+	string outputString;
 
 	// Create References for cleaner programming
 	int& posX = viewport->position.x;
 	int& posY = viewport->position.y;
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
+
+	//Preallocate Estimated amount of memory for more performance to prevent creating multiple more arrays
+	// "\033[255;255;255m " has a total of 15 character but also have to make room for mouse repositioning
+	outputString.reserve(height * (width * 15 + 12));
+
+	
 	
 	// For each row
 	for (int y = 0; y < height; y++)
 	{
 		// Reposition Cursor using ANSI escape
-		outputString += ("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
+		outputString.append("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
 
 		// For each column in row
 		for (int x = 0; x < width; x++)
@@ -130,7 +136,7 @@ void DrawColorViewport(Viewport* viewport)
 
 			// Set a blank ' ' (space) character with the background of the
 			// RGB Color value using ANSII Escape
-			outputString += ("\033[48;2;" 
+			outputString.append("\033[48;2;"
 				+ currentColor.ToStringValue(currentColor.r) + ";"
 				+ currentColor.ToStringValue(currentColor.g) + ";"
 				+ currentColor.ToStringValue(currentColor.b) + "m ");
@@ -138,10 +144,13 @@ void DrawColorViewport(Viewport* viewport)
 
 	}
 	// Reset Color on Text
-	outputString += "\033[0m";
+	outputString.append("\033[0m");
+
+	//Get final output without any overhead data
+	string finalOutput = outputString.c_str();
 
 	// Output to the console the final string with the total length of the string
-	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
+	WriteConsoleA(console, finalOutput.c_str(), outputString.size(), NULL, NULL);
 }
 
 void DrawASCIIViewport(Viewport* viewport)
