@@ -23,30 +23,30 @@ int Game::Run()
 {
 	int tempMap[24][24] =
 	{
-	  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-	  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+	  {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
+	  {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+	  {4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+	  {4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+	  {4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+	  {4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
+	  {4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
+	  {4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+	  {4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
+	  {4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+	  {4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
+	  {4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
+	  {6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+	  {8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
+	  {6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+	  {4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
+	  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+	  {4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
+	  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+	  {4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
+	  {4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+	  {4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
+	  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+	  {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
 	};
 
 	Map* map = new Map(24, 24);
@@ -56,7 +56,7 @@ int Game::Run()
 	
 	Viewport* mainViewport = new Viewport(Vector2i(10, 6), Vector2i(240, 64));
 
-	Player* player = new Player(Vector2(22.f, 11.f), Vector2(1.f, 0.f));
+	Player* player = new Player(Vector2(6.f, 7.f), Vector2(1.f, 0.f));
 
 	Camera* mainCam = new Camera();
 
@@ -65,7 +65,7 @@ int Game::Run()
 	vector<Texture*> textureList;
 	textureList.reserve(8);
 
-	CreateDefaultTextures(textureList, Vector2i(32, 32));
+	CreateDefaultTextures(textureList, Vector2i(64, 64));
 
 	int& width = mainViewport->size.x;
 	int& height = mainViewport->size.y;
@@ -73,6 +73,14 @@ int Game::Run()
 	SetCursorVis(false);
 
 	ToggleANSI(true);
+
+	/*Viewport* testViewport = new Viewport();
+
+	testViewport->SetColorBuffer(textureList[0]->GetSize(), textureList[1]->GetTexture());
+
+	DrawColorViewport(testViewport);
+
+	delete testViewport;*/
 
 	while (gameIsRunning)
 	{
@@ -93,7 +101,7 @@ int Game::Run()
 
 	for (Texture* texture : textureList)
 	{
-		delete[] texture;
+		delete texture;
 	}
 
 	delete player;
@@ -257,7 +265,7 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 			// horizontal but its the x cord of the texture
 			if (horizontalWall)
 			{
-				wallX = plPosY + perpWallDist * rayDir.y;
+				wallX = plPosX + perpWallDist * rayDir.x;
 			}
 			else
 			{
@@ -268,8 +276,17 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 			Vector2i texSize = textures[texNum]->GetSize();
 
 			// Get X Coordinate on the texture
-			int texPosX = int(wallX * (float)texSize.x);
 
+			// Flip Texture Accordingly Depending on if on NSEW Wall
+			int texPosX = int(wallX * (float)texSize.x);
+			if (horizontalWall == 0 && rayDir.x > 0)
+			{
+				texPosX = texSize.x - texPosX - 1;
+			}
+			if (horizontalWall == 1 && rayDir.y < 0)
+			{
+				texPosX = texSize.x - texPosX - 1;
+			}
 			// X coordinate stays the same for each cast but y has to be calculated for each
 
 			// How much to increase the texture coordinate per pixel
@@ -283,17 +300,18 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 			for (int y = 0; y < height; y++)
 			{
 				
-				if (y >= drawStart && y <= drawEnd)
+				if (y > drawStart && y <= drawEnd)
 				{
 					// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
 					int texY = (int)texPosY & (texSize.y - 1);
-					texPosY += step;
+					
 
 					color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
+					texPosY += step;
 				}
 				else
 				{
-					color = Color(0);
+					color = (y <= drawStart) ? Color(60, 73, 82) : Color(112, 86, 47);
 				}
 				
 				viewport->AddColorToBuffer(x, y, color);
@@ -382,20 +400,20 @@ void Game::CreateDefaultTextures(std::vector<Texture*>& textureList, Vector2i te
 	}
 	for (int x = 0; x < textureSize.x; x++)
 	{
-		for (int y = 0; x < textureSize.x; x++)
+		for (int y = 0; y < textureSize.y; y++)
 		{
 			int xColor = (x * 256 / textureSize.x);
 			int yColor = (y * 256 / textureSize.y);
 
 			int xyColor = (y * 128 / textureSize.y + x * 128 / textureSize.x);
 			int xorColor = xColor ^ yColor;
-			textureList[0]->SetTextureColor(x, y, Color( 16646144 * (x != y && x != textureSize.x - y) ) ); // flat red texture w/ black cross
+			textureList[0]->SetTextureColor(x, y, Color( 255 * (x != y && x != textureSize.x - y) ) ); // flat red texture w/ black cross
 			textureList[1]->SetTextureColor(x, y, Color( xyColor + 245 * xyColor + 65536 * xyColor )); // sloped greyscale
 			textureList[2]->SetTextureColor(x, y, Color( 256 * xyColor + 65536 * xyColor)); // sloped yellow gradient
 			textureList[3]->SetTextureColor(x, y, Color( xorColor + 256 * xorColor + 65536 * xorColor )); // xor greyscale
 			textureList[4]->SetTextureColor(x, y, Color( 256 * xorColor) ); // xor green
-			textureList[5]->SetTextureColor(x, y, Color( 65536 * 192 * (x % 16 && y % 16) ) ); // red bricks
-			textureList[6]->SetTextureColor(x, y, Color( 65536 * yColor) ); // red gradient
+			textureList[5]->SetTextureColor(x, y, Color( 255 * (x % 16 && y % 16) ) ); // red bricks
+			textureList[6]->SetTextureColor(x, y, Color( 255 * yColor) ); // red gradient
 			textureList[7]->SetTextureColor(x, y, Color( 8421504 )); // flat gray texture
 		}
 	}
