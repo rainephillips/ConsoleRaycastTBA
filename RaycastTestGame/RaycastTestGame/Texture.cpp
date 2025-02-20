@@ -39,6 +39,31 @@ void Texture::SetTexture(Color* image, Vector2i size)
 	}
 }
 
+void Texture::CreateNewTexture(Vector2i size)
+{
+	delete[] m_textureData;
+
+	if (m_textureData != nullptr)
+	{
+		m_textureData = new Color[size.x * size.y];
+		m_size = size;
+	}
+	else
+	{
+		m_textureData = errorTexture;
+		m_size = Vector2i(2, 2);
+	}
+}
+
+void Texture::SetTextureColor(int x, int y, Color color)
+{
+	// Check if cords are not out of texture size
+	if (x < m_size.x && y < m_size.y)
+	{
+		m_textureData[y * m_size.x + x] = color;
+	}
+}
+
 Color* Texture::GetTexture()
 {
 	return m_textureData;

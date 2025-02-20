@@ -13,6 +13,8 @@ public:
 
 public:
 	void SetTexture(Color* image, Vector2i size);
+	void CreateNewTexture(Vector2i size);
+	void SetTextureColor(int x, int y, Color color);
 	Color* GetTexture();
 	Vector2i GetSize();
 
