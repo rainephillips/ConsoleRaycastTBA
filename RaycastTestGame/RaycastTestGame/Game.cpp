@@ -84,7 +84,7 @@ int Game::Run()
 		
 		GetAsyncKeyboardInput(player, mainCam, map);
 
-		Raycast(mainViewport, player, mainCam, map, false);
+		Raycast(mainViewport, player, mainCam, map, textureList, false);
 
 		DrawColorViewport(mainViewport);
 		//DrawASCIIViewport(mainViewport);
@@ -104,7 +104,7 @@ int Game::Run()
 	return EXIT_SUCCESS;
 }
 
-void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, bool useASCII)
+void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures,bool useASCII)
 {
 	// Define References for easier code readability
 
@@ -119,10 +119,10 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 
 	// Raycasting Loop
 
-	for (int i = 0; i < width; i++)
+	for (int x = 0; x < width; x++)
 	{
 		//  Right of Screen = 1, Left of Screen = - 1
-		float cameraX = 2 * i / (float)width - 1.f; // Camera X Position
+		float cameraX = 2 * x / (float)width - 1.f; // Camera X Position
 
 		// Set the direction of the ray to the players direction + the x axis of the camera
 		Vector2 rayDir = Vector2
@@ -245,15 +245,65 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 			char pixel = viewport->GetCharFromDepth(float((lineHeight >= height) ? height : lineHeight) / float(height));
 
 			//Add Line to Buffer
-			viewport->AddScanlineToBuffer(i, height, drawStart, drawEnd, pixel, color, 0);
+			viewport->AddScanlineToBuffer(x, height, drawStart, drawEnd, pixel, color, 0);
 		}
 		else
 		{
-			// Get Wall Color
-			Color color = GetColorFromRaycast(mapPos.x, mapPos.y, map, horizontalWall);
+			// Allows texture 0 to be used
+			int texNum = map->contents[mapPos.x][mapPos.y] - 1;
 
-			// Add Color to buffer
-			viewport->AddScanlineToColorBuffer(i, height, drawStart, drawEnd, color);
+			// Calculate exact part of the wall hit instead of just cell
+			float wallX; // Technically its the y cord of the wall if its 
+			// horizontal but its the x cord of the texture
+			if (horizontalWall)
+			{
+				wallX = plPosY + perpWallDist * rayDir.y;
+			}
+			else
+			{
+				wallX = plPosY + perpWallDist * rayDir.y;
+			}
+			wallX -= floor(wallX); // % of the x coordinate if start = 0 and end = 1
+
+			Vector2i texSize = textures[texNum]->GetSize();
+
+			// Get X Coordinate on the texture
+			int texPosX = int(wallX * (float)texSize.x);
+
+			// X coordinate stays the same for each cast but y has to be calculated for each
+
+			// How much to increase the texture coordinate per pixel
+			float step = 1.f * texSize.y / lineHeight;
+
+			// Starting texture coordinate
+			float texPosY = (drawStart - (height / 2.f) + (lineHeight / 2)) * step;
+
+			// Repeat for each character in the raycast
+			Color color;
+			for (int y = 0; y < height; y++)
+			{
+				
+				if (y >= drawStart && y <= drawEnd)
+				{
+					// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
+					int texY = (int)texPosY & (texSize.y - 1);
+					texPosY += step;
+
+					color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
+				}
+				else
+				{
+					color = Color(0);
+				}
+				
+				viewport->AddColorToBuffer(x, y, color);
+			}
+
+			//// Get Wall Color
+			//Color color = GetColorFromRaycast(mapPos.x, mapPos.y, map, horizontalWall);
+
+			//// Add Color to buffer
+			//viewport->AddScanlineToColorBuffer(i, height, drawStart, drawEnd, color);
 		}
 	}
 }

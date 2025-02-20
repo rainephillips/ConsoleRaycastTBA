@@ -18,6 +18,7 @@ public:
 	Color* GetNewErrorTexture();
 
 	Color* GetTexture();
+	Color GetColorFromLocation(int x, int y);
 	Vector2i GetSize();
 
 protected:

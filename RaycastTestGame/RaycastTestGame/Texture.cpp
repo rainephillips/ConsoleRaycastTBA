@@ -81,6 +81,16 @@ Color* Texture::GetTexture()
 	return m_textureData;
 }
 
+Color Texture::GetColorFromLocation(int x, int y)
+{
+	if (x < m_size.x && y < m_size.y)
+	{
+		return m_textureData[y * m_size.x + x];
+	}
+
+	return Color(255, 0, 255);
+}
+
 Vector2i Texture::GetSize()
 {
 	return m_size;
