@@ -12,6 +12,7 @@ struct Color
 {
 public:
 	Color();
+	Color(unsigned int color);
 	Color(byte r, byte g, byte b);
 
 public:
@@ -29,6 +30,7 @@ struct ColorA
 {
 public:
 	ColorA();
+	ColorA(unsigned int color);
 	ColorA(byte r, byte g, byte b, byte a);
 
 public:

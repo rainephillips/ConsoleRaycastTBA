@@ -1,11 +1,9 @@
 #include "Texture.h"
 
-Color errorTexture[] = { Color(255,0,255), Color(0,0,0),
-					Color(255,0,255), Color(0,0,0) };
-
 Texture::Texture()
-	: m_textureData{ errorTexture }, m_size{ Vector2i( 2, 2 ) }
+	: m_size{ Vector2i( 2, 2 ) }
 {
+	m_textureData = GetNewErrorTexture();
 }
 
 Texture::Texture(Color* image, Vector2i size)
@@ -20,38 +18,39 @@ Texture::Texture(Color* image, int sizeX, int sizeY)
 
 Texture::~Texture()
 {
-	delete[] m_textureData;
+	if (m_textureData != nullptr)
+	{
+		delete[] m_textureData;
+	}
 }
 
 void Texture::SetTexture(Color* image, Vector2i size)
 {
-	delete[] m_textureData;
-
 	if (m_textureData != nullptr)
 	{
+		delete[] m_textureData;
 		m_textureData = image;
 		m_size = size;
 	}
 	else
 	{
-		m_textureData = errorTexture;
 		m_size = Vector2i(2, 2);
+		m_textureData = GetNewErrorTexture();
 	}
 }
 
 void Texture::CreateNewTexture(Vector2i size)
 {
-	delete[] m_textureData;
-
 	if (m_textureData != nullptr)
 	{
+		delete[] m_textureData;
 		m_textureData = new Color[size.x * size.y];
 		m_size = size;
 	}
 	else
 	{
-		m_textureData = errorTexture;
 		m_size = Vector2i(2, 2);
+		m_textureData = GetNewErrorTexture();
 	}
 }
 
@@ -62,6 +61,19 @@ void Texture::SetTextureColor(int x, int y, Color color)
 	{
 		m_textureData[y * m_size.x + x] = color;
 	}
+}
+
+Color* Texture::GetNewErrorTexture()
+{
+	Color* textureData = new Color[4]
+	{ 
+	Color(255,0,255), 
+	Color(0,0,0),
+	Color(255,0,255),
+	Color(0,0,0) 
+	};
+
+	return textureData;
 }
 
 Color* Texture::GetTexture()

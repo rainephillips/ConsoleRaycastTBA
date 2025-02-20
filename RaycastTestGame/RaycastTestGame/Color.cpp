@@ -5,6 +5,14 @@ Color::Color()
 {
 }
 
+Color::Color(unsigned int color)
+{
+	char* byte = reinterpret_cast<char*>(&color);
+	r = byte[0];
+	g = byte[1];
+	b = byte[2];
+}
+
 Color::Color(byte r, byte g, byte b)
 	: r{ r }, g{ g }, b{ b }
 {
@@ -24,6 +32,15 @@ ColorA Color::RGBToRGBA(Color& color)
 ColorA::ColorA()
 	:r{ 0 }, g{ 0 }, b{ 0 }, a{ 0 }
 {
+}
+
+ColorA::ColorA(unsigned int color)
+{
+	char* byte = reinterpret_cast<char*>(&color);
+	r = byte[0];
+	g = byte[1];
+	b = byte[2];
+	a = byte[3];
 }
 
 ColorA::ColorA(byte r, byte g, byte b, byte a)

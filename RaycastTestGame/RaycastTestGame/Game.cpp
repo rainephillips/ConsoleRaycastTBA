@@ -62,8 +62,10 @@ int Game::Run()
 
 	Vector2i defaultTextureSize = Vector2i(64, 64);
 
-	vector<Texture> textureList;
+	vector<Texture*> textureList;
 	textureList.reserve(8);
+
+	CreateDefaultTextures(textureList, Vector2i(32, 32));
 
 	int& width = mainViewport->size.x;
 	int& height = mainViewport->size.y;
@@ -87,6 +89,11 @@ int Game::Run()
 		DrawColorViewport(mainViewport);
 		//DrawASCIIViewport(mainViewport);
 
+	}
+
+	for (Texture* texture : textureList)
+	{
+		delete[] texture;
 	}
 
 	delete player;
@@ -315,8 +322,33 @@ void Game::GetAsyncKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	}
 }
 
-void Game::CreateDefaultTextures(std::vector<Texture>& textureList, Vector2i textureSize)
+void Game::CreateDefaultTextures(std::vector<Texture*>& textureList, Vector2i textureSize)
 {
+	for (int i = 0; i < 8; i++)
+	{
+		Texture* texture = new Texture();
+		texture->CreateNewTexture(textureSize);
+		textureList.emplace_back(texture);
+	}
+	for (int x = 0; x < textureSize.x; x++)
+	{
+		for (int y = 0; x < textureSize.x; x++)
+		{
+			int xColor = (x * 256 / textureSize.x);
+			int yColor = (y * 256 / textureSize.y);
+
+			int xyColor = (y * 128 / textureSize.y + x * 128 / textureSize.x);
+			int xorColor = xColor ^ yColor;
+			textureList[0]->SetTextureColor(x, y, Color( 16646144 * (x != y && x != textureSize.x - y) ) ); // flat red texture w/ black cross
+			textureList[1]->SetTextureColor(x, y, Color( xyColor + 245 * xyColor + 65536 * xyColor )); // sloped greyscale
+			textureList[2]->SetTextureColor(x, y, Color( 256 * xyColor + 65536 * xyColor)); // sloped yellow gradient
+			textureList[3]->SetTextureColor(x, y, Color( xorColor + 256 * xorColor + 65536 * xorColor )); // xor greyscale
+			textureList[4]->SetTextureColor(x, y, Color( 256 * xorColor) ); // xor green
+			textureList[5]->SetTextureColor(x, y, Color( 65536 * 192 * (x % 16 && y % 16) ) ); // red bricks
+			textureList[6]->SetTextureColor(x, y, Color( 65536 * yColor) ); // red gradient
+			textureList[7]->SetTextureColor(x, y, Color( 8421504 )); // flat gray texture
+		}
+	}
 }
 
 Color Game::GetColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
