@@ -51,7 +51,7 @@ void Texture::SetTexture(const char* filepath)
 
 		Vector2i size = Vector2i();
 		int channelAmt;
-		unsigned char* imgData = stbi_load(filepath, &size.x, &size.y, &channelAmt, 3);
+		unsigned char* imgData = stbi_load(filepath, &size.x, &size.y, &channelAmt, 0);
 
 		if (imgData == nullptr)
 		{

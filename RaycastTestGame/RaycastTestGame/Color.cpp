@@ -53,6 +53,14 @@ string ColorA::ToStringValue(byte& colorValue)
 	return string(std::to_string(short(colorValue)));
 }
 
+string ColorA::ToANSIEscape()
+{
+	string returnString;
+	//returnString.reserve
+
+	return string();
+}
+
 Color ColorA::RGBAToRGB(ColorA& color)
 {
 	return Color(r, g, b);

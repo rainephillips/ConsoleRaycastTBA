@@ -119,7 +119,6 @@ void DrawColorViewport(Viewport* viewport)
 	//Preallocate Estimated amount of memory for more performance to prevent creating multiple more arrays
 	// "\033[255;255;255m " has a total of 15 character but also have to make room for mouse repositioning
 	outputString.reserve(height * (width * 15 + 12));
-
 	
 	
 	// For each row
@@ -137,9 +136,9 @@ void DrawColorViewport(Viewport* viewport)
 			// Set a blank ' ' (space) character with the background of the
 			// RGB Color value using ANSII Escape
 			outputString.append("\033[48;2;"
-				+ std::to_string(static_cast<short>(currentColor.r)) + ";"
-				+ std::to_string(static_cast<short>(currentColor.g)) + ";"
-				+ std::to_string(static_cast<short>(currentColor.b)) + "m ");
+				+ std::to_string((currentColor.r)) + ";"
+				+ std::to_string((currentColor.g)) + ";"
+				+ std::to_string((currentColor.b)) + "m ");
 		}
 
 	}
@@ -150,7 +149,7 @@ void DrawColorViewport(Viewport* viewport)
 	string finalOutput = outputString.c_str();
 
 	// Output to the console the final string with the total length of the string
-	WriteConsoleA(console, finalOutput.c_str(), outputString.size(), NULL, NULL);
+	WriteConsoleA(console, finalOutput.c_str(), finalOutput.size(), NULL, NULL);
 }
 
 void DrawASCIIViewport(Viewport* viewport)

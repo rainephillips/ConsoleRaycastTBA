@@ -35,6 +35,7 @@ public:
 
 public:
 	string ToStringValue(byte& colorValue);
+	string ToANSIEscape();
 	Color RGBAToRGB(ColorA& color);
 
 public:

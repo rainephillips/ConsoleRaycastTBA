@@ -52,9 +52,9 @@ int Game::Run()
 	Map* map = new Map(24, 24);
 	map->SetContents(tempMap, Vector2i(24, 24));
 
-	SetConsoleBufferResolution(2048, 512);
+	SetConsoleBufferResolution(2048, 2048);
 	
-	Viewport* mainViewport = new Viewport(Vector2i(10, 6), Vector2i(240, 64));
+	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(256, 64));
 
 	Player* player = new Player(Vector2(6.f, 7.f), Vector2(1.f, 0.f));
 
