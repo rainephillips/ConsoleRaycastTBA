@@ -67,6 +67,12 @@ int Game::Run()
 
 	CreateDefaultTextures(textureList, Vector2i(64, 64));
 
+	for (int i = 0; i < 8; i++)
+	{
+		textureList[i]->SetTexture("images\\akechi.jpeg");
+	}
+	
+
 	int& width = mainViewport->size.x;
 	int& height = mainViewport->size.y;
 
@@ -165,7 +171,7 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 		Vector2i step = Vector2i();
 
 		bool wallHit = false; // If wall was hit
-		bool horizontalWall; // If a NS or EW wall was hit
+		bool isHorizontalWall; // If a NS or EW wall was hit
 
 		// Calculate step and initial sideDist
 		if (rayDir.x < 0)
@@ -197,13 +203,13 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 			{
 				sideDist.x += deltaDist.x;
 				mapPos.x += step.x;
-				horizontalWall = false;
+				isHorizontalWall = false;
 			}
 			else
 			{
 				sideDist.y += deltaDist.y;
 				mapPos.y += step.y;
-				horizontalWall = true;
+				isHorizontalWall = true;
 			}
 
 			// Check if ray has hit a wall
@@ -214,7 +220,7 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 		}
 
 		// Calculate distance of wall projected on camera direction (Direct distance to player would cause fisheye effect)
-		if (!horizontalWall)
+		if (!isHorizontalWall)
 		{
 			perpWallDist = (sideDist.x - deltaDist.x);
 		}
@@ -247,7 +253,7 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 		if (useASCII)
 		{
 			// Choose Wall Color
-			unsigned char color = GetASCIIColorFromRaycast(mapPos.x, mapPos.y, map, horizontalWall);
+			unsigned char color = GetASCIIColorFromRaycast(mapPos.x, mapPos.y, map, isHorizontalWall);
 
 			// Get Character
 			char pixel = viewport->GetCharFromDepth(float((lineHeight >= height) ? height : lineHeight) / float(height));
@@ -263,7 +269,7 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 			// Calculate exact part of the wall hit instead of just cell
 			float wallX; // Technically its the y cord of the wall if its 
 			// horizontal but its the x cord of the texture
-			if (horizontalWall)
+			if (isHorizontalWall)
 			{
 				wallX = plPosX + perpWallDist * rayDir.x;
 			}
@@ -279,11 +285,11 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 
 			// Flip Texture Accordingly Depending on if on NSEW Wall
 			int texPosX = int(wallX * (float)texSize.x);
-			if (horizontalWall == 0 && rayDir.x > 0)
+			if (isHorizontalWall == 0 && rayDir.x < 0)
 			{
 				texPosX = texSize.x - texPosX - 1;
 			}
-			if (horizontalWall == 1 && rayDir.y < 0)
+			if (isHorizontalWall == 1 && rayDir.y > 0)
 			{
 				texPosX = texSize.x - texPosX - 1;
 			}
@@ -318,7 +324,7 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 			}
 
 			//// Get Wall Color
-			//Color color = GetColorFromRaycast(mapPos.x, mapPos.y, map, horizontalWall);
+			//Color color = GetColorFromRaycast(mapPos.x, mapPos.y, map, isHorizontalWall);
 
 			//// Add Color to buffer
 			//viewport->AddScanlineToColorBuffer(i, height, drawStart, drawEnd, color);

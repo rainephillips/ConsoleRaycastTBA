@@ -13,6 +13,7 @@ public:
 
 public:
 	void SetTexture(Color* image, Vector2i size);
+	void SetTexture(const char* filepath);
 	void CreateNewTexture(Vector2i size);
 	void SetTextureColor(int x, int y, Color color);
 	Color* GetNewErrorTexture();

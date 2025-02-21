@@ -1,5 +1,8 @@
 #include "Texture.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 Texture::Texture()
 	: m_size{ Vector2i( 2, 2 ) }
 {
@@ -39,6 +42,75 @@ void Texture::SetTexture(Color* image, Vector2i size)
 	}
 }
 
+void Texture::SetTexture(const char* filepath)
+{
+
+	if (m_textureData != nullptr)
+	{
+		delete[] m_textureData;
+
+		Vector2i size = Vector2i();
+		int channelAmt;
+		unsigned char* imgData = stbi_load(filepath, &size.x, &size.y, &channelAmt, 3);
+
+		if (imgData == nullptr)
+		{
+			m_size = Vector2i(2, 2);
+			m_textureData = GetNewErrorTexture();
+		}
+		else
+		{
+
+			// Create new data for texture
+			m_size = size;
+			m_textureData = new Color[size.x * size.y];
+
+
+			for (int x = 0; x < m_size.x; x++)
+			{
+				for (int y = 0; y < m_size.y; y++)
+				{
+					Color color;
+					for (int c = 0; c < channelAmt; c++)
+					{
+						switch (c)
+						{
+						case 0:
+						{
+							color.r = imgData[(y * size.x + x) * channelAmt + c];
+							break;
+						}
+						case 1:
+						{
+							color.g = imgData[(y * size.x + x) * channelAmt + c];
+							break;
+						}
+						case 2:
+						{
+							color.b = imgData[(y * size.x + x) * channelAmt + c];
+							break;
+						}
+						default:
+						{
+							break;
+						}
+						}
+					}
+					m_textureData[y * m_size.x + x] = color;
+				}
+			}
+		}
+		stbi_image_free(imgData);
+	}
+	else
+	{
+		m_size = Vector2i(2, 2);
+		m_textureData = GetNewErrorTexture();
+	}
+
+	
+}
+
 void Texture::CreateNewTexture(Vector2i size)
 {
 	if (m_textureData != nullptr)
@@ -69,8 +141,8 @@ Color* Texture::GetNewErrorTexture()
 	{ 
 	Color(255,0,255), 
 	Color(0,0,0),
-	Color(255,0,255),
-	Color(0,0,0) 
+	Color(0,0,0),
+	Color(255,0,255)
 	};
 
 	return textureData;
