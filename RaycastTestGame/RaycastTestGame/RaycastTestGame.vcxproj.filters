@@ -86,5 +86,8 @@
     <ClInclude Include="Texture.h">
       <Filter>Header Files\DataTypes</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

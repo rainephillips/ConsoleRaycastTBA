@@ -23,40 +23,40 @@ int Game::Run()
 {
 	int tempMap[24][24] =
 	{
-	  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-	  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+	  {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
+	  {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+	  {4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+	  {4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+	  {4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+	  {4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
+	  {4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
+	  {4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+	  {4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
+	  {4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+	  {4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
+	  {4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
+	  {6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+	  {8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
+	  {6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+	  {4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
+	  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+	  {4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
+	  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+	  {4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
+	  {4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+	  {4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
+	  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+	  {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
 	};
 
 	Map* map = new Map(24, 24);
 	map->SetContents(tempMap, Vector2i(24, 24));
 
-	SetConsoleBufferResolution(2048, 512);
+	SetConsoleBufferResolution(2048, 2048);
 	
-	Viewport* mainViewport = new Viewport(Vector2i(10, 6), Vector2i(240, 64));
+	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(256, 64));
 
-	Player* player = new Player(Vector2(22.f, 11.f), Vector2(1.f, 0.f));
+	Player* player = new Player(Vector2(6.f, 7.f), Vector2(1.f, 0.f));
 
 	Camera* mainCam = new Camera();
 
@@ -65,7 +65,13 @@ int Game::Run()
 	vector<Texture*> textureList;
 	textureList.reserve(8);
 
-	CreateDefaultTextures(textureList, Vector2i(32, 32));
+	CreateDefaultTextures(textureList, Vector2i(64, 64));
+
+	for (int i = 0; i < 8; i++)
+	{
+		textureList[i]->SetTexture("images\\akechi.jpeg");
+	}
+	
 
 	int& width = mainViewport->size.x;
 	int& height = mainViewport->size.y;
@@ -73,6 +79,14 @@ int Game::Run()
 	SetCursorVis(false);
 
 	ToggleANSI(true);
+
+	/*Viewport* testViewport = new Viewport();
+
+	testViewport->SetColorBuffer(textureList[0]->GetSize(), textureList[1]->GetTexture());
+
+	DrawColorViewport(testViewport);
+
+	delete testViewport;*/
 
 	while (gameIsRunning)
 	{
@@ -84,16 +98,18 @@ int Game::Run()
 		
 		GetAsyncKeyboardInput(player, mainCam, map);
 
-		Raycast(mainViewport, player, mainCam, map, false);
+		Raycast(mainViewport, player, mainCam, map, textureList, false);
 
-		DrawColorViewport(mainViewport);
 		//DrawASCIIViewport(mainViewport);
+		DrawColorViewport(mainViewport);
+
+		std::cout << "FPS: " << fps;
 
 	}
 
 	for (Texture* texture : textureList)
 	{
-		delete[] texture;
+		delete texture;
 	}
 
 	delete player;
@@ -104,7 +120,7 @@ int Game::Run()
 	return EXIT_SUCCESS;
 }
 
-void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, bool useASCII)
+void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures,bool useASCII)
 {
 	// Define References for easier code readability
 
@@ -119,10 +135,10 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 
 	// Raycasting Loop
 
-	for (int i = 0; i < width; i++)
+	for (int x = 0; x < width; x++)
 	{
 		//  Right of Screen = 1, Left of Screen = - 1
-		float cameraX = 2 * i / (float)width - 1.f; // Camera X Position
+		float cameraX = 2 * x / (float)width - 1.f; // Camera X Position
 
 		// Set the direction of the ray to the players direction + the x axis of the camera
 		Vector2 rayDir = Vector2
@@ -157,7 +173,7 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 		Vector2i step = Vector2i();
 
 		bool wallHit = false; // If wall was hit
-		bool horizontalWall; // If a NS or EW wall was hit
+		bool isHorizontalWall; // If a NS or EW wall was hit
 
 		// Calculate step and initial sideDist
 		if (rayDir.x < 0)
@@ -189,13 +205,13 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 			{
 				sideDist.x += deltaDist.x;
 				mapPos.x += step.x;
-				horizontalWall = false;
+				isHorizontalWall = false;
 			}
 			else
 			{
 				sideDist.y += deltaDist.y;
 				mapPos.y += step.y;
-				horizontalWall = true;
+				isHorizontalWall = true;
 			}
 
 			// Check if ray has hit a wall
@@ -206,7 +222,7 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 		}
 
 		// Calculate distance of wall projected on camera direction (Direct distance to player would cause fisheye effect)
-		if (!horizontalWall)
+		if (!isHorizontalWall)
 		{
 			perpWallDist = (sideDist.x - deltaDist.x);
 		}
@@ -239,21 +255,81 @@ void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& 
 		if (useASCII)
 		{
 			// Choose Wall Color
-			unsigned char color = GetASCIIColorFromRaycast(mapPos.x, mapPos.y, map, horizontalWall);
+			unsigned char color = GetASCIIColorFromRaycast(mapPos.x, mapPos.y, map, isHorizontalWall);
 
 			// Get Character
 			char pixel = viewport->GetCharFromDepth(float((lineHeight >= height) ? height : lineHeight) / float(height));
 
 			//Add Line to Buffer
-			viewport->AddScanlineToBuffer(i, height, drawStart, drawEnd, pixel, color, 0);
+			viewport->AddScanlineToBuffer(x, height, drawStart, drawEnd, pixel, color, 0);
 		}
 		else
 		{
-			// Get Wall Color
-			Color color = GetColorFromRaycast(mapPos.x, mapPos.y, map, horizontalWall);
+			// Allows texture 0 to be used
+			int texNum = map->contents[mapPos.x][mapPos.y] - 1;
 
-			// Add Color to buffer
-			viewport->AddScanlineToColorBuffer(i, height, drawStart, drawEnd, color);
+			// Calculate exact part of the wall hit instead of just cell
+			float wallX; // Technically its the y cord of the wall if its 
+			// horizontal but its the x cord of the texture
+			if (isHorizontalWall)
+			{
+				wallX = plPosX + perpWallDist * rayDir.x;
+			}
+			else
+			{
+				wallX = plPosY + perpWallDist * rayDir.y;
+			}
+			wallX -= floor(wallX); // % of the x coordinate if start = 0 and end = 1
+
+			Vector2i texSize = textures[texNum]->GetSize();
+
+			// Get X Coordinate on the texture
+
+			// Flip Texture Accordingly Depending on if on NSEW Wall
+			int texPosX = int(wallX * (float)texSize.x);
+			if (isHorizontalWall == 0 && rayDir.x < 0)
+			{
+				texPosX = texSize.x - texPosX - 1;
+			}
+			if (isHorizontalWall == 1 && rayDir.y > 0)
+			{
+				texPosX = texSize.x - texPosX - 1;
+			}
+			// X coordinate stays the same for each cast but y has to be calculated for each
+
+			// How much to increase the texture coordinate per pixel
+			float step = 1.f * texSize.y / lineHeight;
+
+			// Starting texture coordinate
+			float texPosY = (drawStart - (height / 2.f) + (lineHeight / 2)) * step;
+
+			// Repeat for each character in the raycast
+			Color color;
+			for (int y = 0; y < height; y++)
+			{
+				
+				if (y > drawStart && y <= drawEnd)
+				{
+					// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
+					int texY = (int)texPosY & (texSize.y - 1);
+					
+
+					color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
+					texPosY += step;
+				}
+				else
+				{
+					color = (y <= drawStart) ? Color(60, 73, 82) : Color(112, 86, 47);
+				}
+				
+				viewport->AddColorToBuffer(x, y, color);
+			}
+
+			//// Get Wall Color
+			//Color color = GetColorFromRaycast(mapPos.x, mapPos.y, map, isHorizontalWall);
+
+			//// Add Color to buffer
+			//viewport->AddScanlineToColorBuffer(i, height, drawStart, drawEnd, color);
 		}
 	}
 }
@@ -332,20 +408,20 @@ void Game::CreateDefaultTextures(std::vector<Texture*>& textureList, Vector2i te
 	}
 	for (int x = 0; x < textureSize.x; x++)
 	{
-		for (int y = 0; x < textureSize.x; x++)
+		for (int y = 0; y < textureSize.y; y++)
 		{
 			int xColor = (x * 256 / textureSize.x);
 			int yColor = (y * 256 / textureSize.y);
 
 			int xyColor = (y * 128 / textureSize.y + x * 128 / textureSize.x);
 			int xorColor = xColor ^ yColor;
-			textureList[0]->SetTextureColor(x, y, Color( 16646144 * (x != y && x != textureSize.x - y) ) ); // flat red texture w/ black cross
+			textureList[0]->SetTextureColor(x, y, Color( 255 * (x != y && x != textureSize.x - y) ) ); // flat red texture w/ black cross
 			textureList[1]->SetTextureColor(x, y, Color( xyColor + 245 * xyColor + 65536 * xyColor )); // sloped greyscale
 			textureList[2]->SetTextureColor(x, y, Color( 256 * xyColor + 65536 * xyColor)); // sloped yellow gradient
 			textureList[3]->SetTextureColor(x, y, Color( xorColor + 256 * xorColor + 65536 * xorColor )); // xor greyscale
 			textureList[4]->SetTextureColor(x, y, Color( 256 * xorColor) ); // xor green
-			textureList[5]->SetTextureColor(x, y, Color( 65536 * 192 * (x % 16 && y % 16) ) ); // red bricks
-			textureList[6]->SetTextureColor(x, y, Color( 65536 * yColor) ); // red gradient
+			textureList[5]->SetTextureColor(x, y, Color( 255 * (x % 16 && y % 16) ) ); // red bricks
+			textureList[6]->SetTextureColor(x, y, Color( 255 * yColor) ); // red gradient
 			textureList[7]->SetTextureColor(x, y, Color( 8421504 )); // flat gray texture
 		}
 	}

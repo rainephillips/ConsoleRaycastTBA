@@ -1,5 +1,8 @@
 #include "Color.h"
 
+#include <format>
+#include <iostream>
+
 Color::Color()
 	: r{ 255 }, g{ 0 }, b{ 255 }
 {
@@ -27,6 +30,11 @@ string Color::ToStringValue(byte& colorValue)
 ColorA Color::RGBToRGBA(Color& color)
 {
 	return ColorA(r, g, b, 0);
+}
+
+string Color::ToANSIEscape()
+{
+	return std::format("\033[48;2;{};{};{}m ", r, g, b);
 }
 
 ColorA::ColorA()

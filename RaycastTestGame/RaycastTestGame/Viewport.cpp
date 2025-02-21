@@ -19,8 +19,14 @@ Viewport::Viewport(Vector2i position, Vector2i size)
 
 Viewport::~Viewport()
 {
-	delete[] m_screenBuffer;
-	delete[] m_colorScreenBuffer;
+	if (m_screenBuffer != nullptr)
+	{
+		delete[] m_screenBuffer;
+	}
+	if (m_colorScreenBuffer != nullptr)
+	{
+		delete[] m_colorScreenBuffer;
+	}
 }
 
 extern const char charByDepth[93] = { " `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@" };
@@ -75,6 +81,24 @@ void Viewport::AddScanlineToColorBuffer(int x, int height, int start, int end, C
 			AddColorToBuffer(x, i, color);
 		}
 
+	}
+}
+
+void Viewport::SetColorBuffer(Vector2i size, Color* buffer)
+{
+	if (m_colorScreenBuffer != nullptr)
+	{
+		delete[] m_colorScreenBuffer;
+		this->size = size;
+		m_colorScreenBuffer = new Color[size.x * size.y];
+
+		for (int x = 0; x < size.x; x++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				m_colorScreenBuffer[y * size.x + x] = buffer[y * size.x + x];
+			}
+		}
 	}
 }
 

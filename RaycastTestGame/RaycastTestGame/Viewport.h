@@ -39,6 +39,8 @@ public:
 	void AddColorToBuffer(int x, int y, Color color);
 	void AddScanlineToColorBuffer(int x, int height, int start, int end, Color color);
 
+	void SetColorBuffer(Vector2i size, Color* buffer);
+
 	char GetCharFromDepth(float depth);
 	CHAR_INFO* GetASCIIScreenBuffer();
 	Color* GetColorScreenBuffer();

@@ -18,6 +18,7 @@ public:
 public:
 	string ToStringValue(byte& colorValue);
 	ColorA RGBToRGBA(Color& color);
+	string ToANSIEscape();
 
 public:
 	byte r;
