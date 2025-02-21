@@ -1,6 +1,7 @@
 #include "ConsoleUtils.h"
 
 #include <string>
+#include <thread>
 
 #include "Windows.h"
 #include "Vector2.h"
@@ -135,21 +136,15 @@ void DrawColorViewport(Viewport* viewport)
 
 			// Set a blank ' ' (space) character with the background of the
 			// RGB Color value using ANSII Escape
-			outputString.append("\033[48;2;"
-				+ std::to_string((currentColor.r)) + ";"
-				+ std::to_string((currentColor.g)) + ";"
-				+ std::to_string((currentColor.b)) + "m ");
+			outputString.append(currentColor.ToANSIEscape());
 		}
 
 	}
 	// Reset Color on Text
 	outputString.append("\033[0m");
 
-	//Get final output without any overhead data
-	string finalOutput = outputString.c_str();
-
 	// Output to the console the final string with the total length of the string
-	WriteConsoleA(console, finalOutput.c_str(), finalOutput.size(), NULL, NULL);
+	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 }
 
 void DrawASCIIViewport(Viewport* viewport)

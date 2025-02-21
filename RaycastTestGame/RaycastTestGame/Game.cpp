@@ -100,8 +100,10 @@ int Game::Run()
 
 		Raycast(mainViewport, player, mainCam, map, textureList, false);
 
-		DrawColorViewport(mainViewport);
 		//DrawASCIIViewport(mainViewport);
+		DrawColorViewport(mainViewport);
+
+		std::cout << "FPS: " << fps;
 
 	}
 
