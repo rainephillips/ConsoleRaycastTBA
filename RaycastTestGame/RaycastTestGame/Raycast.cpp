@@ -195,6 +195,10 @@ void Raycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*&
 
 
 				color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
+				if (isHorizontalWall)
+				{
+					color /= 1.5f;
+				}
 				texPosY += step;
 			}
 			else

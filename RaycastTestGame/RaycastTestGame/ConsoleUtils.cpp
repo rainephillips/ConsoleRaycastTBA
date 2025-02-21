@@ -123,6 +123,7 @@ void DrawColorViewport(Viewport* viewport)
 	
 	
 	// For each row
+	// THIS PART IS DOOKIE SLOW
 	for (int y = 0; y < height; y++)
 	{
 		// Reposition Cursor using ANSI escape

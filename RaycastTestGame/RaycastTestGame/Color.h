@@ -20,6 +20,8 @@ public:
 	ColorA RGBToRGBA(Color& color);
 	string ToANSIEscape();
 
+	friend Color& operator/=(Color& color, float divisor);
+
 public:
 	byte r;
 	byte g;
