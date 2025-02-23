@@ -104,7 +104,7 @@ int Game::Run()
 		//DrawASCIIViewport(mainViewport);
 		DrawColorViewport(mainViewport);
 
-		std::cout << "FPS: " << fps;
+		std::cout << "FPS: " << fps << "    ";
 
 	}
 

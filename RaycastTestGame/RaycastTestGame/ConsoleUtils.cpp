@@ -162,7 +162,7 @@ void DrawColorViewport(Viewport* viewport)
 	
 	//CreateColorStringRange(viewport, buffer, 0, height, width, outputString);
 
-	int threadCount = 4;
+	int threadCount = 8;
 	vector<thread*> threadContainer;
 	threadContainer.reserve(threadCount);
 
@@ -198,6 +198,7 @@ void DrawColorViewport(Viewport* viewport)
 	outputString.append("\033[0m");
 
 	// Output to the console the final string with the total length of the string
+	outputString.append("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
 	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 }
 
