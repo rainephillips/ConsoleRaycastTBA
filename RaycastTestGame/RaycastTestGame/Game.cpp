@@ -70,7 +70,7 @@ int Game::Run()
 
 	for (int i = 0; i < 8; i++)
 	{
-		textureList[i]->SetTexture("images\\akechi.jpeg");
+		textureList[i]->SetTexture("images\\trollface.png");
 	}
 	
 

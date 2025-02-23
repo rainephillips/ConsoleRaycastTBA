@@ -2,6 +2,7 @@
 
 #include <string>
 #include <thread>
+#include <vector>
 
 #include "Windows.h"
 #include "Vector2.h"
@@ -9,6 +10,8 @@
 #include "Rectangle.h"
 
 using std::string;
+using std::vector;
+using std::thread;
 
 extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -17,7 +20,7 @@ extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 void DrawPoint(int x, int y, char character)
 {
 	COORD pos = { x, y };
-
+		
 	char charArray[2] = { character };
 
 	SetConsoleCursorPosition(console, pos);
@@ -150,8 +153,6 @@ void DrawColorViewport(Viewport* viewport)
 	string outputString;
 
 	// Create References for cleaner programming
-	int& posX = viewport->position.x;
-	int& posY = viewport->position.y;
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
 
@@ -159,26 +160,40 @@ void DrawColorViewport(Viewport* viewport)
 	// "\033[255;255;255m " has a total of 15 character but also have to make room for mouse repositioning
 	outputString.reserve(height * (width * 15 + 12));
 	
-	
-	// For each row
-	// THIS PART IS DOOKIE SLOW
-	for (int y = 0; y < height; y++)
+	//CreateColorStringRange(viewport, buffer, 0, height, width, outputString);
+
+	int threadCount = 4;
+	vector<thread*> threadContainer;
+	threadContainer.reserve(threadCount);
+
+	for (int i = 1; i <= threadCount; i++)
 	{
-		// Reposition Cursor using ANSI escape
-		outputString.append("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
-
-		// For each column in row
-		for (int x = 0; x < width; x++)
-		{
-			// Get Color from y and x cord
-			currentColor = buffer[y * width + x];
-
-			// Set a blank ' ' (space) character with the background of the
-			// RGB Color value using ANSII Escape
-			outputString.append(currentColor.ToANSIEscape());
-		}
-
+		threadContainer.emplace_back
+		(
+			new thread
+			(
+				CreateColorStringRange, // Function Pointer
+				// Parameters
+				viewport, 
+				buffer, 
+				(height / threadCount) * (i - 1), 
+				(height / threadCount) * i,
+				width, 
+				std::ref(outputString)
+			)
+		);
 	}
+
+	for (int i = 0; i < threadCount; i++)
+	{
+		threadContainer[i]->join();
+	}
+
+	for (int i = 0; i < threadCount; i++)
+	{
+		delete threadContainer[i];
+	}
+
 	// Reset Color on Text
 	outputString.append("\033[0m");
 
@@ -186,9 +201,37 @@ void DrawColorViewport(Viewport* viewport)
 	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 }
 
-void CreateColorString(Color* buffer, int yMin, int yMax, string& outputString)
+void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMax, int width, string& outputString)
 {
+	string tmpOutputString;
+	tmpOutputString.reserve(yMax * (width * 15 + 12));
 
+	// Create Color Variable to decide the color of each "pixel"
+	Color currentColor;
+
+	// Create References for cleaner programming
+	int& posX = viewport->position.x;
+	int& posY = viewport->position.y;
+
+	// For each row
+	// THIS PART IS DOOKIE SLOW
+	for (int y = yMin; y < yMax; y++)
+	{
+		// Reposition Cursor using ANSI escape
+		tmpOutputString.append("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
+
+		for (int x = 0; x < width; x++)
+		{
+			// Get Color from y and x cord
+			currentColor = buffer[y * width + x];
+
+			// Set a blank ' ' (space) character with the background of the
+			// RGB Color value using ANSII Escape
+			tmpOutputString.append(currentColor.ToANSIEscape());
+		}
+	}
+
+	outputString.append(tmpOutputString);
 }
 
 
