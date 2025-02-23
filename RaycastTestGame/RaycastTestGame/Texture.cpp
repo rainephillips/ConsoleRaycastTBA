@@ -19,6 +19,11 @@ Texture::Texture(Color* image, int sizeX, int sizeY)
 {
 }
 
+Texture::Texture(const char* filepath)
+{
+	SetTexture(filepath);
+}
+
 Texture::~Texture()
 {
 	if (m_textureData != nullptr)

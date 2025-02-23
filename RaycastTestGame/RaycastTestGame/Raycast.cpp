@@ -6,7 +6,103 @@
 #include "Texture.h";
 #include "Viewport.h";
 
-void Raycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII)
+void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures)
+{
+
+	float& plPosX = player->position.x;
+	float& plPosY = player->position.y;
+
+	float& camSizeX = camera->size.x;
+	float& camSizeY = camera->size.y;
+
+	float& plDirX = player->direction.x;
+	float& plDirY = player->direction.y;
+
+	int& width = viewport->size.x;
+	int& height = viewport->size.y;
+
+	// Ray direction for leftmost ray (x = 0) and righmost ( x = width)
+	Vector2 l_rayDir =
+	{
+		plDirX - camSizeX,
+		plDirY - camSizeY
+	};
+
+	Vector2 r_rayDir =
+	{
+		plDirX + camSizeX,
+		plDirY + camSizeY
+	};
+
+	// Current y position compared to the center of viewport (midpoint / horizon)
+	int p = y - height * 0.5;
+
+	// Z position of the camera (the centre of the screen)
+	float z = 0.5 * height;
+
+	// 0.0 - 1.0 ratio of the z position. 0.5 is the centre of the screen
+	float rowDist = z / p;
+
+	// calculate step vector we have to add for screen x pos (parallel to camera plane)
+	Vector2 floorStep =
+	{
+		rowDist * (r_rayDir.x - l_rayDir.x) / width,
+		rowDist * (r_rayDir.y - l_rayDir.y) / width,
+	};
+
+	// coordinates of the leftmost column (x = 0) on screen. Gets updated as we move right
+	Vector2 floorPos =
+	{
+		plPosX + rowDist * l_rayDir.x,
+		plPosY + rowDist * l_rayDir.y
+	};
+
+	for (int x = 0; x < width; x++)
+	{
+		// the map cell pos
+		Vector2i mapPos = { (int)floorPos.x, (int)floorPos.y };
+
+		Texture* floorTexture = textures[8];
+
+		Vector2i floorTextureSize = floorTexture->GetSize();
+
+		// Texture pos from fractional part
+		Vector2i floorTexturePos =
+		{
+			// (int)(texWidth * (floorX - cellX)) & (texWidth - 1)
+			((int)(floorTextureSize.x * (floorPos.x - mapPos.x))) & (floorTextureSize.x - 1),
+			((int)(floorTextureSize.y * (floorPos.y - mapPos.y))) & (floorTextureSize.y - 1)
+		};
+
+		Texture* ceilTexture = textures[8];
+
+		Vector2i ceilTextureSize = ceilTexture->GetSize();
+
+		Vector2i ceilTexturePos = {
+		((int)(ceilTextureSize.x * (floorPos.x - mapPos.x))) & (ceilTextureSize.x - 1),
+		((int)(ceilTextureSize.y * (floorPos.y - mapPos.y))) & (ceilTextureSize.y - 1)
+		};
+
+		// Update floor and ceiling positions
+		floorPos.x += floorStep.x;
+		floorPos.y += floorStep.y;
+
+
+		Color color;
+
+		// Drawing floor
+		Color floorColor = floorTexture->GetColorFromLocation(floorTexturePos.x, floorTexturePos.y);
+		floorColor /= 1.5f; // Dim the color
+		viewport->AddColorToBuffer(x, y, floorColor);
+		
+		// Drawing ceiling
+		Color ceilingColor = ceilTexture->GetColorFromLocation(ceilTexturePos.x, ceilTexturePos.y);
+		ceilingColor /= 1.5f; // Dim the color as before
+		viewport->AddColorToBuffer(x, height - y - 1, ceilingColor);
+	}
+}
+
+void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII)
 {
 	float& plPosX = player->position.x;
 	float& plPosY = player->position.y;
@@ -125,10 +221,10 @@ void Raycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*&
 	}
 
 	int drawEnd = lineHeight / 2 + height / 2;
-	if (drawEnd >= height)
+	if (drawEnd > height)
 	{
 		// Accounts for Screen starting at 0 and not 1
-		drawEnd = height - 1;
+		drawEnd = height;
 	}
 
 	// Checks whether using 24bit color or ASCII Renderer
@@ -185,26 +281,19 @@ void Raycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*&
 
 		// Repeat for each character in the raycast
 		Color color;
-		for (int y = 0; y < height; y++)
+		for (int y = drawStart; y < drawEnd; y++)
 		{
 
-			if (y > drawStart && y <= drawEnd)
-			{
-				// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
-				int texY = (int)texPosY & (texSize.y - 1);
+			// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
+			int texY = (int)texPosY & (texSize.y - 1);
 
 
-				color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
-				if (isHorizontalWall)
-				{
-					color /= 1.5f;
-				}
-				texPosY += step;
-			}
-			else
+			color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
+			if (isHorizontalWall)
 			{
-				color = (y <= drawStart) ? Color(60, 73, 82) : Color(112, 86, 47);
+				color /= 1.5f;
 			}
+			texPosY += step;
 
 			viewport->AddColorToBuffer(x, y, color);
 		}

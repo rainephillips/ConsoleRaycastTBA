@@ -171,8 +171,8 @@ void DrawColorViewport(Viewport* viewport)
 				CreateColorStringRange, // Function Pointer
 				// Parameters
 				viewport, 
-				buffer, 
-				(height / threadCount) * i, 
+				buffer,
+				(height / threadCount) * i,
 				(height / threadCount) * (i + 1),
 				width
 			)

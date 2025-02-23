@@ -10,7 +10,8 @@ class Texture;
 
 using std::vector;
 
+void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures);
 
-void Raycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII);
+void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII);
 
 unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal);

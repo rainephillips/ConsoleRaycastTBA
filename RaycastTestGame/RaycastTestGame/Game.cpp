@@ -55,7 +55,7 @@ int Game::Run()
 
 	SetConsoleBufferResolution(2048, 2048);
 	
-	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(256, 64));
+	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(256, 128));
 
 	Player* player = new Player(Vector2(6.f, 7.f), Vector2(1.f, 0.f));
 
@@ -64,7 +64,7 @@ int Game::Run()
 	Vector2i defaultTextureSize = Vector2i(64, 64);
 
 	vector<Texture*> textureList;
-	textureList.reserve(8);
+	textureList.reserve(9);
 
 	CreateDefaultTextures(textureList, Vector2i(64, 64));
 
@@ -72,6 +72,9 @@ int Game::Run()
 	{
 		textureList[i]->SetTexture("images\\adachitrue.jpeg");
 	}
+
+	textureList.emplace_back(new Texture());
+	textureList[8]->SetTexture("images\\adachifalse.jpeg");
 	
 
 	int& width = mainViewport->size.x;
@@ -127,9 +130,14 @@ void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*
 
 	// Raycasting Loop
 
+	for (int y = 0; y < viewport->size.y; y++)
+	{
+		FloorRaycast(y, viewport, player, camera, map, textures);
+	}
+
 	for (int x = 0; x < viewport->size.x; x++)
 	{
-		Raycast(x, viewport, player, camera, map, textures, useASCII);
+		WallRaycast(x, viewport, player, camera, map, textures, useASCII);
 	}
 }
 
