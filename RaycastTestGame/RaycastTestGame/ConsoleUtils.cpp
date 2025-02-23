@@ -153,20 +153,16 @@ void DrawColorViewport(Viewport* viewport)
 	string outputString;
 
 	// Create References for cleaner programming
+	int& posX = viewport->position.x;
+	int& posY = viewport->position.y;
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
 
-	//Preallocate Estimated amount of memory for more performance to prevent creating multiple more arrays
-	// "\033[255;255;255m " has a total of 15 character but also have to make room for mouse repositioning
-	outputString.reserve(height * (width * 15 + 12));
-	
-	//CreateColorStringRange(viewport, buffer, 0, height, width, outputString);
-
-	int threadCount = 8;
+	int threadCount = 4;
 	vector<thread*> threadContainer;
 	threadContainer.reserve(threadCount);
 
-	for (int i = 1; i <= threadCount; i++)
+	for (int i = 0; i < threadCount; i++)
 	{
 		threadContainer.emplace_back
 		(
@@ -176,10 +172,9 @@ void DrawColorViewport(Viewport* viewport)
 				// Parameters
 				viewport, 
 				buffer, 
-				(height / threadCount) * (i - 1), 
-				(height / threadCount) * i,
-				width, 
-				std::ref(outputString)
+				(height / threadCount) * i, 
+				(height / threadCount) * (i + 1),
+				width
 			)
 		);
 	}
@@ -194,18 +189,15 @@ void DrawColorViewport(Viewport* viewport)
 		delete threadContainer[i];
 	}
 
-	// Reset Color on Text
-	outputString.append("\033[0m");
+	string reposCursorString = ("\033[" + std::to_string(height + posY) + ";0H");
+	WriteConsoleA(console, reposCursorString.c_str(), reposCursorString.size(), NULL, NULL);
 
-	// Output to the console the final string with the total length of the string
-	outputString.append("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
-	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 }
 
-void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMax, int width, string& outputString)
+void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMax, int width)
 {
 	string tmpOutputString;
-	tmpOutputString.reserve(yMax * (width * 15 + 12));
+	tmpOutputString.reserve(yMax * (width * 15 + 13));
 
 	// Create Color Variable to decide the color of each "pixel"
 	Color currentColor;
@@ -232,7 +224,9 @@ void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMa
 		}
 	}
 
-	outputString.append(tmpOutputString);
+	tmpOutputString.append("\033[0m");
+	//outputString.append(tmpOutputString);
+	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
 }
 
 
