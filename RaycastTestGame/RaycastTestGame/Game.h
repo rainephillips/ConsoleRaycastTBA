@@ -21,12 +21,9 @@ public:
 	float deltaTime;
 
 private:
-	void Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII);
+	void Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII);
 	void GetAsyncKeyboardInput(Player*& player, Camera*& camera, Map*& map);
 	void CreateDefaultTextures(vector<Texture*>& textureList, Vector2i textureSize);
-
-	Color GetColorFromRaycast(int x, int y, Map*& map, bool isHorizontal);
-	unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal);
 
 private:
 	float m_time;

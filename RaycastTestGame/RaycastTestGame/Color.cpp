@@ -65,3 +65,15 @@ Color ColorA::RGBAToRGB(ColorA& color)
 {
 	return Color(r, g, b);
 }
+
+Color& operator/=(Color& color, float divisor)
+{
+	if (divisor != 0.f) // Prevents dividing by 0
+	{
+		color.r /= divisor;
+		color.g /= divisor;
+		color.b /= divisor;
+	}
+
+	return color;
+}

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <thread>
+#include <vector>
 
 #include "Windows.h"
 #include "Vector2.h"
@@ -9,13 +10,17 @@
 #include "Rectangle.h"
 
 using std::string;
+using std::vector;
+using std::thread;
 
 extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+
+// ASCII Rendering
 
 void DrawPoint(int x, int y, char character)
 {
 	COORD pos = { x, y };
-
+		
 	char charArray[2] = { character };
 
 	SetConsoleCursorPosition(console, pos);
@@ -76,6 +81,31 @@ void DrawVertLine(int x, int height, int start, int end, char character, unsigne
 	ClearConsoleColor();
 }
 
+void DrawASCIIViewport(Viewport* viewport)
+{
+
+	// Create References for cleaner programming
+	int& width = viewport->size.x;
+	int& height = viewport->size.y;
+
+	// Get 2D char info array from viewport
+	CHAR_INFO* buffer = viewport->GetASCIIScreenBuffer();
+
+	COORD bufferSize = { width, height }; // Set Scale of output  
+	COORD bufferPos = { viewport->position.x, viewport->position.y }; // Set Position of Output
+	SMALL_RECT bufferRect = {  // Set Rectangle Boundary of Output
+		viewport->position.x,
+		viewport->position.y,
+		viewport->position.x + width - 1,
+		viewport->position.y + height - 1};
+
+	// Ouput Data to Console
+	WriteConsoleOutputA(console, buffer, bufferSize, bufferPos, &bufferRect);
+
+}
+
+// CONSOLE SETTINGS
+
 void SetConsoleBufferResolution(unsigned int x, unsigned int y)
 {
 	COORD size = { x, y };
@@ -100,6 +130,17 @@ void SetCursorVis(bool visibility)
 	SetConsoleCursorInfo(console, &cursorInfo);
 }
 
+void ToggleANSI(bool enabled)
+{
+	DWORD consoleFlags;
+	GetConsoleMode(console, &consoleFlags);
+	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0;
+
+	SetConsoleMode(console, consoleFlags);
+}
+
+// COLOR RENDERING
+
 void DrawColorViewport(Viewport* viewport)
 {
 	// Get the 2D Color Array Buffer for the viewport
@@ -117,18 +158,61 @@ void DrawColorViewport(Viewport* viewport)
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
 
-	//Preallocate Estimated amount of memory for more performance to prevent creating multiple more arrays
-	// "\033[255;255;255m " has a total of 15 character but also have to make room for mouse repositioning
-	outputString.reserve(height * (width * 15 + 12));
-	
-	
+	int threadCount = 4;
+	vector<thread*> threadContainer;
+	threadContainer.reserve(threadCount);
+
+	for (int i = 0; i < threadCount; i++)
+	{
+		threadContainer.emplace_back
+		(
+			new thread
+			(
+				CreateColorStringRange, // Function Pointer
+				// Parameters
+				viewport, 
+				buffer, 
+				(height / threadCount) * i, 
+				(height / threadCount) * (i + 1),
+				width
+			)
+		);
+	}
+
+	for (int i = 0; i < threadCount; i++)
+	{
+		threadContainer[i]->join();
+	}
+
+	for (int i = 0; i < threadCount; i++)
+	{
+		delete threadContainer[i];
+	}
+
+	string reposCursorString = ("\033[" + std::to_string(height + posY) + ";0H");
+	WriteConsoleA(console, reposCursorString.c_str(), reposCursorString.size(), NULL, NULL);
+
+}
+
+void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMax, int width)
+{
+	string tmpOutputString;
+	tmpOutputString.reserve(yMax * (width * 15 + 13));
+
+	// Create Color Variable to decide the color of each "pixel"
+	Color currentColor;
+
+	// Create References for cleaner programming
+	int& posX = viewport->position.x;
+	int& posY = viewport->position.y;
+
 	// For each row
-	for (int y = 0; y < height; y++)
+	// THIS PART IS DOOKIE SLOW
+	for (int y = yMin; y < yMax; y++)
 	{
 		// Reposition Cursor using ANSI escape
-		outputString.append("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
+		tmpOutputString.append("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
 
-		// For each column in row
 		for (int x = 0; x < width; x++)
 		{
 			// Get Color from y and x cord
@@ -136,45 +220,13 @@ void DrawColorViewport(Viewport* viewport)
 
 			// Set a blank ' ' (space) character with the background of the
 			// RGB Color value using ANSII Escape
-			outputString.append(currentColor.ToANSIEscape());
+			tmpOutputString.append(currentColor.ToANSIEscape());
 		}
-
 	}
-	// Reset Color on Text
-	outputString.append("\033[0m");
 
-	// Output to the console the final string with the total length of the string
-	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
+	tmpOutputString.append("\033[0m");
+	//outputString.append(tmpOutputString);
+	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
 }
 
-void DrawASCIIViewport(Viewport* viewport)
-{
 
-	// Create References for cleaner programming
-	int& width = viewport->size.x;
-	int& height = viewport->size.y;
-
-	// Get 2D char info array from viewport
-	CHAR_INFO* buffer = viewport->GetASCIIScreenBuffer();
-
-	COORD bufferSize = { width, height }; // Set Scale of output  
-	COORD bufferPos = { viewport->position.x, viewport->position.y }; // Set Position of Output
-	SMALL_RECT bufferRect = {  // Set Rectangle Boundary of Output
-		viewport->position.x,
-		viewport->position.y,
-		viewport->position.x + width - 1,
-		viewport->position.y + height - 1};
-
-	// Ouput Data to Console
-	WriteConsoleOutputA(console, buffer, bufferSize, bufferPos, &bufferRect);
-
-}
-
-void ToggleANSI(bool enabled)
-{
-	DWORD consoleFlags;
-	GetConsoleMode(console, &consoleFlags);
-	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0;
-
-	SetConsoleMode(console, consoleFlags);
-}
