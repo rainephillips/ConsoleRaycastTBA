@@ -12,6 +12,8 @@ using std::string;
 
 extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
+// ASCII Rendering
+
 void DrawPoint(int x, int y, char character)
 {
 	COORD pos = { x, y };
@@ -76,6 +78,31 @@ void DrawVertLine(int x, int height, int start, int end, char character, unsigne
 	ClearConsoleColor();
 }
 
+void DrawASCIIViewport(Viewport* viewport)
+{
+
+	// Create References for cleaner programming
+	int& width = viewport->size.x;
+	int& height = viewport->size.y;
+
+	// Get 2D char info array from viewport
+	CHAR_INFO* buffer = viewport->GetASCIIScreenBuffer();
+
+	COORD bufferSize = { width, height }; // Set Scale of output  
+	COORD bufferPos = { viewport->position.x, viewport->position.y }; // Set Position of Output
+	SMALL_RECT bufferRect = {  // Set Rectangle Boundary of Output
+		viewport->position.x,
+		viewport->position.y,
+		viewport->position.x + width - 1,
+		viewport->position.y + height - 1};
+
+	// Ouput Data to Console
+	WriteConsoleOutputA(console, buffer, bufferSize, bufferPos, &bufferRect);
+
+}
+
+// CONSOLE SETTINGS
+
 void SetConsoleBufferResolution(unsigned int x, unsigned int y)
 {
 	COORD size = { x, y };
@@ -99,6 +126,17 @@ void SetCursorVis(bool visibility)
 	cursorInfo.dwSize = 20;
 	SetConsoleCursorInfo(console, &cursorInfo);
 }
+
+void ToggleANSI(bool enabled)
+{
+	DWORD consoleFlags;
+	GetConsoleMode(console, &consoleFlags);
+	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0;
+
+	SetConsoleMode(console, consoleFlags);
+}
+
+// COLOR RENDERING
 
 void DrawColorViewport(Viewport* viewport)
 {
@@ -148,34 +186,9 @@ void DrawColorViewport(Viewport* viewport)
 	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 }
 
-void DrawASCIIViewport(Viewport* viewport)
+void CreateColorString(Color* buffer, int yMin, int yMax, string& outputString)
 {
-
-	// Create References for cleaner programming
-	int& width = viewport->size.x;
-	int& height = viewport->size.y;
-
-	// Get 2D char info array from viewport
-	CHAR_INFO* buffer = viewport->GetASCIIScreenBuffer();
-
-	COORD bufferSize = { width, height }; // Set Scale of output  
-	COORD bufferPos = { viewport->position.x, viewport->position.y }; // Set Position of Output
-	SMALL_RECT bufferRect = {  // Set Rectangle Boundary of Output
-		viewport->position.x,
-		viewport->position.y,
-		viewport->position.x + width - 1,
-		viewport->position.y + height - 1};
-
-	// Ouput Data to Console
-	WriteConsoleOutputA(console, buffer, bufferSize, bufferPos, &bufferRect);
 
 }
 
-void ToggleANSI(bool enabled)
-{
-	DWORD consoleFlags;
-	GetConsoleMode(console, &consoleFlags);
-	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0;
 
-	SetConsoleMode(console, consoleFlags);
-}
