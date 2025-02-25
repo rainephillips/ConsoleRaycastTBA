@@ -53,9 +53,9 @@ int Game::Run()
 	Map* map = new Map(24, 24);
 	map->SetContents(tempMap, Vector2i(24, 24));
 
-	SetConsoleBufferResolution(2048, 2048);
+	SetConsoleBufferResolution(1024, 1024);
 	
-	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(256, 128));
+	Viewport* mainViewport = new Viewport(Vector2i(10, 4), Vector2i(256, 64));
 
 	Player* player = new Player(Vector2(6.f, 7.f), Vector2(1.f, 0.f));
 
@@ -68,10 +68,10 @@ int Game::Run()
 
 	CreateDefaultTextures(textureList, Vector2i(64, 64));
 
-	for (int i = 0; i < 8; i++)
-	{
-		textureList[i]->SetTexture("images\\adachitrue.jpeg");
-	}
+	//for (int i = 0; i < 8; i++)
+	//{
+	//	textureList[i]->SetTexture("images\\adachitrue.jpeg");
+	//}
 
 	textureList.emplace_back(new Texture());
 	textureList[8]->SetTexture("images\\adachifalse.jpeg");

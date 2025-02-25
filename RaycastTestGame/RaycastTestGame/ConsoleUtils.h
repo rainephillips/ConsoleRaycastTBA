@@ -37,4 +37,4 @@ void ToggleANSI(bool enabled);
 
 void DrawColorViewport(Viewport* viewport);
 
-void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMax, int width);
+void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMax, int width, string& outputString);
