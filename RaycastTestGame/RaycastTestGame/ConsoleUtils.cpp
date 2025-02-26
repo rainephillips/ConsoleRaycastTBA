@@ -172,11 +172,12 @@ void DrawColorViewport(Viewport* viewport)
 				CreateColorStringRange, // Function Pointer
 				// Parameters
 				viewport,
-				buffer,
+				std::ref(buffer),
 				(height / threadCount) * i,
 				(height / threadCount) * (i + 1),
-				width,
-				std::ref(outputString)
+				std::ref(outputString),
+				std::ref(threadContainer),
+				i
 			)
 		);
 	}
@@ -196,8 +197,10 @@ void DrawColorViewport(Viewport* viewport)
 
 }
 
-void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMax, int width, string& outputString)
+void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax, string& outputString, vector<thread*>& threads, int threadNo)
 {
+	int& width = viewport->size.x;
+
 	string tmpOutputString;
 	tmpOutputString.reserve(yMax * (width * 15 + 13));
 
@@ -227,6 +230,13 @@ void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMa
 	}
 
 	tmpOutputString.append("\033[0m");
+
+	// Prevents 2 threads writing at the same time
+	//if (threadNo > 0)
+	//{
+	//	threads[threadNo - 1]->join();
+	//}
+
 	outputString.append(tmpOutputString);
 	//WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
 }

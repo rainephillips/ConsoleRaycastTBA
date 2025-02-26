@@ -31,16 +31,24 @@ void Player::RunTweens(float delta)
 			delete m_playerTweens[tween];
 			m_playerTweens.erase(m_playerTweens.begin() + tween);
 			tween--;
-			break;
 		}
-
-		m_playerTweens[tween]->RunTween(delta);
-
-		if (m_playerTweens[tween]->IsContinuous() == false)
+		else
 		{
-			return;
-		}
+			m_playerTweens[tween]->RunTween(delta);
 
+			if (m_playerTweens[tween]->IsContinuous() == false)
+			{
+				return;
+			}
+
+			if (m_playerTweens[tween]->IsFinished())
+			{
+				// Remove tween and restart for loop
+				delete m_playerTweens[tween];
+				m_playerTweens.erase(m_playerTweens.begin() + tween);
+				tween--;
+			}
+		}
 	}
 }
 
