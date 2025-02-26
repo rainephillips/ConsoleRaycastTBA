@@ -3,6 +3,9 @@
 #include <Windows.h>
 #include <string>
 
+#define PI 3.14159f
+#define DEG_TO_RAD(degree) ((degree) * PI / 180.f)
+
 struct Color;
 struct Vector2i;
 class Viewport;

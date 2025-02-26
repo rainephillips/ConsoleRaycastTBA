@@ -57,7 +57,7 @@ int Game::Run()
 	
 	Viewport* mainViewport = new Viewport(Vector2i(10, 4), Vector2i(256, 64));
 
-	Player* player = new Player(Vector2(6.f, 7.f), Vector2(1.f, 0.f));
+	Player* player = new Player(Vector2(6.5f, 7.5f), Vector2(1.f, 0.f));
 
 	Camera* mainCam = new Camera();
 
@@ -101,6 +101,8 @@ int Game::Run()
 
 		
 		GetAsyncKeyboardInput(player, mainCam, map);
+
+		player->RunTweens(deltaTime);
 
 		Raycaster(mainViewport, player, mainCam, map, textureList, false);
 
@@ -156,47 +158,83 @@ void Game::GetAsyncKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	// Move Forward if not crash into wall
 	if (GetAsyncKeyState(VK_UP))
 	{
-		if (map->contents[int(plPosX + plDirX * moveSpeed)][int(plPosY)] == 0)
+		/*if (map->contents[int(plPosX + plDirX * moveSpeed)][int(plPosY)] == 0)
 		{
 			plPosX += plDirX * moveSpeed;
 		}
 		if (map->contents[int(plPosX)][int(plPosY + plDirY * moveSpeed)] == 0)
 		{
 			plPosY += plDirY * moveSpeed;
+		}*/
+		if (player->IsMoving() == false)
+		{
+			player->AddTween(new Tween<float>(plPosX, plPosX + plDirX * 1.f, std::ref(player->position.x), 0.25f, true));
+			player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 1.f, std::ref(player->position.y), 0.25f, true));
 		}
 	}
 	if (GetAsyncKeyState(VK_DOWN))
 	{
-		if (map->contents[int(plPosX - plDirX * moveSpeed)][int(plPosY)] == 0)
+		/*if (map->contents[int(plPosX - plDirX * moveSpeed)][int(plPosY)] == 0)
 		{
 			plPosX -= plDirX * moveSpeed;
 		}
 		if (map->contents[int(plPosX)][int(plPosY - plDirY * moveSpeed)] == 0)
 		{
 			plPosY -= plDirY * moveSpeed;
+		}*/
+		if (player->IsMoving() == false)
+		{
+			player->AddTween(new Tween<float>(plPosX, plPosX - plDirX * 1.f, std::ref(player->position.x), 0.25f, true));
+			player->AddTween(new Tween<float>(plPosY, plPosY - plDirY * 1.f, std::ref(player->position.y), 0.25f, true));
 		}
+		
 	}
 	if (GetAsyncKeyState(VK_LEFT))
 	{
-		float oldDirX = plDirX;
-		float oldPLaneX = camera->size.x;
+		rotSpeed = DEG_TO_RAD(90);
 
-		plDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
-		plDirY = oldDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
+		float plNewDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
+		float plNewDirY = plDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
 
-		camera->size.x = camera->size.x * cos(-rotSpeed) - camera->size.y * sin(-rotSpeed);
-		camera->size.y = oldPLaneX * sin(-rotSpeed) + camera->size.y * cos(-rotSpeed);
+		float newCamSizeX = camera->size.x * cos(-rotSpeed) - camera->size.y * sin(-rotSpeed);
+		float newCamSizeY = camera->size.x * sin(-rotSpeed) + camera->size.y * cos(-rotSpeed);
+
+		//plDirX = plNewDirX;
+		//plDirY = plNewDirY;
+
+		//camera->size.x = newCamSizeX;
+		//camera->size.y = newCamSizeY;
+		if (player->IsMoving() == false)
+		{
+			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), 0.25f, true));
+			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), 0.25f, true));
+			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), 0.25f, true));
+			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), 0.25f, true));
+		}
 	}
 	if (GetAsyncKeyState(VK_RIGHT))
 	{
-		float oldDirX = plDirX;
-		float oldPLaneX = camera->size.x;
+		rotSpeed = DEG_TO_RAD(90);
 
-		plDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
-		plDirY = oldDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
+		float plNewDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
+		float plNewDirY = plDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
 
-		camera->size.x = camera->size.x * cos(rotSpeed) - camera->size.y * sin(rotSpeed);
-		camera->size.y = oldPLaneX * sin(rotSpeed) + camera->size.y * cos(rotSpeed);
+		float newCamSizeX = camera->size.x * cos(rotSpeed) - camera->size.y * sin(rotSpeed);;
+		float newCamSizeY = camera->size.x * sin(rotSpeed) + camera->size.y * cos(rotSpeed);;
+
+		//plDirX = plNewDirX;
+		//plDirY = plNewDirY;
+
+		//camera->size.x = newCamSizeX;
+		//camera->size.y = newCamSizeY;
+
+		if (player->IsMoving() == false)
+		{
+			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), 0.25f, true));
+			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), 0.25f, true));
+			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), 0.25f, true));
+			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), 0.25f, true));
+		}
 	}
 	if (GetAsyncKeyState(VK_ESCAPE))
 	{
