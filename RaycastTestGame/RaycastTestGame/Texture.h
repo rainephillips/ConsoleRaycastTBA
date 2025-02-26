@@ -9,6 +9,7 @@ public:
 	Texture();
 	Texture(Color* image, Vector2i size);
 	Texture(Color* image, int sizeX, int sizeY);
+	Texture(const char* filepath);
 	~Texture();
 
 public:

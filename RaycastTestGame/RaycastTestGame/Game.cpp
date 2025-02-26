@@ -53,18 +53,18 @@ int Game::Run()
 	Map* map = new Map(24, 24);
 	map->SetContents(tempMap, Vector2i(24, 24));
 
-	SetConsoleBufferResolution(2048, 2048);
+	SetConsoleBufferResolution(1024, 1024);
 	
-	Viewport* mainViewport = new Viewport(Vector2i(0, 0), Vector2i(256, 64));
+	Viewport* mainViewport = new Viewport(Vector2i(10, 4), Vector2i(128, 32));
 
-	Player* player = new Player(Vector2(6.f, 7.f), Vector2(1.f, 0.f));
+	Player* player = new Player(Vector2(5.5f, 6.5f), Vector2(1.f, 0.f));
 
 	Camera* mainCam = new Camera();
 
 	Vector2i defaultTextureSize = Vector2i(64, 64);
 
 	vector<Texture*> textureList;
-	textureList.reserve(8);
+	textureList.reserve(9);
 
 	CreateDefaultTextures(textureList, Vector2i(64, 64));
 
@@ -72,6 +72,9 @@ int Game::Run()
 	{
 		textureList[i]->SetTexture("images\\adachitrue.jpeg");
 	}
+
+	textureList.emplace_back(new Texture());
+	textureList[8]->SetTexture("images\\adachifalse.jpeg");
 	
 
 	int& width = mainViewport->size.x;
@@ -97,14 +100,22 @@ int Game::Run()
 		m_oldTime = clock();
 
 		
-		GetAsyncKeyboardInput(player, mainCam, map);
+		//OldKeyboardInput(player, mainCam, map);
+		KeyboardInput(player, mainCam, map);
 
-		Raycaster(mainViewport, player, mainCam, map, textureList, false);
+		player->RunTweens(deltaTime);
 
-		//DrawASCIIViewport(mainViewport);
-		DrawColorViewport(mainViewport);
+		if (player->IsMoving())
+		{
+			Raycaster(mainViewport, player, mainCam, map, textureList, false);
+			//DrawASCIIViewport(mainViewport);
+			DrawColorViewport(mainViewport);
+		}
+		
 
-		std::cout << "FPS: " << fps << "    ";
+		
+
+		//std::cout << "FPS: " << fps << "    ";
 
 	}
 
@@ -127,13 +138,18 @@ void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*
 
 	// Raycasting Loop
 
+	for (int y = 0; y < viewport->size.y; y++)
+	{
+		FloorRaycast(y, viewport, player, camera, map, textures);
+	}
+
 	for (int x = 0; x < viewport->size.x; x++)
 	{
-		Raycast(x, viewport, player, camera, map, textures, useASCII);
+		WallRaycast(x, viewport, player, camera, map, textures, useASCII);
 	}
 }
 
-void Game::GetAsyncKeyboardInput(Player*& player, Camera*& camera, Map*& map)
+void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 {
 	float moveSpeed = deltaTime * 5.0f; // Cells per second
 	float rotSpeed = deltaTime * 3.0f; // radians / second
@@ -167,28 +183,142 @@ void Game::GetAsyncKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 		{
 			plPosY -= plDirY * moveSpeed;
 		}
+		
 	}
 	if (GetAsyncKeyState(VK_LEFT))
 	{
-		float oldDirX = plDirX;
-		float oldPLaneX = camera->size.x;
+		float plNewDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
+		float plNewDirY = plDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
 
-		plDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
-		plDirY = oldDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
+		float newCamSizeX = camera->size.x * cos(-rotSpeed) - camera->size.y * sin(-rotSpeed);
+		float newCamSizeY = camera->size.x * sin(-rotSpeed) + camera->size.y * cos(-rotSpeed);
 
-		camera->size.x = camera->size.x * cos(-rotSpeed) - camera->size.y * sin(-rotSpeed);
-		camera->size.y = oldPLaneX * sin(-rotSpeed) + camera->size.y * cos(-rotSpeed);
+		plDirX = plNewDirX;
+		plDirY = plNewDirY;
+
+		camera->size.x = newCamSizeX;
+		camera->size.y = newCamSizeY;
 	}
 	if (GetAsyncKeyState(VK_RIGHT))
 	{
-		float oldDirX = plDirX;
-		float oldPLaneX = camera->size.x;
+		float plNewDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
+		float plNewDirY = plDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
 
-		plDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
-		plDirY = oldDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
+		float newCamSizeX = camera->size.x * cos(rotSpeed) - camera->size.y * sin(rotSpeed);;
+		float newCamSizeY = camera->size.x * sin(rotSpeed) + camera->size.y * cos(rotSpeed);;
 
-		camera->size.x = camera->size.x * cos(rotSpeed) - camera->size.y * sin(rotSpeed);
-		camera->size.y = oldPLaneX * sin(rotSpeed) + camera->size.y * cos(rotSpeed);
+		plDirX = plNewDirX;
+		plDirY = plNewDirY;
+
+		camera->size.x = newCamSizeX;
+		camera->size.y = newCamSizeY;
+
+	}
+	if (GetAsyncKeyState(VK_ESCAPE))
+	{
+		gameIsRunning = false;
+		return;
+	}
+}
+
+void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
+{
+	float rotAmt = DEG_TO_RAD(90);
+	float moveSpeed = 0.25f;
+	float rotSpeed = .33f;
+
+	float& plPosX = player->position.x;
+	float& plPosY = player->position.y;
+
+	float& plDirX = player->direction.x;
+	float& plDirY = player->direction.y;
+
+	// Keyboard Inputs
+	// Move Forward if not crash into wall
+	if (GetAsyncKeyState(VK_UP))
+	{
+		if (player->IsMoving() == false)
+		{
+			if (map->contents[int(plPosX + plDirX)][int(plPosY)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX, std::ref(player->position.x), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+			}
+
+			if (map->contents[int(plPosX)][int(plPosY + plDirY)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY, std::ref(player->position.y), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 0.45f, std::ref(player->position.y), moveSpeed, false));
+				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45, plPosY, std::ref(player->position.y), moveSpeed, true));
+			}
+		}
+	}
+	if (GetAsyncKeyState(VK_DOWN))
+	{
+		if (player->IsMoving() == false)
+		{
+			if (map->contents[int(plPosX - plDirX)][int(plPosY)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX, std::ref(player->position.x), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+			}
+
+			if (map->contents[int(plPosX)][int(plPosY - plDirY)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY, std::ref(player->position.y), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosY - plDirY * 0.45, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
+			}
+		}
+
+	}
+	if (GetAsyncKeyState(VK_LEFT))
+	{
+
+		float plNewDirX = plDirX * cos(-rotAmt) - plDirY * sin(-rotAmt);
+		float plNewDirY = plDirX * sin(-rotAmt) + plDirY * cos(-rotAmt);
+
+		float newCamSizeX = camera->size.x * cos(-rotAmt) - camera->size.y * sin(-rotAmt);
+		float newCamSizeY = camera->size.x * sin(-rotAmt) + camera->size.y * cos(-rotAmt);
+
+		if (player->IsMoving() == false)
+		{
+			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
+			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
+		}
+	}
+	if (GetAsyncKeyState(VK_RIGHT))
+	{
+
+		float plNewDirX = plDirX * cos(rotAmt) - plDirY * sin(rotAmt);
+		float plNewDirY = plDirX * sin(rotAmt) + plDirY * cos(rotAmt);
+
+		float newCamSizeX = camera->size.x * cos(rotAmt) - camera->size.y * sin(rotAmt);;
+		float newCamSizeY = camera->size.x * sin(rotAmt) + camera->size.y * cos(rotAmt);;
+
+		if (player->IsMoving() == false)
+		{
+			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
+			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
+		}
 	}
 	if (GetAsyncKeyState(VK_ESCAPE))
 	{

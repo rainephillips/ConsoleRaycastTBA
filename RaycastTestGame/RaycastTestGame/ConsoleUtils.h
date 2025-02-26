@@ -2,12 +2,19 @@
 
 #include <Windows.h>
 #include <string>
+#include <vector>
+#include <thread>
+
+#define PI 3.14159f
+#define DEG_TO_RAD(degree) ((degree) * PI / 180.f)
 
 struct Color;
 struct Vector2i;
 class Viewport;
 
 using std::string;
+using std::vector;
+using std::thread;
 
 // ASCII DRAWING
 
@@ -37,4 +44,4 @@ void ToggleANSI(bool enabled);
 
 void DrawColorViewport(Viewport* viewport);
 
-void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMax, int width);
+void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax, string& outputString, vector<thread*>& threads, int threadNo);

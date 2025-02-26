@@ -149,14 +149,15 @@ void DrawColorViewport(Viewport* viewport)
 	// Create Color Variable to decide the color of each "pixel"
 	Color currentColor;
 
-	// Create Empty String
-	string outputString;
-
 	// Create References for cleaner programming
 	int& posX = viewport->position.x;
 	int& posY = viewport->position.y;
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
+
+	// Create Empty String
+	string outputString;
+	outputString.reserve(height * (width * 15 + 13));
 
 	int threadCount = 4;
 	vector<thread*> threadContainer;
@@ -170,11 +171,13 @@ void DrawColorViewport(Viewport* viewport)
 			(
 				CreateColorStringRange, // Function Pointer
 				// Parameters
-				viewport, 
-				buffer, 
-				(height / threadCount) * i, 
+				viewport,
+				std::ref(buffer),
+				(height / threadCount) * i,
 				(height / threadCount) * (i + 1),
-				width
+				std::ref(outputString),
+				std::ref(threadContainer),
+				i
 			)
 		);
 	}
@@ -189,13 +192,15 @@ void DrawColorViewport(Viewport* viewport)
 		delete threadContainer[i];
 	}
 
-	string reposCursorString = ("\033[" + std::to_string(height + posY) + ";0H");
-	WriteConsoleA(console, reposCursorString.c_str(), reposCursorString.size(), NULL, NULL);
+	outputString.append("\033[" + std::to_string(height + posY) + ";0H");
+	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 
 }
 
-void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMax, int width)
+void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax, string& outputString, vector<thread*>& threads, int threadNo)
 {
+	int& width = viewport->size.x;
+
 	string tmpOutputString;
 	tmpOutputString.reserve(yMax * (width * 15 + 13));
 
@@ -225,8 +230,15 @@ void CreateColorStringRange(Viewport* viewport, Color* buffer, int yMin, int yMa
 	}
 
 	tmpOutputString.append("\033[0m");
-	//outputString.append(tmpOutputString);
-	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
+
+	// Prevents 2 threads writing at the same time
+	//if (threadNo > 0)
+	//{
+	//	threads[threadNo - 1]->join();
+	//}
+
+	outputString.append(tmpOutputString);
+	//WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
 }
 
 
