@@ -255,8 +255,8 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 			}
 			else
 			{
-				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 0.45f, std::ref(player->position.y), moveSpeed, false));
-				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45, plPosY, std::ref(player->position.y), moveSpeed, true));
+				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
 			}
 		}
 	}
