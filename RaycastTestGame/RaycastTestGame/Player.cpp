@@ -13,6 +13,12 @@ Player::Player(Vector2 position, Vector2 direction)
 {
 }
 
+Player::Player(Vector2 position, Vector2 direction, Vector2 cameraSize, Vector2i viewportPosition, Vector2i viewportSize)
+	: position{ position }, direction{ direction }, 
+	m_camera{ new Camera(cameraSize, viewportPosition, viewportSize ) }
+{
+}
+
 Player::~Player()
 {
 	for (Tween<float>* tween : m_playerTweens)

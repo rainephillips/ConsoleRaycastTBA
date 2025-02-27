@@ -55,7 +55,12 @@ int Game::Run()
 
 	SetConsoleBufferResolution(1024, 1024);
 
-	Player* m_player = new Player(Vector2(5.5f, 6.5f), Vector2(1.f, 0.f));
+	Player* m_player = new Player
+	(
+		Vector2(5.5f, 6.5f), Vector2(1.f, 0.f),  // Player Data
+		Vector2(0.f, 0.9f), // Camera Data
+		Vector2i(10, 3), Vector2i(128, 32) // Viewport Data
+	);
 
 	Camera* mainCam = m_player->GetCamera();
 	
