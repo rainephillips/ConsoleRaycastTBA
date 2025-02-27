@@ -30,5 +30,3 @@ private:
 
 };
 
-unsigned short** Conver
-
