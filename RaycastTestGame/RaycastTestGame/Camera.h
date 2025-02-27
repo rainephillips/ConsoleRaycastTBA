@@ -2,14 +2,23 @@
 
 #include "Vector2.h"
 
+class Viewport;
+
 class Camera
 {
 public:
-	Vector2 size;
+	Camera();
+	Camera(Vector2 size, Vector2i viewportPos, Vector2i viewportSize);
+	Camera(float xSize, float ySize, int viewportXPos, int viewportYPos, int viewportXSize, int viewportYSize);
+	~Camera();
 
 public:
-	Camera();
-	Camera(Vector2 size);
-	Camera(float x_size, float y_size);
+	Viewport* GetViewport();
+
+public:
+	Vector2 size;
+
+private:
+	Viewport* m_viewport;
 };
 

@@ -18,12 +18,14 @@ public:
 public:
 	void RunTweens(float delta);
 	void AddTween(Tween<float>* tween);
+	Camera* GetCamera();
 	bool IsMoving();
 
 public:
 	Vector2 position;
 	Vector2 direction;
-	Camera* playerCam;
+private:
+	Camera* m_camera;
 
 private:
 	vector<Tween<float>*> m_playerTweens;

@@ -33,6 +33,8 @@ private:
 	float m_time;
 	float m_oldTime;
 
+	Player* m_player;
+
 	bool gameIsRunning;
 };
 

@@ -15,7 +15,7 @@
 using std::vector;
 
 Game::Game()
-	: m_oldTime{ 0.f }, m_time{ 0.f }, gameIsRunning{ true }, deltaTime{ 0.f }
+	: m_oldTime{ 0.f }, m_time{ 0.f }, gameIsRunning{ true }, deltaTime{ 0.f }, m_player{ nullptr }
 {
 
 }
@@ -54,12 +54,12 @@ int Game::Run()
 	map->SetContents(tempMap, Vector2i(24, 24));
 
 	SetConsoleBufferResolution(1024, 1024);
+
+	Player* m_player = new Player(Vector2(5.5f, 6.5f), Vector2(1.f, 0.f));
+
+	Camera* mainCam = m_player->GetCamera();
 	
-	Viewport* mainViewport = new Viewport(Vector2i(10, 4), Vector2i(128, 32));
-
-	Player* player = new Player(Vector2(5.5f, 6.5f), Vector2(1.f, 0.f));
-
-	Camera* mainCam = new Camera();
+	Viewport* mainViewport = mainCam->GetViewport();
 
 	Vector2i defaultTextureSize = Vector2i(64, 64);
 
@@ -100,15 +100,15 @@ int Game::Run()
 		//OldKeyboardInput(player, mainCam, map);
 		//KeyboardInput(player, mainCam, map);
 
-		player->RunTweens(deltaTime);
+		m_player->RunTweens(deltaTime);
 
-		Raycaster(mainViewport, player, mainCam, map, textureList, false);
+		Raycaster(mainViewport, m_player, mainCam, map, textureList, false);
 		//DrawASCIIViewport(mainViewport);
 		DrawColorViewport(mainViewport);
 		
 		
 
-		if (player->IsMoving() == false)
+		if (m_player->IsMoving() == false)
 		{
 			SetCursorVis(true);
 
@@ -124,7 +124,7 @@ int Game::Run()
 			// Reset old time not to account for time waiting typing to delta
 			m_oldTime = clock();
 
-			CommandInput(command, player, mainCam, map);
+			CommandInput(command, m_player, mainCam, map);
 
 			SetCursorVis(false);
 		}
@@ -136,7 +136,7 @@ int Game::Run()
 		delete texture;
 	}
 
-	delete player;
+	delete m_player;
 	delete mainCam;
 	delete mainViewport;
 	delete map;
