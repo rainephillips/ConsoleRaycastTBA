@@ -113,6 +113,9 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
 
+	unsigned short* wallData = map->GetWallData();
+	Vector2i mapSize = map->GetMapSize();
+
 	//  Right of Screen = 1, Left of Screen = - 1
 	float cameraX = 2 * x / (float)width - 1.f; // Camera X Position
 
@@ -191,7 +194,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		}
 
 		// Check if ray has hit a wall
-		if (map->contents[mapPos.x][mapPos.y] > 0)
+		if (wallData[mapPos.y * mapSize.x + mapPos.x] > 0)
 		{
 			wallHit = true;
 		}
@@ -242,7 +245,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	else
 	{
 		// Allows texture 0 to be used
-		int texNum = map->contents[mapPos.x][mapPos.y] - 1;
+		int texNum = wallData[mapPos.y * mapSize.x + mapPos.x] - 1;
 
 		// Calculate exact part of the wall hit instead of just cell
 		float wallX; // Technically its the y cord of the wall if its 
@@ -306,7 +309,7 @@ void SortSprites(int* order, float* distance, int amount)
 
 unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
 {
-	switch (map->contents[x][y])
+	switch (map->GetWallData()[y * map->GetMapSize().x + x])
 
 	{
 	case 1:

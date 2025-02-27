@@ -22,7 +22,7 @@ Game::Game()
 
 int Game::Run()
 {
-	int tempMap[24][24] =
+	unsigned short tempMap[24][24] =
 	{
 	  {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
 	  {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
@@ -50,8 +50,26 @@ int Game::Run()
 	  {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
 	};
 
+	unsigned short** tempMapData = new unsigned short*[24];
+	for (int y = 0; y < 24; y++)
+	{
+		tempMapData[y] = new unsigned short[24];
+		for (int x = 0; x < 24; x++)
+		{
+			tempMapData[y][x] = tempMap[y][x];
+		}
+	}
+
 	Map* map = new Map(24, 24);
-	map->SetContents(tempMap, Vector2i(24, 24));
+
+	map->SetContents(tempMapData, Vector2i(24, 24));
+
+	for (int y = 0; y < 24; y++)
+	{
+		delete[] tempMapData[y];
+	}
+
+	delete[] tempMapData;
 
 	SetConsoleBufferResolution(1024, 1024);
 
@@ -71,7 +89,7 @@ int Game::Run()
 	vector<Texture*> textureList;
 	textureList.reserve(9);
 
-	CreateDefaultTextures(textureList, Vector2i(64, 64));
+	CreateDefaultTextures(textureList, defaultTextureSize);
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -196,26 +214,29 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
+	unsigned short* wallData = map->GetWallData();
+	Vector2i mapSize = map->GetMapSize();
+
 	// Keyboard Inputs
 	// Move Forward if not crash into wall
 	if (GetAsyncKeyState(VK_UP))
 	{
-		if (map->contents[int(plPosX + plDirX * moveSpeed)][int(plPosY)] == 0)
+		if (wallData[ int(plPosY) * mapSize.x + int(plPosX + plDirX * moveSpeed) ] == 0)
 		{
 			plPosX += plDirX * moveSpeed;
 		}
-		if (map->contents[int(plPosX)][int(plPosY + plDirY * moveSpeed)] == 0)
+		if (wallData[ int(plPosY + plDirY * moveSpeed) * mapSize.x + int(plPosX) ] == 0)
 		{
 			plPosY += plDirY * moveSpeed;
 		}
 	}
 	if (GetAsyncKeyState(VK_DOWN))
 	{
-		if (map->contents[int(plPosX - plDirX * moveSpeed)][int(plPosY)] == 0)
+		if (wallData[int(plPosY) * mapSize.x + int(plPosX - plDirX * moveSpeed)] == 0)
 		{
 			plPosX -= plDirX * moveSpeed;
 		}
-		if (map->contents[int(plPosX)][int(plPosY - plDirY * moveSpeed)] == 0)
+		if (wallData[int(plPosY - plDirY * moveSpeed) * mapSize.x + int(plPosX)] == 0)
 		{
 			plPosY -= plDirY * moveSpeed;
 		}
@@ -260,8 +281,8 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 {
 	float rotAmt = DEG_TO_RAD(90);
-	float moveSpeed = 0.25f;
-	float rotSpeed = .33f;
+	float moveSpeed = player->GetMovementSpeed();
+	float rotSpeed = player->GetRotationSpeed();
 
 	float& plPosX = player->position.x;
 	float& plPosY = player->position.y;
@@ -269,13 +290,16 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
+	unsigned short* wallData = map->GetWallData();
+	Vector2i mapSize = map->GetMapSize();
+
 	// Keyboard Inputs
 	// Move Forward if not crash into wall
 	if (GetAsyncKeyState(VK_UP))
 	{
 		if (player->IsMoving() == false)
 		{
-			if (map->contents[int(plPosX + plDirX)][int(plPosY)] == 0)
+			if (wallData[int(plPosY) * mapSize.x + int(plPosX + plDirX)] == 0)
 			{
 				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX, std::ref(player->position.x), moveSpeed, true));
 			}
@@ -285,7 +309,7 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
 			}
 
-			if (map->contents[int(plPosX)][int(plPosY + plDirY)] == 0)
+			if (wallData[int(plPosY + plDirY) * mapSize.x + int(plPosX)] == 0)
 			{
 				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY, std::ref(player->position.y), moveSpeed, true));
 			}
@@ -300,7 +324,7 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	{
 		if (player->IsMoving() == false)
 		{
-			if (map->contents[int(plPosX - plDirX)][int(plPosY)] == 0)
+			if (wallData[int(plPosY) * mapSize.x + int(plPosX - plDirX)] == 0)
 			{
 				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX, std::ref(player->position.x), moveSpeed, true));
 			}
@@ -310,7 +334,7 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
 			}
 
-			if (map->contents[int(plPosX)][int(plPosY - plDirY)] == 0)
+			if (wallData[int(plPosY - plDirY) * mapSize.x + int(plPosX)] == 0)
 			{
 				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY, std::ref(player->position.y), moveSpeed, true));
 			}
@@ -366,8 +390,8 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& map)
 {
 	float rotAmt = DEG_TO_RAD(90);
-	float moveSpeed = 0.25f;
-	float rotSpeed = .33f;
+	float moveSpeed = player->GetMovementSpeed();
+	float rotSpeed = player->GetRotationSpeed();
 
 	float& plPosX = player->position.x;
 	float& plPosY = player->position.y;
@@ -375,11 +399,24 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
+	unsigned short* wallData = map->GetWallData();
+	Vector2i mapSize = map->GetMapSize();
+
+	// Convert string to lowercase
+	for (int i = 0; i < command.size(); i++)
+	{
+		if (command[i] >= 'A' && command[i] <= 'Z')
+		{
+			command[i] += 32;
+		}
+	}
+
+
 	if (command == "move forward")
 	{
 		if (player->IsMoving() == false)
 		{
-			if (map->contents[int(plPosX + plDirX)][int(plPosY)] == 0)
+			if (wallData[int(plPosY) * mapSize.x + int(plPosX + plDirX)] == 0)
 			{
 				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX, std::ref(player->position.x), moveSpeed, true));
 			}
@@ -389,7 +426,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
 			}
 
-			if (map->contents[int(plPosX)][int(plPosY + plDirY)] == 0)
+			if (wallData[int(plPosY + plDirY) * mapSize.x + int(plPosX)] == 0)
 			{
 				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY, std::ref(player->position.y), moveSpeed, true));
 			}
@@ -404,7 +441,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	{
 		if (player->IsMoving() == false)
 		{
-			if (map->contents[int(plPosX - plDirX)][int(plPosY)] == 0)
+			if (wallData[int(plPosY) * mapSize.x + int(plPosX - plDirX)] == 0)
 			{
 				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX, std::ref(player->position.x), moveSpeed, true));
 			}
@@ -414,7 +451,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
 			}
 
-			if (map->contents[int(plPosX)][int(plPosY - plDirY)] == 0)
+			if (wallData[int(plPosY - plDirY) * mapSize.x + int(plPosX)] == 0)
 			{
 				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY, std::ref(player->position.y), moveSpeed, true));
 			}
@@ -435,8 +472,11 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 
 		if (player->IsMoving() == false)
 		{
+			// Rotate Player
 			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
 			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
+
+			// Rotate Camera
 			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
 			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
 		}
@@ -451,8 +491,11 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 
 		if (player->IsMoving() == false)
 		{
+			// Rotate Player
 			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
 			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
+
+			// Rotate Camera
 			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
 			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
 		}

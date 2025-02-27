@@ -4,7 +4,7 @@
 
 class TextureA;
 
-struct Sprite
+class Sprite
 {
 public:
 	Sprite();
