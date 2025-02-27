@@ -1,16 +1,29 @@
 #include "Camera.h"
 
+#include "Viewport.h"
+
 Camera::Camera()
-	: size{ 0.f, 0.9f }
+	: size{ 0.f, 0.9f }, m_viewport{new Viewport()}
 {
 }
 
-Camera::Camera(Vector2 size)
-	: size{ size }
+Camera::Camera(Vector2 size, Vector2i viewportPos, Vector2i viewportSize)
+	: size{ size }, m_viewport{ new Viewport(viewportPos, viewportSize)}
 {
 }
 
-Camera::Camera(float x_size, float y_size)
-	: size{ Vector2( x_size, y_size ) }
+Camera::Camera(float xSize, float ySize, int viewportXPos, int viewportYPos, int viewportXSize, int viewportYSize)
+	: size{ Vector2( xSize, ySize ) }, 
+	m_viewport{ new Viewport(Vector2i(viewportXPos, viewportYPos), Vector2i(viewportXSize, viewportYSize))}
 {
+}
+
+Camera::~Camera()
+{
+	delete m_viewport;
+}
+
+Viewport* Camera::GetViewport()
+{
+	return m_viewport;
 }

@@ -30,6 +30,8 @@ void DrawASCIIViewport(Viewport* viewport);
 
 // CONSOLE SETTINGS
 
+void SetConsoleCursorPos(short x, short y);
+
 void SetConsoleBufferResolution(unsigned int x, unsigned int y);
 
 void SetConsoleColor(unsigned char textColor, unsigned char bgColor);
@@ -44,4 +46,4 @@ void ToggleANSI(bool enabled);
 
 void DrawColorViewport(Viewport* viewport);
 
-void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax, string& outputString, vector<thread*>& threads, int threadNo);
+void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax, string& outputString);

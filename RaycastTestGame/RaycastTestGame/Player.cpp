@@ -4,12 +4,18 @@
 #include "Camera.h"
 
 Player::Player()
-	: position{ 0.f, 0.f }, direction{ -1.f, 0.f }
+	: position{ 0.f, 0.f }, direction{ -1.f, 0.f }, m_camera { new Camera() }
 {
 }
 
 Player::Player(Vector2 position, Vector2 direction)
-	: position{ position }, direction{ direction }
+	: position{ position }, direction{ direction }, m_camera{ new Camera() }
+{
+}
+
+Player::Player(Vector2 position, Vector2 direction, Vector2 cameraSize, Vector2i viewportPosition, Vector2i viewportSize)
+	: position{ position }, direction{ direction }, 
+	m_camera{ new Camera(cameraSize, viewportPosition, viewportSize ) }
 {
 }
 
@@ -19,6 +25,8 @@ Player::~Player()
 	{
 		delete tween;
 	}
+
+	delete m_camera;
 }
 
 void Player::RunTweens(float delta)
@@ -55,6 +63,11 @@ void Player::RunTweens(float delta)
 void Player::AddTween(Tween<float>* tween)
 {
 	m_playerTweens.emplace_back(tween);
+}
+
+Camera* Player::GetCamera()
+{
+	return m_camera;
 }
 
 bool Player::IsMoving()

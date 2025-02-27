@@ -92,12 +92,12 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 
 		// Drawing floor
 		Color floorColor = floorTexture->GetColorFromLocation(floorTexturePos.x, floorTexturePos.y);
-		floorColor /= 1.5f; // Dim the color
+		floorColor /= 1.25f; // Dim the color
 		viewport->AddColorToBuffer(x, y, floorColor);
 		
 		// Drawing ceiling
 		Color ceilingColor = ceilTexture->GetColorFromLocation(ceilTexturePos.x, ceilTexturePos.y);
-		ceilingColor /= 1.5f; // Dim the color as before
+		ceilingColor /= 1.25f; // Dim the color as before
 		viewport->AddColorToBuffer(x, height - y - 1, ceilingColor);
 	}
 }
