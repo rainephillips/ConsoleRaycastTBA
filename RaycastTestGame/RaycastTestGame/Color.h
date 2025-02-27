@@ -17,7 +17,7 @@ public:
 
 public:
 	string ToStringValue(byte& colorValue);
-	ColorA RGBToRGBA(Color& color);
+	ColorA RGBToRGBA();
 	string ToANSIEscape();
 
 	friend Color& operator/=(Color& color, float divisor);
@@ -38,7 +38,12 @@ public:
 
 public:
 	string ToStringValue(byte& colorValue);
-	Color RGBAToRGB(ColorA& color);
+	Color RGBAToRGB();
+
+	Color LayerRGBAOnRGB(Color layerColor);
+
+
+	friend ColorA& operator/=(ColorA& color, float divisor);
 
 public:
 	byte r;

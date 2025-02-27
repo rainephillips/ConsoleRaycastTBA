@@ -28,3 +28,28 @@ protected:
 	Vector2i m_size;
 };
 
+class TextureA
+{
+public:
+	TextureA();
+	TextureA(ColorA* image, Vector2i size);
+	TextureA(ColorA* image, int sizeX, int sizeY);
+	TextureA(const char* filepath);
+	~TextureA();
+
+public:
+	void SetTexture(ColorA* image, Vector2i size);
+	void SetTexture(const char* filepath);
+	void CreateNewTexture(Vector2i size);
+	void SetTextureColor(int x, int y, ColorA color);
+	ColorA* GetNewErrorTexture();
+
+	ColorA* GetTexture();
+	ColorA GetColorFromLocation(int x, int y);
+	Vector2i GetSize();
+
+protected:
+	ColorA* m_textureData;
+	Vector2i m_size;
+};
+

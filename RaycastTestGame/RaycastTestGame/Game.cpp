@@ -78,8 +78,7 @@ int Game::Run()
 		textureList[i]->SetTexture("images\\adachitrue.jpeg");
 	}
 
-	textureList.emplace_back(new Texture());
-	textureList[8]->SetTexture("images\\adachifalse.jpeg");
+	textureList.emplace_back(new Texture("images\\adachifalse.jpeg"));
 	
 
 	int& width = mainViewport->size.x;
@@ -88,6 +87,16 @@ int Game::Run()
 	SetCursorVis(false);
 
 	ToggleANSI(true);
+
+	/*TextureA testTexture = TextureA("images\\AlphaTestImage.png");
+
+	Viewport* testViewport = new Viewport();
+
+	testViewport->SetColorABuffer(testTexture.GetSize(), testTexture.GetTexture());
+
+	DrawColorViewport(testViewport);
+	
+	delete testViewport;*/
 
 	while (gameIsRunning)
 	{
@@ -142,8 +151,6 @@ int Game::Run()
 	}
 
 	delete m_player;
-	delete mainCam;
-	delete mainViewport;
 	delete map;
 
 	return EXIT_SUCCESS;
