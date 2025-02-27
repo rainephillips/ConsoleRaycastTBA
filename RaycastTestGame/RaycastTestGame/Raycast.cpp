@@ -300,6 +300,10 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	}
 }
 
+void SortSprites(int* order, float* distance, int amount)
+{
+}
+
 unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
 {
 	switch (map->contents[x][y])

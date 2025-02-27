@@ -106,13 +106,14 @@ int Game::Run()
 		m_oldTime = clock();
 		
 
-		/*SetConsoleCursorPos(0, (height + mainViewport->position.y - 1));
-		std::cout << "FPS: " << fps << "    ";*/
+		SetConsoleCursorPos(0, (height + mainViewport->position.y));
+		std::cout << "\033[2K"; // Erase current line
+		std::cout << "FPS: " << fps;
 		
 
 		
 		//OldKeyboardInput(player, mainCam, map);
-		//KeyboardInput(player, mainCam, map);
+		KeyboardInput(m_player, mainCam, map);
 
 		m_player->RunTweens(deltaTime);
 
@@ -122,26 +123,26 @@ int Game::Run()
 		
 		
 
-		if (m_player->IsMoving() == false)
-		{
-			SetCursorVis(true);
+		//if (m_player->IsMoving() == false)
+		//{
+		//	SetCursorVis(true);
 
-			string command;
+		//	string command;
 
-			SetConsoleCursorPos(0, (height + mainViewport->position.y));
+		//	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
 
-			std::cout << "\033[2K"; // Erase current line
+		//	std::cout << "\033[2K"; // Erase current line
 
-			std::cout << "Please enter input: ";
-			std::getline(std::cin, command);
+		//	std::cout << "Please enter input: ";
+		//	std::getline(std::cin, command);
 
-			// Reset old time not to account for time waiting typing to delta
-			m_oldTime = clock();
+		//	// Reset old time not to account for time waiting typing to delta
+		//	m_oldTime = clock();
 
-			CommandInput(command, m_player, mainCam, map);
+		//	CommandInput(command, m_player, mainCam, map);
 
-			SetCursorVis(false);
-		}
+		//	SetCursorVis(false);
+		//}
 
 	}
 
@@ -158,9 +159,11 @@ int Game::Run()
 
 void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures,bool useASCII)
 {
-	// Define References for easier code readability
-
 	// Raycasting Loop
+	float* zBuffer = new float[viewport->size.y];
+
+	int* spriteOrder = new int[8]; // total number of sprites
+	float* spriteDistance = new float[8] ; // total number of sprites
 
 	if (!useASCII)
 	{
@@ -175,6 +178,11 @@ void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*
 	{
 		WallRaycast(x, viewport, player, camera, map, textures, useASCII);
 	}
+
+	delete[] zBuffer;
+
+	delete[] spriteOrder;
+	delete[] spriteDistance;
 }
 
 void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)

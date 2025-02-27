@@ -3,19 +3,19 @@
 #include "Vector2.h"
 
 Map::Map(int x, int y)
-	: size{ x, y }
+	: m_size{ x, y }
 {
 }
 
 
 Map::Map(Vector2i size)
-	: size{ size }
+	: m_size{ size }
 {
 }
 
 Vector2i Map::GetMapSize()
 {
-	return size;
+	return m_size;
 }
 
 void Map::SetContents(int map[24][24], Vector2i size)

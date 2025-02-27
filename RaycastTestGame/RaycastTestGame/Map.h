@@ -16,6 +16,6 @@ public:
 	int contents[24][24];
 
 private:
-	Vector2i size;
+	Vector2i m_size;
 };
 
