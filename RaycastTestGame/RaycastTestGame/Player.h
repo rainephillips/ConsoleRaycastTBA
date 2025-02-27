@@ -23,7 +23,7 @@ public:
 public:
 	Vector2 position;
 	Vector2 direction;
-	Camera playerCam;
+	Camera* playerCam;
 
 private:
 	vector<Tween<float>*> m_playerTweens;

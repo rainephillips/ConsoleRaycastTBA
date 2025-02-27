@@ -66,21 +66,9 @@ void Viewport::AddColorToBuffer(int x, int y, Color color)
 
 void Viewport::AddScanlineToColorBuffer(int x, int height, int start, int end, Color color)
 {
-	for (int i = 0; i < height; i++)
+	for (int i = start; i < end; i++)
 	{
-		if (i < start)
-		{
-			AddColorToBuffer(x, i, Color(60, 73, 82));
-		}
-		else if (i > end)
-		{
-			AddColorToBuffer(x, i, Color(112, 86, 47));
-		}
-		else
-		{
-			AddColorToBuffer(x, i, color);
-		}
-
+		AddColorToBuffer(x, i, color);
 	}
 }
 

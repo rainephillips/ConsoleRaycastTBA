@@ -15,11 +15,11 @@ using std::thread;
 
 extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
-// ASCII Rendering
+// ASCII Renderings
 
 void DrawPoint(int x, int y, char character)
 {
-	COORD pos = { x, y };
+	COORD pos = { (short)x, (short)y };
 		
 	char charArray[2] = { character };
 
@@ -31,7 +31,7 @@ void DrawPoint(int x, int y, char character, unsigned char textColor, unsigned c
 {
 	SetConsoleColor(textColor, bgColor);
 
-	COORD pos = { x, y };
+	COORD pos = { (short)x, (short)y };
 
 	char charArray[2] = { character };
 
@@ -106,6 +106,13 @@ void DrawASCIIViewport(Viewport* viewport)
 
 // CONSOLE SETTINGS
 
+void SetConsoleCursorPos(short x, short y)
+{
+	COORD pos = { (short)x, (short)y };
+
+	SetConsoleCursorPosition(console, pos);
+}
+
 void SetConsoleBufferResolution(unsigned int x, unsigned int y)
 {
 	COORD size = { x, y };
@@ -175,9 +182,7 @@ void DrawColorViewport(Viewport* viewport)
 				std::ref(buffer),
 				(height / threadCount) * i,
 				(height / threadCount) * (i + 1),
-				std::ref(outputString),
-				std::ref(threadContainer),
-				i
+				std::ref(outputString)
 			)
 		);
 	}
@@ -197,7 +202,7 @@ void DrawColorViewport(Viewport* viewport)
 
 }
 
-void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax, string& outputString, vector<thread*>& threads, int threadNo)
+void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax, string& outputString)
 {
 	int& width = viewport->size.x;
 
@@ -231,14 +236,8 @@ void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yM
 
 	tmpOutputString.append("\033[0m");
 
-	// Prevents 2 threads writing at the same time
-	//if (threadNo > 0)
-	//{
-	//	threads[threadNo - 1]->join();
-	//}
-
-	outputString.append(tmpOutputString);
-	//WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
+	//outputString.append(tmpOutputString);
+	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
 }
 
 
