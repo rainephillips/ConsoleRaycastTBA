@@ -8,7 +8,7 @@ enum MapDataType
 	WALL,
 	ROOF,
 	FLOOR,
-	DATA,
+	INTERACTION,
 	MAX,
 };
 using std::vector;
