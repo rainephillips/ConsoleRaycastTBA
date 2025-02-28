@@ -22,67 +22,64 @@ Game::Game()
 
 int Game::Run()
 {
-	unsigned short tempMap[24][24] =
+	// Create Map
+	uint16_t tempMapWall[24 * 24] =
 	{
-	  {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
-	  {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-	  {4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-	  {4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-	  {4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-	  {4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
-	  {4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
-	  {4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-	  {4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
-	  {4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-	  {4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
-	  {4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
-	  {6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-	  {8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
-	  {6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-	  {4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
-	  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-	  {4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
-	  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-	  {4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
-	  {4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-	  {4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
-	  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-	  {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
+	  4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,
+	  4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7,
+	  4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,
+	  4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,
+	  4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7,
+	  4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7,
+	  4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1,
+	  4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8,
+	  4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1,
+	  4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8,
+	  4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1,
+	  4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1,
+	  6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6,
+	  8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+	  6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6,
+	  4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3,
+	  4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2,
+	  4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2,
+	  4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2,
+	  4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2,
+	  4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2,
+	  4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2,
+	  4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2,
+	  4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3
 	};
 
-	unsigned short** tempMapData = new unsigned short*[24];
-	for (int y = 0; y < 24; y++)
+	uint16_t* tempMapData = new uint16_t[24 * 24];
+	for (int i = 0; i < 24 * 24; i++)
 	{
-		tempMapData[y] = new unsigned short[24];
-		for (int x = 0; x < 24; x++)
-		{
-			tempMapData[y][x] = tempMap[y][x];
-		}
+		tempMapData[i] = tempMapWall[i];
 	}
 
 	Map* map = new Map(24, 24);
 
-	map->SetContents(tempMapData, Vector2i(24, 24));
-
-	for (int y = 0; y < 24; y++)
-	{
-		delete[] tempMapData[y];
-	}
+	map->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i(24, 24));
 
 	delete[] tempMapData;
 
-	SetConsoleBufferResolution(1024, 1024);
+	// Create Player Camera & Viewport
 
 	Player* m_player = new Player
 	(
 		Vector2(5.5f, 6.5f), Vector2(1.f, 0.f),  // Player Data
-		Vector2(0.f, 0.9f), // Camera Data
+		Vector2(0.f, 1.4f), // Camera Data
 		Vector2i(10, 3), Vector2i(128, 32) // Viewport Data
 	);
 
 	Camera* mainCam = m_player->GetCamera();
 	
 	Viewport* mainViewport = mainCam->GetViewport();
+
+	int& width = mainViewport->size.x;
+	int& height = mainViewport->size.y;
+
+	// Create Textures
 
 	Vector2i defaultTextureSize = Vector2i(64, 64);
 
@@ -91,20 +88,12 @@ int Game::Run()
 
 	CreateDefaultTextures(textureList, defaultTextureSize);
 
-	for (int i = 0; i < 8; i++)
+	/*for (int i = 0; i < 8; i++)
 	{
 		textureList[i]->SetTexture("images\\adachitrue.jpeg");
-	}
+	}*/
 
 	textureList.emplace_back(new Texture("images\\adachifalse.jpeg"));
-	
-
-	int& width = mainViewport->size.x;
-	int& height = mainViewport->size.y;
-
-	SetCursorVis(false);
-
-	ToggleANSI(true);
 
 	/*TextureA testTexture = TextureA("images\\AlphaTestImage.png");
 
@@ -113,8 +102,17 @@ int Game::Run()
 	testViewport->SetColorABuffer(testTexture.GetSize(), testTexture.GetTexture());
 
 	DrawColorViewport(testViewport);
-	
+
 	delete testViewport;*/
+
+	// Console Settings
+
+	SetConsoleBufferResolution(1024, 1024);
+
+	SetCursorVis(false);
+
+	ToggleANSI(true);
+
 
 	while (gameIsRunning)
 	{
@@ -175,7 +173,7 @@ int Game::Run()
 	return EXIT_SUCCESS;
 }
 
-void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures,bool useASCII)
+void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII)
 {
 	// Raycasting Loop
 	float* zBuffer = new float[viewport->size.y];
@@ -214,7 +212,7 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
-	unsigned short* wallData = map->GetWallData();
+	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
 	Vector2i mapSize = map->GetMapSize();
 
 	// Keyboard Inputs
@@ -274,8 +272,9 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	if (GetAsyncKeyState(VK_ESCAPE))
 	{
 		gameIsRunning = false;
-		return;
 	}
+
+	delete[] wallData;
 }
 
 void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
@@ -290,7 +289,7 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
-	unsigned short* wallData = map->GetWallData();
+	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
 	Vector2i mapSize = map->GetMapSize();
 
 	// Keyboard Inputs
@@ -306,7 +305,7 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 			else
 			{
 				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
 			}
 
 			if (wallData[int(plPosY + plDirY) * mapSize.x + int(plPosX)] == 0)
@@ -316,7 +315,7 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 			else
 			{
 				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
+				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
 			}
 		}
 	}
@@ -331,7 +330,7 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 			else
 			{
 				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
 			}
 
 			if (wallData[int(plPosY - plDirY) * mapSize.x + int(plPosX)] == 0)
@@ -341,7 +340,7 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 			else
 			{
 				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosY - plDirY * 0.45, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
+				player->AddTween(new Tween<float>(plPosY - plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
 			}
 		}
 
@@ -385,6 +384,8 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 		gameIsRunning = false;
 		return;
 	}
+
+	delete[] wallData;
 }
 
 void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& map)
@@ -399,7 +400,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
-	unsigned short* wallData = map->GetWallData();
+	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
 	Vector2i mapSize = map->GetMapSize();
 
 	// Convert string to lowercase
@@ -423,7 +424,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 			else
 			{
 				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
 			}
 
 			if (wallData[int(plPosY + plDirY) * mapSize.x + int(plPosX)] == 0)
@@ -433,7 +434,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 			else
 			{
 				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
+				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
 			}
 		}
 	}
@@ -448,7 +449,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 			else
 			{
 				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
 			}
 
 			if (wallData[int(plPosY - plDirY) * mapSize.x + int(plPosX)] == 0)
@@ -458,7 +459,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 			else
 			{
 				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosY - plDirY * 0.45, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
+				player->AddTween(new Tween<float>(plPosY - plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
 			}
 		}
 	}
@@ -503,12 +504,13 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	else if (command == "escape")
 	{
 		gameIsRunning = false;
-		return;
 	}
 	else
 	{
 
 	}
+
+	delete[] wallData;
 }
 
 void Game::CreateDefaultTextures(std::vector<Texture*>& textureList, Vector2i textureSize)

@@ -1,29 +1,31 @@
 #include "Map.h"
 
 #include "Vector2.h"
+#include <iostream>
 
-Map::Map(unsigned short sizeX, unsigned short sizeY)
+Map::Map(int sizeX, int sizeY)
 	: m_size{ sizeX, sizeY }
 {
-	m_wallData = new unsigned short[sizeX * sizeY];
-	m_floorData = new unsigned short[sizeX * sizeY];
-	m_roofData = new unsigned short[sizeX * sizeY];
+	m_mapData = new uint64_t[sizeX * sizeY];
+	ClearMapData();
 }
 
 
 Map::Map(Vector2i size)
 	: m_size{ size }
 {
-	m_wallData = new unsigned short[size.x * size.y];
-	m_floorData = new unsigned short[size.x * size.y];
-	m_roofData = new unsigned short[size.x * size.y];
+	m_mapData = new uint64_t[size.x * size.y];
+	ClearMapData();
 }
 
 Map::~Map()
 {
-	delete m_wallData;
-	delete m_floorData;
-	delete m_roofData;
+	delete m_mapData;
+
+	for (Sprite* sprite : m_staticSpriteData)
+	{
+		delete sprite;
+	}
 }
 
 Vector2i Map::GetMapSize()
@@ -31,14 +33,16 @@ Vector2i Map::GetMapSize()
 	return m_size;
 }
 
-void Map::SetContents(unsigned short** map, Vector2i size)
+void Map::SetContents(uint64_t* mapData, Vector2i size)
 {
-	if (m_wallData != nullptr)
+	if (m_mapData != nullptr)
 	{
 		if (m_size != size)
 		{
-			delete m_wallData;
-			m_wallData = new unsigned short[size.x * size.y];
+			delete m_mapData;
+
+			m_mapData = new uint64_t[size.x * size.y];
+
 			m_size = size;
 		}
 
@@ -46,28 +50,73 @@ void Map::SetContents(unsigned short** map, Vector2i size)
 		{
 			for (int row = 0; row < size.x; row++)
 			{
-				m_wallData[column * size.x + row] = map[column][row];
+				m_mapData[column * size.x + row] = mapData[column * size.x + row];
 			}
 		}
 	}
 }
 
-void Map::SetContents(unsigned short** map, int x_size, int y_size)
+void Map::SetContentDataType(uint16_t* data, MapDataType dataType, Vector2i size)
 {
-	SetContents(map, Vector2i(x_size, y_size));
+	if (m_mapData != nullptr)
+	{
+		if (m_size != size)
+		{
+			return;
+		}
+
+		for (int column = 0; column < size.y; column++)
+		{
+			for (int row = 0; row < size.x; row++)
+			{
+				// Separate uint64_to 4 shorts (8 bytes 64 bits)
+				uint16_t* seperatedData = reinterpret_cast<uint16_t*>(&m_mapData[column * size.x + row]);
+
+				// Change Datatype
+				seperatedData[dataType] = data[column * size.x + row];
+
+				// Put seperated data back into mapData
+				m_mapData[column * size.x + row] = *reinterpret_cast<uint64_t*>(seperatedData);
+				//m_mapData[column * size.x + row] = 18446462598732840960;
+			}
+		}
+	}
 }
 
-unsigned short* Map::GetWallData()
+uint16_t* Map::GetDataTypeBuffer(MapDataType dataType)
 {
-	return m_wallData;
+	uint16_t* dataArray = new uint16_t[m_size.x * m_size.y];
+
+	for (int cell = 0; cell < (m_size.x * m_size.y); cell++)
+	{
+		// Separate uint64_to 4 shorts (8 bytes 64 bits)
+		uint16_t* seperatedData = reinterpret_cast<uint16_t*>(&m_mapData[cell]);
+
+		// Cast mapData into shorts and get the datatype
+
+		dataArray[cell] = (seperatedData)[dataType];
+
+		GetMapSize();
+	}
+
+	return dataArray;
 }
 
-unsigned short* Map::GetFloorData()
+void Map::ClearMapData()
 {
-	return m_floorData;
+	if (m_mapData != nullptr)
+	{
+		for (int y = 0; y < m_size.y; y++)
+		{
+			for (int x = 0; x < m_size.x; x++)
+			{
+				m_mapData[y * m_size.x + x] = 0;
+			}
+		}
+	}
 }
 
-unsigned short* Map::GetRoofData()
+uint64_t* Map::GetMapData()
 {
-	return m_roofData;
+	return m_mapData;
 }

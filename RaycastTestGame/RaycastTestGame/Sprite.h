@@ -7,7 +7,6 @@ class TextureA;
 class Sprite
 {
 public:
-	Sprite();
 	Sprite(Vector2 position, TextureA* texture);
 
 public:

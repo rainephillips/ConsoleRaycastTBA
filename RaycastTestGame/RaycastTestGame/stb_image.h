@@ -385,7 +385,7 @@ enum
 
 #include <stdlib.h>
 typedef unsigned char stbi_uc;
-typedef unsigned short stbi_us;
+typedef uint16_t stbi_us;
 
 #ifdef __cplusplus
 extern "C" {
@@ -639,13 +639,13 @@ STBIDEF int   stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const ch
 #endif
 
 #if defined(_MSC_VER) || defined(__SYMBIAN32__)
-typedef unsigned short stbi__uint16;
+typedef uint16_t stbi__uint16;
 typedef   signed short stbi__int16;
 typedef unsigned int   stbi__uint32;
 typedef   signed int   stbi__int32;
 #else
 #include <stdint.h>
-typedef uint16_t stbi__uint16;
+typedef uint64_t stbi__uint16;
 typedef int16_t  stbi__int16;
 typedef uint32_t stbi__uint32;
 typedef int32_t  stbi__int32;

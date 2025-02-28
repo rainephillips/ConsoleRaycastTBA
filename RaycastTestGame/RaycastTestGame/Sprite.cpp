@@ -1,10 +1,7 @@
 #include "Sprite.h"
 
-Sprite::Sprite()
-{
-}
-
 Sprite::Sprite(Vector2 position, TextureA* texture)
+	: m_position{ position }, m_texture{ texture }
 {
 }
 

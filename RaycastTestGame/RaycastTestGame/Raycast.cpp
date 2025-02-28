@@ -113,7 +113,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
 
-	unsigned short* wallData = map->GetWallData();
+	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
 	Vector2i mapSize = map->GetMapSize();
 
 	//  Right of Screen = 1, Left of Screen = - 1
@@ -301,6 +301,8 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 			viewport->AddColorToBuffer(x, y, color);
 		}
 	}
+
+	delete[] wallData;
 }
 
 void SortSprites(int* order, float* distance, int amount)
@@ -309,7 +311,7 @@ void SortSprites(int* order, float* distance, int amount)
 
 unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
 {
-	switch (map->GetWallData()[y * map->GetMapSize().x + x])
+	switch (map->GetMapData()[y * map->GetMapSize().x + x])
 
 	{
 	case 1:
