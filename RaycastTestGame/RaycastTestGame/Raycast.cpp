@@ -407,6 +407,7 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 		{
 			Vector2i texturePos = Vector2i();
 			texturePos.x = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureSize.x / spriteWidth) / 256;
+			texturePos.x = std::clamp(texturePos.x, 0, textureSize.x - 1);
 			/*
 				1) it's in front of camera plane so you don't see things behind you
 				2) it's on the screen (left)
@@ -419,6 +420,8 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 				{
 					int d = (y) * 256 - height * 128 + spriteHeight * 128;
 					texturePos.y = ((d * textureSize.y) / spriteHeight) / 256;
+					texturePos.y = std::clamp(texturePos.y, 0, textureSize.y - 1);
+
 					ColorA color = spriteTexture->GetTexture()[texturePos.y * textureSize.x + texturePos.x];
 					viewport->AddColorAToBuffer(stripe, y, color);
 				}
