@@ -7,7 +7,7 @@ Sprite::Sprite(Vector2 position, Texture* texture)
 
 Vector2 Sprite::GetPosition()
 {
-	return Vector2();
+	return m_position;
 }
 
 Texture* Sprite::GetTexture()

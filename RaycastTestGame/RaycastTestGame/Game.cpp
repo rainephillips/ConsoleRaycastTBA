@@ -1,8 +1,10 @@
 #include "Game.h"
 
-#include <iostream>
 #include <cmath>
 #include <ctime>
+#include <iostream>
+#include <format>
+#include <string>
 #include <vector>
 
 #include "ConsoleUtils.h"
@@ -84,8 +86,8 @@ int Game::Run()
 
 	Player* m_player = new Player
 	(
-		Vector2(22.5f, 1.5f), Vector2(1.f, 0.f),  // Player Data
-		Vector2(0.f, 1.4f), // Camera Data
+		Vector2(22.5f, 1.5f), Vector2(-1.f, 0.f),  // Player Data
+		Vector2(0.f, -1.4f), // Camera Data
 		Vector2i(10, 3), Vector2i(128, 32) // Viewport Data
 	);
 
@@ -113,11 +115,11 @@ int Game::Run()
 
 	// Add sprite textures
 
-	m_textureList.emplace_back(new Texture("images\\smalladachi.png"));
 	m_textureList.emplace_back(new Texture("images\\coffeecup.png"));
-	m_textureList.emplace_back(new Texture("images\\lobotomy.jpeg"));
+	m_textureList.emplace_back(new Texture("images\\trollface.png"));
+	m_textureList.emplace_back(new Texture("images\\smalladachi.png"));
 
-	//Texture testTexture = Texture("images\\trollface.png");
+	//Texture testTexture = Texture("images\\smalladachi.png");
 
 	//Viewport* testViewport = new Viewport();
 
@@ -171,10 +173,14 @@ int Game::Run()
 		SetConsoleCursorPos(0, (height + mainViewport->position.y));
 		std::cout << "\033[2K"; // Erase current line
 		std::cout << "FPS: " << fps;
+
+		SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+		std::cout << "\033[2K"; // Erase current line
+		std::cout << std::format("Player Position: [{}, {}]", int(m_player->position.x), int(m_player->position.y));
 		
 
 		
-		//OldKeyboardInput(player, mainCam, map);
+		//OldKeyboardInput(m_player, mainCam, m_currentMap);
 		KeyboardInput(m_player, mainCam, m_currentMap);
 
 		m_player->RunTweens(deltaTime);

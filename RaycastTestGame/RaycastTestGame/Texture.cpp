@@ -108,8 +108,9 @@ void Texture::SetTexture(const char* filepath)
 							break;
 						}
 						}
+
+						m_textureData[y * m_size.x + x] = color;
 					}
-					m_textureData[y * m_size.x + x] = color;
 				}
 			}
 		}

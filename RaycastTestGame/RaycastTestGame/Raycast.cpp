@@ -324,10 +324,10 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 
 	int spriteAmt = map->GetSpriteAmt();
 
+	vector<Sprite*>& sprites = map->GetSpriteData();
+
 	// List of sprites from closest to furthest
 	int* spriteOrder = new int[spriteAmt];
-	
-	vector<Sprite*>& sprites = map->GetSpriteData();
 
 	// Distance of sprites from player
 	float* spriteDistance = new float[spriteAmt];
@@ -381,11 +381,11 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 
 		if (drawEndY >= height)
 		{
-			drawEndY = height - 1;
+			drawEndY = height + 1;
 		}
 
 		// Calculate width of sprite
-		int spriteWidth = abs( int( width / transform.x ) );
+		int spriteWidth = abs( int( height / transform.y ) );
 		int drawStartX = -spriteWidth / 2 + spriteScreenX;
 		
 		if (drawStartX < 0)
@@ -405,7 +405,7 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++)
 		{
-			Vector2 texturePos = Vector2();
+			Vector2i texturePos = Vector2i();
 			texturePos.x = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureSize.x / spriteWidth) / 256;
 			/*
 				1) it's in front of camera plane so you don't see things behind you
@@ -418,8 +418,8 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 				for (int y = drawStartY; y < drawEndY; y++)
 				{
 					int d = (y) * 256 - height * 128 + spriteHeight * 128;
-					int texY = ((d * textureSize.y) / spriteHeight) / 256;
-					ColorA color = spriteTexture->GetTexture()[y * textureSize.x + stripe];
+					texturePos.y = ((d * textureSize.y) / spriteHeight) / 256;
+					ColorA color = spriteTexture->GetTexture()[texturePos.y * textureSize.x + texturePos.x];
 					viewport->AddColorAToBuffer(stripe, y, color);
 				}
 			}

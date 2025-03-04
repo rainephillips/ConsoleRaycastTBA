@@ -70,12 +70,12 @@ Color ColorA::RGBAToRGB()
 
 Color ColorA::LayerRGBAOnRGB(Color layerColor)
 {
-	if (a > FLT_MIN) // Skip alpha is max
-	{
-		layerColor.r = r * (a - 254) + layerColor.r * (255 - a);
-		layerColor.g = g * (a - 254) + layerColor.g * (255 - a);
-		layerColor.b = b * (a - 254) + layerColor.b * (255 - a);
-	}
+	float alpha = a / 255.f; 
+
+	layerColor.r = layerColor.r * (1 - alpha) + r * alpha;
+	layerColor.g = layerColor.g * (1 - alpha) + g * alpha;
+	layerColor.b = layerColor.b * (1 - alpha) + b * alpha;
+
 	return layerColor;
 }
 
