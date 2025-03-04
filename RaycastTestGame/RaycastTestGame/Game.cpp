@@ -323,6 +323,7 @@ Color Game::GetColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
 {
 	switch (map->contents[x][y])
 	{
+
 	case 1:
 	{
 		return (isHorizontal) ? Color(179, 39, 29) : Color(235, 64, 52);
