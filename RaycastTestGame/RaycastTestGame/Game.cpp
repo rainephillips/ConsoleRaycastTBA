@@ -11,6 +11,23 @@
 #include "Player.h"
 #include "Texture.h"
 #include "Raycast.h"
+#include "Sprite.h"
+
+/* TO DO
+NEEDED:
+	ADD SPRITES
+	ADD SETTINGS AS BITWISE VALUE
+
+ASSESSMENT COMPLIANCE:
+	NEW COMMANDS FOR ASSESMENT COMPLIANCE
+	ADD ITEMS TO ROOMS
+	ADD ROOM DESCIPTION
+	ADD ITEMS
+	ADD SPELLS
+
+OPTIONAL:
+	ADD MAP EDITOR / CREATOR
+*/
 
 using std::vector;
 
@@ -25,30 +42,30 @@ int Game::Run()
 	// Create Map
 	uint16_t tempMapWall[24 * 24] =
 	{
-	  4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,
-	  4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7,
-	  4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,
-	  4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,
-	  4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7,
-	  4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7,
-	  4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1,
-	  4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8,
-	  4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1,
-	  4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8,
-	  4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1,
-	  4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1,
-	  6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6,
-	  8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
-	  6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6,
-	  4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3,
-	  4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2,
-	  4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2,
-	  4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2,
-	  4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2,
-	  4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2,
-	  4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2,
-	  4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2,
-	  4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3
+	  8,8,8,8,8,8,8,8,8,8,8,4,4,6,4,4,6,4,6,4,4,4,6,4,
+	  8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,0,0,0,0,0,0,4,
+	  8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,6,
+	  8,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+	  8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,4,
+	  8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,6,6,6,0,6,4,6,
+	  8,8,8,8,0,8,8,8,8,8,8,4,4,4,4,4,4,6,0,0,0,0,0,6,
+	  7,7,7,7,0,7,7,7,7,0,8,0,8,0,8,0,8,4,0,4,0,6,0,6,
+	  7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,0,0,0,0,0,6,
+	  7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,0,0,0,0,4,
+	  7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,6,0,6,0,6,
+	  7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,4,6,0,6,6,6,
+	  7,7,7,7,0,7,7,7,7,8,8,4,0,6,8,4,8,3,3,3,0,3,3,3,
+	  2,2,2,2,0,2,2,2,2,4,6,4,0,0,6,0,6,3,0,0,0,0,0,3,
+	  2,2,0,0,0,0,0,2,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3,
+	  2,0,0,0,0,0,0,0,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3,
+	  1,0,0,0,0,0,0,0,1,4,4,4,4,4,6,0,6,3,3,0,0,0,3,3,
+	  2,0,0,0,0,0,0,0,2,2,2,1,2,2,2,6,6,0,0,5,0,5,0,5,
+	  2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5,
+	  2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5,
+	  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+	  2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5,
+	  2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5,
+	  2,2,2,2,1,2,2,2,2,2,2,1,2,2,2,5,5,5,5,5,5,5,5,5
 	};
 
 	uint16_t* tempMapData = new uint16_t[24 * 24];
@@ -57,9 +74,9 @@ int Game::Run()
 		tempMapData[i] = tempMapWall[i];
 	}
 
-	Map* map = new Map(24, 24);
+	Map* m_currentMap = new Map(24, 24);
 
-	map->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i(24, 24));
+	m_currentMap->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i(24, 24));
 
 	delete[] tempMapData;
 
@@ -67,7 +84,7 @@ int Game::Run()
 
 	Player* m_player = new Player
 	(
-		Vector2(5.5f, 6.5f), Vector2(1.f, 0.f),  // Player Data
+		Vector2(22.5f, 1.5f), Vector2(1.f, 0.f),  // Player Data
 		Vector2(0.f, 1.4f), // Camera Data
 		Vector2i(10, 3), Vector2i(128, 32) // Viewport Data
 	);
@@ -83,27 +100,36 @@ int Game::Run()
 
 	Vector2i defaultTextureSize = Vector2i(64, 64);
 
-	vector<Texture*> textureList;
-	textureList.reserve(9);
+	m_textureList.reserve(9);
 
-	CreateDefaultTextures(textureList, defaultTextureSize);
+	CreateDefaultTextures(m_textureList, defaultTextureSize);
 
-	/*for (int i = 0; i < 8; i++)
-	{
-		textureList[i]->SetTexture("images\\adachitrue.jpeg");
-	}*/
+	//for (int i = 0; i < 8; i++)
+	//{
+	//	m_textureList[i]->SetTexture("images\\trollface.png");
+	//}
 
-	textureList.emplace_back(new Texture("images\\adachifalse.jpeg"));
+	m_textureList.emplace_back(new Texture("images\\adachifalse.jpeg"));
 
-	/*TextureA testTexture = TextureA("images\\AlphaTestImage.png");
+	// Add sprite textures
 
-	Viewport* testViewport = new Viewport();
+	m_textureList.emplace_back(new Texture("images\\coffeecup.png"));
+	m_textureList.emplace_back(new Texture("images\\smalladachi.png"));
+	m_textureList.emplace_back(new Texture("images\\lobotomy.jpeg"));
 
-	testViewport->SetColorABuffer(testTexture.GetSize(), testTexture.GetTexture());
+	//Texture testTexture = Texture("images\\trollface.png");
 
-	DrawColorViewport(testViewport);
+	//Viewport* testViewport = new Viewport();
 
-	delete testViewport;*/
+	//testViewport->SetColorABuffer(testTexture.GetSize(), testTexture.GetTexture());
+
+	//DrawColorViewport(testViewport);
+
+	//delete testViewport;
+
+	// Add Sprites to map TEMP
+
+	//m_currentMap->AddSprite(new Sprite( Vector2(20.5f, 11.5f), m_textureList[9]) );
 
 	// Console Settings
 
@@ -129,11 +155,11 @@ int Game::Run()
 
 		
 		//OldKeyboardInput(player, mainCam, map);
-		KeyboardInput(m_player, mainCam, map);
+		KeyboardInput(m_player, mainCam, m_currentMap);
 
 		m_player->RunTweens(deltaTime);
 
-		Raycaster(mainViewport, m_player, mainCam, map, textureList, false);
+		Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList, false);
 		//DrawASCIIViewport(mainViewport);
 		DrawColorViewport(mainViewport);
 		
@@ -155,20 +181,20 @@ int Game::Run()
 		//	// Reset old time not to account for time waiting typing to delta
 		//	m_oldTime = clock();
 
-		//	CommandInput(command, m_player, mainCam, map);
+		//	CommandInput(command, m_player, mainCam, m_currentMap);
 
 		//	SetCursorVis(false);
 		//}
 
 	}
 
-	for (Texture* texture : textureList)
+	for (Texture* texture : m_textureList)
 	{
 		delete texture;
 	}
 
 	delete m_player;
-	delete map;
+	delete m_currentMap;
 
 	return EXIT_SUCCESS;
 }
@@ -530,14 +556,14 @@ void Game::CreateDefaultTextures(std::vector<Texture*>& textureList, Vector2i te
 
 			int xyColor = (y * 128 / textureSize.y + x * 128 / textureSize.x);
 			int xorColor = xColor ^ yColor;
-			textureList[0]->SetTextureColor(x, y, Color( 255 * (x != y && x != textureSize.x - y) ) ); // flat red texture w/ black cross
-			textureList[1]->SetTextureColor(x, y, Color( xyColor + 245 * xyColor + 65536 * xyColor )); // sloped greyscale
-			textureList[2]->SetTextureColor(x, y, Color( 256 * xyColor + 65536 * xyColor)); // sloped yellow gradient
-			textureList[3]->SetTextureColor(x, y, Color( xorColor + 256 * xorColor + 65536 * xorColor )); // xor greyscale
-			textureList[4]->SetTextureColor(x, y, Color( 256 * xorColor) ); // xor green
-			textureList[5]->SetTextureColor(x, y, Color( 255 * (x % 16 && y % 16) ) ); // red bricks
-			textureList[6]->SetTextureColor(x, y, Color( 255 * yColor) ); // red gradient
-			textureList[7]->SetTextureColor(x, y, Color( 8421504 )); // flat gray texture
+			textureList[0]->SetTextureColor(x, y, ColorA( 255 * (x != y && x != textureSize.x - y) ) ); // flat red texture w/ black cross
+			textureList[1]->SetTextureColor(x, y, ColorA( xyColor + 245 * xyColor + 65536 * xyColor )); // sloped greyscale
+			textureList[2]->SetTextureColor(x, y, ColorA( 256 * xyColor + 65536 * xyColor)); // sloped yellow gradient
+			textureList[3]->SetTextureColor(x, y, ColorA( xorColor + 256 * xorColor + 65536 * xorColor )); // xor greyscale
+			textureList[4]->SetTextureColor(x, y, ColorA( 256 * xorColor) ); // xor green
+			textureList[5]->SetTextureColor(x, y, ColorA( 255 * (x % 16 && y % 16) ) ); // red bricks
+			textureList[6]->SetTextureColor(x, y, ColorA( 255 * yColor) ); // red gradient
+			textureList[7]->SetTextureColor(x, y, ColorA( 8421504 )); // flat gray texture
 		}
 	}
 }

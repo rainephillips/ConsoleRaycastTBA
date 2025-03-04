@@ -87,18 +87,15 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		floorPos.x += floorStep.x;
 		floorPos.y += floorStep.y;
 
-
-		Color color;
-
 		// Drawing floor
-		Color floorColor = floorTexture->GetColorFromLocation(floorTexturePos.x, floorTexturePos.y);
+		ColorA floorColor = floorTexture->GetColorFromLocation(floorTexturePos.x, floorTexturePos.y);
 		floorColor /= 1.25f; // Dim the color
-		viewport->AddColorToBuffer(x, y, floorColor);
+		viewport->AddColorToBuffer(x, y, floorColor.RGBAToRGB());
 		
 		// Drawing ceiling
-		Color ceilingColor = ceilTexture->GetColorFromLocation(ceilTexturePos.x, ceilTexturePos.y);
+		ColorA ceilingColor = ceilTexture->GetColorFromLocation(ceilTexturePos.x, ceilTexturePos.y);
 		ceilingColor /= 1.25f; // Dim the color as before
-		viewport->AddColorToBuffer(x, height - y - 1, ceilingColor);
+		viewport->AddColorToBuffer(x, height - y - 1, ceilingColor.RGBAToRGB());
 	}
 }
 
@@ -291,7 +288,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 			int texY = (int)texPosY & (texSize.y - 1);
 
 
-			color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
+			color = textures[texNum]->GetColorFromLocation(texPosX, texPosY).RGBAToRGB();
 			if (isHorizontalWall)
 			{
 				color /= 1.5f;
