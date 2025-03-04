@@ -36,6 +36,7 @@ public:
 	Vector2i& GetMapSize();
 
 	vector<Sprite*>& GetSpriteData();
+	unsigned int GetSpriteAmt();
 
 	uint64_t* GetMapData();
 	uint16_t* GetDataTypeBuffer(MapDataType dataType);

@@ -38,6 +38,11 @@ vector<Sprite*>& Map::GetSpriteData()
 	return m_staticSpriteData;
 }
 
+unsigned int Map::GetSpriteAmt()
+{
+	return m_staticSpriteData.size();
+}
+
 void Map::SetContents(uint64_t* mapData, Vector2i size)
 {
 	if (m_mapData != nullptr)

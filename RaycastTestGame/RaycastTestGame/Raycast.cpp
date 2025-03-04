@@ -1,12 +1,15 @@
 #include "Raycast.h"
 
+#include <algorithm>
+
 #include "Color.h";
 #include "Map.h";
 #include "Player.h";
 #include "Texture.h";
+#include "Sprite.h";
 #include "Viewport.h";
 
-void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures)
+void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures)
 {
 
 	float& plPosX = player->position.x;
@@ -99,7 +102,7 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 	}
 }
 
-void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII)
+void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, bool useASCII, float*& zBuffer)
 {
 	float& plPosX = player->position.x;
 	float& plPosY = player->position.y;
@@ -207,6 +210,8 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		perpWallDist = (sideDist.y - deltaDist.y);
 	}
 
+	zBuffer[x] = perpWallDist;
+
 	// Calculate height of line to draw on screen
 	int lineHeight = (int)(height / perpWallDist);
 
@@ -302,8 +307,143 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	delete[] wallData;
 }
 
-void SortSprites(int* order, float* distance, int amount)
+void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector<Texture*>& textures, Map* map, float*& zBuffer)
 {
+	float& plPosX = player->position.x;
+	float& plPosY = player->position.y;
+
+	float& camSizeX = camera->size.x;
+	float& camSizeY = camera->size.y;
+
+	float& plDirX = player->direction.x;
+	float& plDirY = player->direction.y;
+
+	int& width = viewport->size.x;
+	int& height = viewport->size.y;
+
+	int spriteAmt = map->GetSpriteAmt();
+
+	// List of sprites from closest to furthest
+	int* spriteOrder = new int[spriteAmt];
+	
+	vector<Sprite*>& sprites = map->GetSpriteData();
+
+	// Distance of sprites from player
+	float* spriteDistance = new float[spriteAmt];
+
+	// Sort sprites from closest to furthest
+	for (int i = 0; i < spriteAmt; i++)
+	{
+		spriteOrder[i] = i;
+		spriteDistance[i] = // Distance saved as squared cause sqrt isnt needed
+		(
+			(plPosX - sprites[i]->GetPosition().x) * (plPosX - sprites[i]->GetPosition().x) +
+			(plPosY - sprites[i]->GetPosition().y) * (plPosY - sprites[i]->GetPosition().y)
+		);
+	}
+	SortSprites(spriteOrder, spriteDistance, spriteAmt);
+
+	for (int i = 0; i < spriteAmt; i++)
+	{
+		Sprite* sprite = sprites[spriteOrder[i]];
+
+		// Translate sprite position to relative to camera
+		Vector2 spriteDrawPos = Vector2
+		{
+			sprite->GetPosition().x - plPosX,
+			sprite->GetPosition().y - plPosY
+		};
+
+		// Transform sprite with invertse camera matrix
+		float invertedDet = 1.0f / (camSizeX * plDirY - plDirX * camSizeY); // Rquired for correct matrix multiplication
+
+		Vector2 transform = Vector2
+		{
+			invertedDet * (plDirY * spriteDrawPos.x - plDirX * spriteDrawPos.y),
+			invertedDet * (-camSizeY * spriteDrawPos.x + camSizeX * spriteDrawPos.y),
+		};
+
+		int spriteScreenX = int( (width / 2) * (1 + transform.x / transform.y) );
+
+		// Calculate height of the sprite on screen
+		int spriteHeight = abs( int( height / transform.y ) ); // using 'transform.y' instead of real distance to prevent fisheye eye
+
+		// Calculate lowest and highest pixel to fill stripe
+		int drawStartY = -spriteHeight / 2 + height / 2;
+
+		if (drawStartY < 0)
+		{
+			drawStartY = 0;
+		}
+
+		int drawEndY = spriteHeight / 2 + height / 2;
+
+		if (drawEndY >= height)
+		{
+			drawEndY = height - 1;
+		}
+
+		// Calculate width of sprite
+		int spriteWidth = abs( int( height / transform.y ) );
+		int drawStartX = -spriteWidth / 2 + spriteScreenX;
+		
+		if (drawStartX < 0)
+		{
+			drawStartX = 0;
+		}
+
+		int drawEndX = spriteWidth / 2 + spriteScreenX;
+		if (drawEndX >= width)
+		{
+			drawEndX = width + 1;
+		}
+
+		Texture* spriteTexture = sprite->GetTexture();
+
+		Vector2i textureSize = spriteTexture->GetSize();
+
+		for (int stripe = drawStartX; stripe < drawEndX; stripe++)
+		{
+			Vector2 texturePos = Vector2();
+			texturePos.x = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureSize.x / spriteWidth) / 256;
+			/*
+				1) it's in front of camera plane so you don't see things behind you
+				2) it's on the screen (left)
+				3) it's on the screen (right)
+				4) ZBuffer, with perpendicular distance
+			*/
+			if (transform.y > 0 && stripe > 0 && stripe < width && transform.y < zBuffer[stripe])
+			{
+				for (int y = drawStartY; y < drawEndY; y++)
+				{
+					int d = (y) * 256 - height * 128 + spriteHeight * 128;
+					int texY = ((d * textureSize.y) / spriteHeight) / 256;
+					ColorA color = spriteTexture->GetTexture()[y * textureSize.x + stripe];
+					viewport->AddColorAToBuffer(stripe, y, color);
+				}
+			}
+		}
+	}
+
+	delete[] spriteOrder;
+	delete[] spriteDistance;
+}
+
+void SortSprites(int*& order, float*& distance, int amount)
+{
+	std::vector< std::pair<float, int> > sprites(amount);
+	for (int i = 0; i < amount; i++)
+	{
+		sprites[i].first = distance[i];
+		sprites[i].second = order[i];
+	}
+	std::sort(sprites.begin(), sprites.end());
+	// restore in recerse order to go from farthest to nearest
+	for (int i = 0; i < amount; i++)
+	{
+		distance[i] = sprites[amount - i - 1].first;
+		order[i] = sprites[amount - i - 1].second;
+	}
 }
 
 unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)

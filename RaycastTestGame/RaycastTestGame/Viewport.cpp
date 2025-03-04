@@ -129,3 +129,8 @@ Color* Viewport::GetColorScreenBuffer()
 {
 	return m_colorScreenBuffer;
 }
+
+Color& Viewport::GetColorFromLocation(int x, int y)
+{
+	return m_colorScreenBuffer[y * size.x + x];
+}

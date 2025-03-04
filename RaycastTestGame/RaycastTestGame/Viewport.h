@@ -47,6 +47,8 @@ public:
 	CHAR_INFO* GetASCIIScreenBuffer();
 	Color* GetColorScreenBuffer();
 
+	Color& GetColorFromLocation(int x, int y);
+
 private:
 	CHAR_INFO* m_screenBuffer;
 	Color* m_colorScreenBuffer;

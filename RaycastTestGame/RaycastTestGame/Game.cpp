@@ -113,8 +113,8 @@ int Game::Run()
 
 	// Add sprite textures
 
-	m_textureList.emplace_back(new Texture("images\\coffeecup.png"));
 	m_textureList.emplace_back(new Texture("images\\smalladachi.png"));
+	m_textureList.emplace_back(new Texture("images\\coffeecup.png"));
 	m_textureList.emplace_back(new Texture("images\\lobotomy.jpeg"));
 
 	//Texture testTexture = Texture("images\\trollface.png");
@@ -129,7 +129,27 @@ int Game::Run()
 
 	// Add Sprites to map TEMP
 
-	//m_currentMap->AddSprite(new Sprite( Vector2(20.5f, 11.5f), m_textureList[9]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(20.5f, 11.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(18.5f, 4.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(10.5f, 4.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(10.5f, 12.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(3.5f, 6.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(3.5f, 20.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(3.5f, 14.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(14.5f, 20.5f), m_textureList[11]) );
+
+	m_currentMap->AddSprite(new Sprite(Vector2(18.5f, 10.5f), m_textureList[10]));
+	m_currentMap->AddSprite(new Sprite(Vector2(18.5f, 11.5f), m_textureList[10]));
+	m_currentMap->AddSprite(new Sprite(Vector2(18.5f, 12.5f), m_textureList[10]));
+
+	m_currentMap->AddSprite(new Sprite(Vector2(21.5f, 1.5f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(15.5f, 1.5f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(16.0f, 1.8f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(16.2f, 1.2f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(3.5f, 2.5f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(9.5f, 15.5f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(10.0f, 15.1f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(10.5f, 15.8f), m_textureList[9]));
 
 	// Console Settings
 
@@ -202,10 +222,7 @@ int Game::Run()
 void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII)
 {
 	// Raycasting Loop
-	float* zBuffer = new float[viewport->size.y];
-
-	int* spriteOrder = new int[8]; // total number of sprites
-	float* spriteDistance = new float[8] ; // total number of sprites
+	float* zBuffer = new float[viewport->size.x];
 
 	if (!useASCII)
 	{
@@ -218,13 +235,12 @@ void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*
 
 	for (int x = 0; x < viewport->size.x; x++)
 	{
-		WallRaycast(x, viewport, player, camera, map, textures, useASCII);
+		WallRaycast(x, viewport, player, camera, map, textures, useASCII, zBuffer);
 	}
 
-	delete[] zBuffer;
+	SpriteCasting(viewport, player, camera, textures, map, zBuffer);
 
-	delete[] spriteOrder;
-	delete[] spriteDistance;
+	delete[] zBuffer;
 }
 
 void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
@@ -539,7 +555,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	delete[] wallData;
 }
 
-void Game::CreateDefaultTextures(std::vector<Texture*>& textureList, Vector2i textureSize)
+void Game::CreateDefaultTextures(vector<Texture*>& textureList, Vector2i textureSize)
 {
 	for (int i = 0; i < 8; i++)
 	{
