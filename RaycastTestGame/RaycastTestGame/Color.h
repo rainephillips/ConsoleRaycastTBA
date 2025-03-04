@@ -12,11 +12,15 @@ struct Color
 {
 public:
 	Color();
+	Color(unsigned int color);
 	Color(byte r, byte g, byte b);
 
 public:
 	string ToStringValue(byte& colorValue);
-	ColorA RGBToRGBA(Color& color);
+	ColorA RGBToRGBA();
+	string ToANSIEscape();
+
+	friend Color& operator/=(Color& color, float divisor);
 
 public:
 	byte r;
@@ -29,11 +33,17 @@ struct ColorA
 {
 public:
 	ColorA();
+	ColorA(unsigned int color);
 	ColorA(byte r, byte g, byte b, byte a);
 
 public:
 	string ToStringValue(byte& colorValue);
-	Color RGBAToRGB(ColorA& color);
+	Color RGBAToRGB();
+
+	Color LayerRGBAOnRGB(Color layerColor);
+
+
+	friend ColorA& operator/=(ColorA& color, float divisor);
 
 public:
 	byte r;

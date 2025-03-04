@@ -1,8 +1,10 @@
 #include "Game.h"
 
-#include <iostream>
 #include <cmath>
 #include <ctime>
+#include <iostream>
+#include <format>
+#include <string>
 #include <vector>
 
 #include "ConsoleUtils.h"
@@ -10,248 +12,244 @@
 #include "Viewport.h"
 #include "Player.h"
 #include "Texture.h"
+#include "Raycast.h"
+#include "Sprite.h"
+
+/* TO DO
+NEEDED:
+	ADD SPRITES
+	ADD SETTINGS AS BITWISE VALUE
+
+ASSESSMENT COMPLIANCE:
+	NEW COMMANDS FOR ASSESMENT COMPLIANCE
+	ADD ITEMS TO ROOMS
+	ADD ROOM DESCIPTION
+	ADD ITEMS
+	ADD SPELLS
+
+OPTIONAL:
+	ADD MAP EDITOR / CREATOR
+*/
 
 using std::vector;
 
 Game::Game()
-	: m_oldTime{ 0 }, m_time{ 0 }, gameIsRunning{ true }, deltaTime{ 0.f }
+	: m_oldTime{ 0.f }, m_time{ 0.f }, gameIsRunning{ true }, deltaTime{ 0.f }, m_player{ nullptr }
 {
 
 }
 
 int Game::Run()
 {
-	int tempMap[24][24] =
+	// Create Map
+	uint16_t tempMapWall[24 * 24] =
 	{
-	  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-	  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+	  8,8,8,8,8,8,8,8,8,8,8,4,4,6,4,4,6,4,6,4,4,4,6,4,
+	  8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,0,0,0,0,0,0,4,
+	  8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,6,
+	  8,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+	  8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,4,
+	  8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,6,6,6,0,6,4,6,
+	  8,8,8,8,0,8,8,8,8,8,8,4,4,4,4,4,4,6,0,0,0,0,0,6,
+	  7,7,7,7,0,7,7,7,7,0,8,0,8,0,8,0,8,4,0,4,0,6,0,6,
+	  7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,0,0,0,0,0,6,
+	  7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,0,0,0,0,4,
+	  7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,6,0,6,0,6,
+	  7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,4,6,0,6,6,6,
+	  7,7,7,7,0,7,7,7,7,8,8,4,0,6,8,4,8,3,3,3,0,3,3,3,
+	  2,2,2,2,0,2,2,2,2,4,6,4,0,0,6,0,6,3,0,0,0,0,0,3,
+	  2,2,0,0,0,0,0,2,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3,
+	  2,0,0,0,0,0,0,0,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3,
+	  1,0,0,0,0,0,0,0,1,4,4,4,4,4,6,0,6,3,3,0,0,0,3,3,
+	  2,0,0,0,0,0,0,0,2,2,2,1,2,2,2,6,6,0,0,5,0,5,0,5,
+	  2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5,
+	  2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5,
+	  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+	  2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5,
+	  2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5,
+	  2,2,2,2,1,2,2,2,2,2,2,1,2,2,2,5,5,5,5,5,5,5,5,5
 	};
 
-	Map* map = new Map(24, 24);
-	map->SetContents(tempMap, Vector2i(24, 24));
+	uint16_t* tempMapData = new uint16_t[24 * 24];
+	for (int i = 0; i < 24 * 24; i++)
+	{
+		tempMapData[i] = tempMapWall[i];
+	}
 
-	SetConsoleBufferResolution(2048, 512);
+	Map* m_currentMap = new Map(24, 24);
+
+	m_currentMap->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i(24, 24));
+
+	delete[] tempMapData;
+
+	// Create Player Camera & Viewport
+
+	Player* m_player = new Player
+	(
+		Vector2(22.5f, 1.5f), Vector2(-1.f, 0.f),  // Player Data
+		Vector2(0.f, -1.4f), // Camera Data
+		Vector2i(10, 3), Vector2i(128, 32) // Viewport Data
+	);
+
+	Camera* mainCam = m_player->GetCamera();
 	
-	Viewport* mainViewport = new Viewport(Vector2i(10, 6), Vector2i(240, 64));
-
-	Player* player = new Player(Vector2(22.f, 11.f), Vector2(1.f, 0.f));
-
-	Camera* mainCam = new Camera();
-
-	Vector2i defaultTextureSize = Vector2i(64, 64);
-
-	vector<Texture> textureList;
-	textureList.reserve(8);
+	Viewport* mainViewport = mainCam->GetViewport();
 
 	int& width = mainViewport->size.x;
 	int& height = mainViewport->size.y;
+
+	// Create Textures
+
+	Vector2i defaultTextureSize = Vector2i(64, 64);
+
+	m_textureList.reserve(9);
+
+	CreateDefaultTextures(m_textureList, defaultTextureSize);
+
+	//for (int i = 0; i < 8; i++)
+	//{
+	//	m_textureList[i]->SetTexture("images\\trollface.png");
+	//}
+
+	m_textureList.emplace_back(new Texture("images\\adachifalse.jpeg"));
+
+	// Add sprite textures
+
+	m_textureList.emplace_back(new Texture("images\\coffeecup.png"));
+	m_textureList.emplace_back(new Texture("images\\trollface.png"));
+	m_textureList.emplace_back(new Texture("images\\smalladachi.png"));
+
+	//Texture testTexture = Texture("images\\smalladachi.png");
+
+	//Viewport* testViewport = new Viewport();
+
+	//testViewport->SetColorABuffer(testTexture.GetSize(), testTexture.GetTexture());
+
+	//DrawColorViewport(testViewport);
+
+	//delete testViewport;
+
+	// Add Sprites to map TEMP
+
+	m_currentMap->AddSprite(new Sprite( Vector2(20.5f, 11.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(18.5f, 4.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(10.5f, 4.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(10.5f, 12.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(3.5f, 6.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(3.5f, 20.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(3.5f, 14.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite( Vector2(14.5f, 20.5f), m_textureList[11]) );
+
+	m_currentMap->AddSprite(new Sprite(Vector2(18.5f, 10.5f), m_textureList[10]));
+	m_currentMap->AddSprite(new Sprite(Vector2(18.5f, 11.5f), m_textureList[10]));
+	m_currentMap->AddSprite(new Sprite(Vector2(18.5f, 12.5f), m_textureList[10]));
+
+	m_currentMap->AddSprite(new Sprite(Vector2(21.5f, 1.5f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(15.5f, 1.5f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(16.0f, 1.8f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(16.2f, 1.2f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(3.5f, 2.5f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(9.5f, 15.5f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(10.0f, 15.1f), m_textureList[9]));
+	m_currentMap->AddSprite(new Sprite(Vector2(10.5f, 15.8f), m_textureList[9]));
+
+	// Console Settings
+
+	SetConsoleBufferResolution(1024, 1024);
 
 	SetCursorVis(false);
 
 	ToggleANSI(true);
 
+
 	while (gameIsRunning)
 	{
 		// Timelord shenanigans
 		deltaTime = (clock() - m_oldTime) / 1000.f;
-		int fps = (1.f / deltaTime);
+		unsigned int fps = (1.f / deltaTime);
 		m_oldTime = clock();
+		
+
+		SetConsoleCursorPos(0, (height + mainViewport->position.y));
+		std::cout << "\033[2K"; // Erase current line
+		std::cout << "FPS: " << fps;
+
+		SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+		std::cout << "\033[2K"; // Erase current line
+		std::cout << std::format("Player Position: [{}, {}]", int(m_player->position.x), int(m_player->position.y));
+		
 
 		
-		GetAsyncKeyboardInput(player, mainCam, map);
+		//OldKeyboardInput(m_player, mainCam, m_currentMap);
+		KeyboardInput(m_player, mainCam, m_currentMap);
 
-		Raycast(mainViewport, player, mainCam, map, false);
+		m_player->RunTweens(deltaTime);
 
-		DrawColorViewport(mainViewport);
+		Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList, false);
 		//DrawASCIIViewport(mainViewport);
+		DrawColorViewport(mainViewport);
+		
+		
+
+		//if (m_player->IsMoving() == false)
+		//{
+		//	SetCursorVis(true);
+
+		//	string command;
+
+		//	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+
+		//	std::cout << "\033[2K"; // Erase current line
+
+		//	std::cout << "Please enter input: ";
+		//	std::getline(std::cin, command);
+
+		//	// Reset old time not to account for time waiting typing to delta
+		//	m_oldTime = clock();
+
+		//	CommandInput(command, m_player, mainCam, m_currentMap);
+
+		//	SetCursorVis(false);
+		//}
 
 	}
 
-	delete player;
-	delete mainCam;
-	delete mainViewport;
-	delete map;
+	for (Texture* texture : m_textureList)
+	{
+		delete texture;
+	}
+
+	delete m_player;
+	delete m_currentMap;
 
 	return EXIT_SUCCESS;
 }
 
-void Game::Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, bool useASCII)
+void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII)
 {
-	// Define References for easier code readability
-
-	float& plPosX = player->position.x;
-	float& plPosY = player->position.y;
-
-	float& plDirX = player->direction.x;
-	float& plDirY = player->direction.y;
-
-	int& width = viewport->size.x;
-	int& height = viewport->size.y;
-
 	// Raycasting Loop
+	float* zBuffer = new float[viewport->size.x];
 
-	for (int i = 0; i < width; i++)
+	if (!useASCII)
 	{
-		//  Right of Screen = 1, Left of Screen = - 1
-		float cameraX = 2 * i / (float)width - 1.f; // Camera X Position
-
-		// Set the direction of the ray to the players direction + the x axis of the camera
-		Vector2 rayDir = Vector2
-		(
-			plDirX + camera->size.x * cameraX,
-			plDirY + camera->size.y * cameraX
-		);
-
-		// Which map cell the Player is in
-		Vector2i mapPos = Vector2i
-		(
-			(int)player->position.x,
-			(int)player->position.y
-		);
-
-		// Distance to next x or y side
-		Vector2 sideDist = Vector2();
-
-		// Distance of ray from one x side or y side to next one
-		Vector2 deltaDist = Vector2
-		(
-			// Prevents Dividing by Zero (i.e. very bad) and returns the closest to infinity instead
-			// Abs prevents negative distance (impossible)
-			(rayDir.x == 0) ? FLT_MAX : std::abs(1.f / rayDir.x),
-			(rayDir.y == 0) ? FLT_MAX : std::abs(1.f / rayDir.y)
-		);
-
-		// Will be used to calculate total ray length (Perpendicular Wall Distance)
-		float perpWallDist;
-
-		// What direction to make in x or y distance
-		Vector2i step = Vector2i();
-
-		bool wallHit = false; // If wall was hit
-		bool horizontalWall; // If a NS or EW wall was hit
-
-		// Calculate step and initial sideDist
-		if (rayDir.x < 0)
+		for (int y = 0; y < viewport->size.y; y++)
 		{
-			step.x = -1;
-			sideDist.x = (player->position.x - mapPos.x) * deltaDist.x;
-		}
-		else
-		{
-			step.x = 1;
-			sideDist.x = (mapPos.x + 1.f - player->position.x) * deltaDist.x;
-		}
-		if (rayDir.y < 0)
-		{
-			step.y = -1;
-			sideDist.y = (player->position.y - mapPos.y) * deltaDist.y;
-		}
-		else
-		{
-			step.y = 1;
-			sideDist.y = (mapPos.y + 1.f - player->position.y) * deltaDist.y;
-		}
-
-		// DDA algorithm (Digital Differential Analyser)
-		while (!wallHit)
-		{
-			// Go to next map square, either in x or y direction
-			if (sideDist.x < sideDist.y)
-			{
-				sideDist.x += deltaDist.x;
-				mapPos.x += step.x;
-				horizontalWall = false;
-			}
-			else
-			{
-				sideDist.y += deltaDist.y;
-				mapPos.y += step.y;
-				horizontalWall = true;
-			}
-
-			// Check if ray has hit a wall
-			if (map->contents[mapPos.x][mapPos.y] > 0)
-			{
-				wallHit = true;
-			}
-		}
-
-		// Calculate distance of wall projected on camera direction (Direct distance to player would cause fisheye effect)
-		if (!horizontalWall)
-		{
-			perpWallDist = (sideDist.x - deltaDist.x);
-		}
-		else
-		{
-			perpWallDist = (sideDist.y - deltaDist.y);
-		}
-
-		// Calculate height of line to draw on screen
-		int lineHeight = (int)(height / perpWallDist);
-
-		// Calculate the lowest and highest pixel to fill in current line
-		// (Center line in middle of viewport)
-		int drawStart = -lineHeight / 2 + height / 2;
-
-		// Prevents drawing off screen
-		if (drawStart < 0)
-		{
-			drawStart = 0;
-		}
-
-		int drawEnd = lineHeight / 2 + height / 2;
-		if (drawEnd >= height)
-		{
-			// Accounts for Screen starting at 0 and not 1
-			drawEnd = height - 1;
-		}
-
-		// Checks whether using 24bit color or ASCII Renderer
-		if (useASCII)
-		{
-			// Choose Wall Color
-			unsigned char color = GetASCIIColorFromRaycast(mapPos.x, mapPos.y, map, horizontalWall);
-
-			// Get Character
-			char pixel = viewport->GetCharFromDepth(float((lineHeight >= height) ? height : lineHeight) / float(height));
-
-			//Add Line to Buffer
-			viewport->AddScanlineToBuffer(i, height, drawStart, drawEnd, pixel, color, 0);
-		}
-		else
-		{
-			// Get Wall Color
-			Color color = GetColorFromRaycast(mapPos.x, mapPos.y, map, horizontalWall);
-
-			// Add Color to buffer
-			viewport->AddScanlineToColorBuffer(i, height, drawStart, drawEnd, color);
+			FloorRaycast(y, viewport, player, camera, map, textures);
 		}
 	}
+	
+
+	for (int x = 0; x < viewport->size.x; x++)
+	{
+		WallRaycast(x, viewport, player, camera, map, textures, useASCII, zBuffer);
+	}
+
+	SpriteCasting(viewport, player, camera, textures, map, zBuffer);
+
+	delete[] zBuffer;
 }
 
-void Game::GetAsyncKeyboardInput(Player*& player, Camera*& camera, Map*& map)
+void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 {
 	float moveSpeed = deltaTime * 5.0f; // Cells per second
 	float rotSpeed = deltaTime * 3.0f; // radians / second
@@ -262,115 +260,332 @@ void Game::GetAsyncKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
+	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
+	Vector2i mapSize = map->GetMapSize();
+
 	// Keyboard Inputs
 	// Move Forward if not crash into wall
 	if (GetAsyncKeyState(VK_UP))
 	{
-		if (map->contents[int(plPosX + plDirX * moveSpeed)][int(plPosY)] == 0)
+		if (wallData[ int(plPosY) * mapSize.x + int(plPosX + plDirX * moveSpeed) ] == 0)
 		{
 			plPosX += plDirX * moveSpeed;
 		}
-		if (map->contents[int(plPosX)][int(plPosY + plDirY * moveSpeed)] == 0)
+		if (wallData[ int(plPosY + plDirY * moveSpeed) * mapSize.x + int(plPosX) ] == 0)
 		{
 			plPosY += plDirY * moveSpeed;
 		}
 	}
 	if (GetAsyncKeyState(VK_DOWN))
 	{
-		if (map->contents[int(plPosX - plDirX * moveSpeed)][int(plPosY)] == 0)
+		if (wallData[int(plPosY) * mapSize.x + int(plPosX - plDirX * moveSpeed)] == 0)
 		{
 			plPosX -= plDirX * moveSpeed;
 		}
-		if (map->contents[int(plPosX)][int(plPosY - plDirY * moveSpeed)] == 0)
+		if (wallData[int(plPosY - plDirY * moveSpeed) * mapSize.x + int(plPosX)] == 0)
 		{
 			plPosY -= plDirY * moveSpeed;
 		}
+		
 	}
 	if (GetAsyncKeyState(VK_LEFT))
 	{
-		float oldDirX = plDirX;
-		float oldPLaneX = camera->size.x;
+		float plNewDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
+		float plNewDirY = plDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
 
-		plDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
-		plDirY = oldDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
+		float newCamSizeX = camera->size.x * cos(-rotSpeed) - camera->size.y * sin(-rotSpeed);
+		float newCamSizeY = camera->size.x * sin(-rotSpeed) + camera->size.y * cos(-rotSpeed);
 
-		camera->size.x = camera->size.x * cos(-rotSpeed) - camera->size.y * sin(-rotSpeed);
-		camera->size.y = oldPLaneX * sin(-rotSpeed) + camera->size.y * cos(-rotSpeed);
+		plDirX = plNewDirX;
+		plDirY = plNewDirY;
+
+		camera->size.x = newCamSizeX;
+		camera->size.y = newCamSizeY;
 	}
 	if (GetAsyncKeyState(VK_RIGHT))
 	{
-		float oldDirX = plDirX;
-		float oldPLaneX = camera->size.x;
+		float plNewDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
+		float plNewDirY = plDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
 
-		plDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
-		plDirY = oldDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
+		float newCamSizeX = camera->size.x * cos(rotSpeed) - camera->size.y * sin(rotSpeed);;
+		float newCamSizeY = camera->size.x * sin(rotSpeed) + camera->size.y * cos(rotSpeed);;
 
-		camera->size.x = camera->size.x * cos(rotSpeed) - camera->size.y * sin(rotSpeed);
-		camera->size.y = oldPLaneX * sin(rotSpeed) + camera->size.y * cos(rotSpeed);
+		plDirX = plNewDirX;
+		plDirY = plNewDirY;
+
+		camera->size.x = newCamSizeX;
+		camera->size.y = newCamSizeY;
+
+	}
+	if (GetAsyncKeyState(VK_ESCAPE))
+	{
+		gameIsRunning = false;
+	}
+
+	delete[] wallData;
+}
+
+void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
+{
+	float rotAmt = DEG_TO_RAD(90);
+	float moveSpeed = player->GetMovementSpeed();
+	float rotSpeed = player->GetRotationSpeed();
+
+	float& plPosX = player->position.x;
+	float& plPosY = player->position.y;
+
+	float& plDirX = player->direction.x;
+	float& plDirY = player->direction.y;
+
+	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
+	Vector2i mapSize = map->GetMapSize();
+
+	// Keyboard Inputs
+	// Move Forward if not crash into wall
+	if (GetAsyncKeyState(VK_UP))
+	{
+		if (player->IsMoving() == false)
+		{
+			if (wallData[int(plPosY) * mapSize.x + int(plPosX + plDirX)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX, std::ref(player->position.x), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+			}
+
+			if (wallData[int(plPosY + plDirY) * mapSize.x + int(plPosX)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY, std::ref(player->position.y), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
+			}
+		}
+	}
+	if (GetAsyncKeyState(VK_DOWN))
+	{
+		if (player->IsMoving() == false)
+		{
+			if (wallData[int(plPosY) * mapSize.x + int(plPosX - plDirX)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX, std::ref(player->position.x), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+			}
+
+			if (wallData[int(plPosY - plDirY) * mapSize.x + int(plPosX)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY, std::ref(player->position.y), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosY - plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
+			}
+		}
+
+	}
+	if (GetAsyncKeyState(VK_LEFT))
+	{
+
+		float plNewDirX = plDirX * cos(-rotAmt) - plDirY * sin(-rotAmt);
+		float plNewDirY = plDirX * sin(-rotAmt) + plDirY * cos(-rotAmt);
+
+		float newCamSizeX = camera->size.x * cos(-rotAmt) - camera->size.y * sin(-rotAmt);
+		float newCamSizeY = camera->size.x * sin(-rotAmt) + camera->size.y * cos(-rotAmt);
+
+		if (player->IsMoving() == false)
+		{
+			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
+			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
+		}
+	}
+	if (GetAsyncKeyState(VK_RIGHT))
+	{
+
+		float plNewDirX = plDirX * cos(rotAmt) - plDirY * sin(rotAmt);
+		float plNewDirY = plDirX * sin(rotAmt) + plDirY * cos(rotAmt);
+
+		float newCamSizeX = camera->size.x * cos(rotAmt) - camera->size.y * sin(rotAmt);;
+		float newCamSizeY = camera->size.x * sin(rotAmt) + camera->size.y * cos(rotAmt);;
+
+		if (player->IsMoving() == false)
+		{
+			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
+			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
+		}
 	}
 	if (GetAsyncKeyState(VK_ESCAPE))
 	{
 		gameIsRunning = false;
 		return;
 	}
+
+	delete[] wallData;
 }
 
-void Game::CreateDefaultTextures(std::vector<Texture>& textureList, Vector2i textureSize)
+void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& map)
 {
+	float rotAmt = DEG_TO_RAD(90);
+	float moveSpeed = player->GetMovementSpeed();
+	float rotSpeed = player->GetRotationSpeed();
+
+	float& plPosX = player->position.x;
+	float& plPosY = player->position.y;
+
+	float& plDirX = player->direction.x;
+	float& plDirY = player->direction.y;
+
+	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
+	Vector2i mapSize = map->GetMapSize();
+
+	// Convert string to lowercase
+	for (int i = 0; i < command.size(); i++)
+	{
+		if (command[i] >= 'A' && command[i] <= 'Z')
+		{
+			command[i] += 32;
+		}
+	}
+
+
+	if (command == "move forward")
+	{
+		if (player->IsMoving() == false)
+		{
+			if (wallData[int(plPosY) * mapSize.x + int(plPosX + plDirX)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX, std::ref(player->position.x), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+			}
+
+			if (wallData[int(plPosY + plDirY) * mapSize.x + int(plPosX)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY, std::ref(player->position.y), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
+			}
+		}
+	}
+	else if (command == "move backward")
+	{
+		if (player->IsMoving() == false)
+		{
+			if (wallData[int(plPosY) * mapSize.x + int(plPosX - plDirX)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX, std::ref(player->position.x), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
+			}
+
+			if (wallData[int(plPosY - plDirY) * mapSize.x + int(plPosX)] == 0)
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY, std::ref(player->position.y), moveSpeed, true));
+			}
+			else
+			{
+				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
+				player->AddTween(new Tween<float>(plPosY - plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
+			}
+		}
+	}
+	else if (command == "turn left")
+	{
+		float plNewDirX = plDirX * cos(-rotAmt) - plDirY * sin(-rotAmt);
+		float plNewDirY = plDirX * sin(-rotAmt) + plDirY * cos(-rotAmt);
+
+		float newCamSizeX = camera->size.x * cos(-rotAmt) - camera->size.y * sin(-rotAmt);
+		float newCamSizeY = camera->size.x * sin(-rotAmt) + camera->size.y * cos(-rotAmt);
+
+		if (player->IsMoving() == false)
+		{
+			// Rotate Player
+			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
+			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
+
+			// Rotate Camera
+			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
+		}
+	}
+	else if (command == "turn right")
+	{
+		float plNewDirX = plDirX * cos(rotAmt) - plDirY * sin(rotAmt);
+		float plNewDirY = plDirX * sin(rotAmt) + plDirY * cos(rotAmt);
+
+		float newCamSizeX = camera->size.x * cos(rotAmt) - camera->size.y * sin(rotAmt);;
+		float newCamSizeY = camera->size.x * sin(rotAmt) + camera->size.y * cos(rotAmt);;
+
+		if (player->IsMoving() == false)
+		{
+			// Rotate Player
+			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
+			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
+
+			// Rotate Camera
+			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
+			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
+		}
+	}
+	else if (command == "escape")
+	{
+		gameIsRunning = false;
+	}
+	else
+	{
+
+	}
+
+	delete[] wallData;
 }
 
-Color Game::GetColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
+void Game::CreateDefaultTextures(vector<Texture*>& textureList, Vector2i textureSize)
 {
-	switch (map->contents[x][y])
+	for (int i = 0; i < 8; i++)
 	{
+		Texture* texture = new Texture();
+		texture->CreateNewTexture(textureSize);
+		textureList.emplace_back(texture);
+	}
+	for (int x = 0; x < textureSize.x; x++)
+	{
+		for (int y = 0; y < textureSize.y; y++)
+		{
+			int xColor = (x * 256 / textureSize.x);
+			int yColor = (y * 256 / textureSize.y);
 
-	case 1:
-	{
-		return (isHorizontal) ? Color(179, 39, 29) : Color(235, 64, 52);
-	}
-	case 2:
-	{
-		return (isHorizontal) ? Color(50, 168, 82) : Color(44, 222, 93);
-	}
-	case 3:
-	{
-		return (isHorizontal) ? Color(66, 135, 245) : Color(142, 245, 250);
-	}
-	case 4:
-	{
-		return (isHorizontal) ? Color(173, 28, 159) : Color(250, 112, 236);
-	}
-	default:
-	{
-		return (isHorizontal) ? Color(80, 90, 99) : Color(195, 213, 230);
-	}
-	}
-}
-
-unsigned char Game::GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
-{
-	switch (map->contents[x][y])
-
-	{
-	case 1:
-	{
-		return (isHorizontal) ? CLR_RED : CLR_LIGHTRED;
-	}
-	case 2:
-	{
-		return (isHorizontal) ? CLR_GREEN : CLR_LIGHTGREEN;
-	}
-	case 3:
-	{
-		return (isHorizontal) ? CLR_CYAN : CLR_LIGHTCYAN;
-	}
-	case 4:
-	{
-		return (isHorizontal) ? CLR_MAGENTA : CLR_LIGHTMAGENTA;
-	}
-	default:
-	{
-		return (isHorizontal) ? CLR_DARKGREY : CLR_WHITE;
-	}
+			int xyColor = (y * 128 / textureSize.y + x * 128 / textureSize.x);
+			int xorColor = xColor ^ yColor;
+			textureList[0]->SetTextureColor(x, y, ColorA( 255 * (x != y && x != textureSize.x - y) ) ); // flat red texture w/ black cross
+			textureList[1]->SetTextureColor(x, y, ColorA( xyColor + 245 * xyColor + 65536 * xyColor )); // sloped greyscale
+			textureList[2]->SetTextureColor(x, y, ColorA( 256 * xyColor + 65536 * xyColor)); // sloped yellow gradient
+			textureList[3]->SetTextureColor(x, y, ColorA( xorColor + 256 * xorColor + 65536 * xorColor )); // xor greyscale
+			textureList[4]->SetTextureColor(x, y, ColorA( 256 * xorColor) ); // xor green
+			textureList[5]->SetTextureColor(x, y, ColorA( 255 * (x % 16 && y % 16) ) ); // red bricks
+			textureList[6]->SetTextureColor(x, y, ColorA( 255 * yColor) ); // red gradient
+			textureList[7]->SetTextureColor(x, y, ColorA( 8421504 )); // flat gray texture
+		}
 	}
 }

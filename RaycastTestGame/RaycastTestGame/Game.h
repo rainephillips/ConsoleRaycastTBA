@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include "Texture.h"
 
@@ -8,6 +9,9 @@ class Viewport;
 class Player;
 class Camera;
 class Map;
+
+using std::vector;
+using std::string;
 
 class Game
 {
@@ -19,16 +23,20 @@ public:
 	float deltaTime;
 
 private:
-	void Raycast(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, bool useASCII);\
-	void GetAsyncKeyboardInput(Player*& player, Camera*& camera, Map*& map);
-	void CreateDefaultTextures(std::vector<Texture>& textureList, Vector2i textureSize);
-
-	Color GetColorFromRaycast(int x, int y, Map*& map, bool isHorizontal);
-	unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal);
+	void Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII);
+	void OldKeyboardInput(Player*& player, Camera*& camera, Map*& map);
+	void KeyboardInput(Player*& player, Camera*& camera, Map*& map);
+	void CommandInput(string command, Player*& player, Camera*& camera, Map*& map);
+	void CreateDefaultTextures(vector<Texture*>& textureList, Vector2i textureSize);
 
 private:
 	float m_time;
 	float m_oldTime;
+
+	Player* m_player;
+	Map* m_currentMap;
+
+	vector<Texture*> m_textureList;
 
 	bool gameIsRunning;
 };
