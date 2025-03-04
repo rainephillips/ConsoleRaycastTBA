@@ -7,17 +7,24 @@ class Texture
 {
 public:
 	Texture();
-	Texture(Color* image, Vector2i size);
-	Texture(Color* image, int sizeX, int sizeY);
+	Texture(ColorA* image, Vector2i size);
+	Texture(ColorA* image, int sizeX, int sizeY);
+	Texture(const char* filepath);
 	~Texture();
 
 public:
-	void SetTexture(Color* image, Vector2i size);
-	Color* GetTexture();
+	void SetTexture(ColorA* image, Vector2i size);
+	void SetTexture(const char* filepath);
+	void CreateNewTexture(Vector2i size);
+	void SetTextureColor(int x, int y, ColorA color);
+	ColorA* GetNewErrorTexture();
+
+	ColorA* GetTexture();
+	ColorA GetColorFromLocation(int x, int y);
 	Vector2i GetSize();
 
 protected:
-	Color* m_textureData;
+	ColorA* m_textureData;
 	Vector2i m_size;
 };
 
