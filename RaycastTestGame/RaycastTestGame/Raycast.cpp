@@ -210,8 +210,6 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		perpWallDist = (sideDist.y - deltaDist.y);
 	}
 
-	zBuffer[x] = perpWallDist;
-
 	// Calculate height of line to draw on screen
 	int lineHeight = (int)(height / perpWallDist);
 
@@ -304,6 +302,9 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		}
 	}
 
+	// Set Zbuffer for sprite casting
+	zBuffer[x] = perpWallDist;
+
 	delete[] wallData;
 }
 
@@ -360,7 +361,7 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 		Vector2 transform = Vector2
 		{
 			invertedDet * (plDirY * spriteDrawPos.x - plDirX * spriteDrawPos.y),
-			invertedDet * (-camSizeY * spriteDrawPos.x + camSizeX * spriteDrawPos.y),
+			invertedDet * (-camSizeY * spriteDrawPos.x + camSizeX * spriteDrawPos.y)
 		};
 
 		int spriteScreenX = int( (width / 2) * (1 + transform.x / transform.y) );
@@ -384,7 +385,7 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 		}
 
 		// Calculate width of sprite
-		int spriteWidth = abs( int( height / transform.y ) );
+		int spriteWidth = abs( int( width / transform.x ) );
 		int drawStartX = -spriteWidth / 2 + spriteScreenX;
 		
 		if (drawStartX < 0)
