@@ -64,6 +64,12 @@ void Viewport::AddColorToBuffer(int x, int y, Color color)
 	m_colorScreenBuffer[y * size.x + x] = color;
 }
 
+void Viewport::AddColorAToBuffer(int x, int y, ColorA color)
+{
+	Color resultColor = m_colorScreenBuffer[y * size.x + x];
+	m_colorScreenBuffer[y * size.x + x] = color.LayerRGBAOnRGB(resultColor);
+}
+
 void Viewport::AddScanlineToColorBuffer(int x, int height, int start, int end, Color color)
 {
 	for (int i = start; i < end; i++)
@@ -90,6 +96,25 @@ void Viewport::SetColorBuffer(Vector2i size, Color* buffer)
 	}
 }
 
+void Viewport::SetColorABuffer(Vector2i size, ColorA* buffer)
+{
+	if (m_colorScreenBuffer != nullptr)
+	{
+		delete[] m_colorScreenBuffer;
+		this->size = size;
+		m_colorScreenBuffer = new Color[size.x * size.y];
+
+		for (int x = 0; x < size.x; x++)
+		{
+			for (int y = 0; y < size.y; y++)
+			{
+				Color resultColor = m_colorScreenBuffer[y * size.x + x];
+				m_colorScreenBuffer[y * size.x + x] = buffer[y * size.x + x].LayerRGBAOnRGB(resultColor);
+			}
+		}
+	}
+}
+
 char Viewport::GetCharFromDepth(float depth)
 {
 	return charByDepth[int(depth * 91.f)];
@@ -103,4 +128,9 @@ CHAR_INFO* Viewport::GetASCIIScreenBuffer()
 Color* Viewport::GetColorScreenBuffer()
 {
 	return m_colorScreenBuffer;
+}
+
+Color& Viewport::GetColorFromLocation(int x, int y)
+{
+	return m_colorScreenBuffer[y * size.x + x];
 }
