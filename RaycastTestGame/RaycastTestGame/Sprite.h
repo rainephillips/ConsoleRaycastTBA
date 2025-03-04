@@ -13,7 +13,6 @@ public:
 	Vector2 GetPosition();
 	TextureA* GetTexture();
 
-
 private:
 	TextureA* m_texture;
 	Vector2 m_position;

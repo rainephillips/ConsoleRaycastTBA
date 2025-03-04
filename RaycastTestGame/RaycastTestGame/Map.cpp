@@ -1,6 +1,7 @@
 #include "Map.h"
 
 #include "Vector2.h"
+#include "Sprite.h"
 
 Map::Map(int sizeX, int sizeY)
 	: m_size{ sizeX, sizeY }
@@ -27,9 +28,14 @@ Map::~Map()
 	}
 }
 
-Vector2i Map::GetMapSize()
+Vector2i& Map::GetMapSize()
 {
 	return m_size;
+}
+
+vector<Sprite*>& Map::GetSpriteData()
+{
+	return m_staticSpriteData;
 }
 
 void Map::SetContents(uint64_t* mapData, Vector2i size)
@@ -113,6 +119,23 @@ void Map::ClearMapData()
 			}
 		}
 	}
+}
+
+void Map::ClearSpriteData()
+{
+	for (Sprite* sprite : m_staticSpriteData)
+	{
+		if (sprite != nullptr)
+		{
+			delete sprite;
+		}
+	}
+	m_staticSpriteData.clear();
+}
+
+void Map::AddSprite(Sprite* sprite)
+{
+	m_staticSpriteData.emplace_back(sprite);
 }
 
 uint64_t* Map::GetMapData()
