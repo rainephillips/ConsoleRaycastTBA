@@ -34,6 +34,9 @@ private:
 	float m_oldTime;
 
 	Player* m_player;
+	Map* m_currentMap;
+
+	vector<Texture*> m_textureList;
 
 	bool gameIsRunning;
 };

@@ -1,12 +1,15 @@
 #include "Raycast.h"
 
+#include <algorithm>
+
 #include "Color.h";
 #include "Map.h";
 #include "Player.h";
 #include "Texture.h";
+#include "Sprite.h";
 #include "Viewport.h";
 
-void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures)
+void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures)
 {
 
 	float& plPosX = player->position.x;
@@ -87,22 +90,19 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		floorPos.x += floorStep.x;
 		floorPos.y += floorStep.y;
 
-
-		Color color;
-
 		// Drawing floor
-		Color floorColor = floorTexture->GetColorFromLocation(floorTexturePos.x, floorTexturePos.y);
+		ColorA floorColor = floorTexture->GetColorFromLocation(floorTexturePos.x, floorTexturePos.y);
 		floorColor /= 1.25f; // Dim the color
-		viewport->AddColorToBuffer(x, y, floorColor);
+		viewport->AddColorToBuffer(x, y, floorColor.RGBAToRGB());
 		
 		// Drawing ceiling
-		Color ceilingColor = ceilTexture->GetColorFromLocation(ceilTexturePos.x, ceilTexturePos.y);
+		ColorA ceilingColor = ceilTexture->GetColorFromLocation(ceilTexturePos.x, ceilTexturePos.y);
 		ceilingColor /= 1.25f; // Dim the color as before
-		viewport->AddColorToBuffer(x, height - y - 1, ceilingColor);
+		viewport->AddColorToBuffer(x, height - y - 1, ceilingColor.RGBAToRGB());
 	}
 }
 
-void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII)
+void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, bool useASCII, float*& zBuffer)
 {
 	float& plPosX = player->position.x;
 	float& plPosY = player->position.y;
@@ -112,6 +112,9 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
+
+	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
+	Vector2i mapSize = map->GetMapSize();
 
 	//  Right of Screen = 1, Left of Screen = - 1
 	float cameraX = 2 * x / (float)width - 1.f; // Camera X Position
@@ -191,7 +194,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		}
 
 		// Check if ray has hit a wall
-		if (map->contents[mapPos.x][mapPos.y] > 0)
+		if (wallData[mapPos.y * mapSize.x + mapPos.x] > 0)
 		{
 			wallHit = true;
 		}
@@ -242,7 +245,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	else
 	{
 		// Allows texture 0 to be used
-		int texNum = map->contents[mapPos.x][mapPos.y] - 1;
+		int texNum = wallData[mapPos.y * mapSize.x + mapPos.x] - 1;
 
 		// Calculate exact part of the wall hit instead of just cell
 		float wallX; // Technically its the y cord of the wall if its 
@@ -288,7 +291,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 			int texY = (int)texPosY & (texSize.y - 1);
 
 
-			color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
+			color = textures[texNum]->GetColorFromLocation(texPosX, texPosY).RGBAToRGB();
 			if (isHorizontalWall)
 			{
 				color /= 1.5f;
@@ -298,11 +301,158 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 			viewport->AddColorToBuffer(x, y, color);
 		}
 	}
+
+	// Set Zbuffer for sprite casting
+	zBuffer[x] = perpWallDist;
+
+	delete[] wallData;
+}
+
+void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector<Texture*>& textures, Map* map, float*& zBuffer)
+{
+	float& plPosX = player->position.x;
+	float& plPosY = player->position.y;
+
+	float& camSizeX = camera->size.x;
+	float& camSizeY = camera->size.y;
+
+	float& plDirX = player->direction.x;
+	float& plDirY = player->direction.y;
+
+	int& width = viewport->size.x;
+	int& height = viewport->size.y;
+
+	int spriteAmt = map->GetSpriteAmt();
+
+	vector<Sprite*>& sprites = map->GetSpriteData();
+
+	// List of sprites from closest to furthest
+	int* spriteOrder = new int[spriteAmt];
+
+	// Distance of sprites from player
+	float* spriteDistance = new float[spriteAmt];
+
+	// Sort sprites from closest to furthest
+	for (int i = 0; i < spriteAmt; i++)
+	{
+		spriteOrder[i] = i;
+		spriteDistance[i] = // Distance saved as squared cause sqrt isnt needed
+		(
+			(plPosX - sprites[i]->GetPosition().x) * (plPosX - sprites[i]->GetPosition().x) +
+			(plPosY - sprites[i]->GetPosition().y) * (plPosY - sprites[i]->GetPosition().y)
+		);
+	}
+	SortSprites(spriteOrder, spriteDistance, spriteAmt);
+
+	for (int i = 0; i < spriteAmt; i++)
+	{
+		Sprite* sprite = sprites[spriteOrder[i]];
+
+		// Translate sprite position to relative to camera
+		Vector2 spriteDrawPos = Vector2
+		{
+			sprite->GetPosition().x - plPosX,
+			sprite->GetPosition().y - plPosY
+		};
+
+		// Transform sprite with invertse camera matrix
+		float invertedDet = 1.0f / (camSizeX * plDirY - plDirX * camSizeY); // Rquired for correct matrix multiplication
+
+		Vector2 transform = Vector2
+		{
+			invertedDet * (plDirY * spriteDrawPos.x - plDirX * spriteDrawPos.y),
+			invertedDet * (-camSizeY * spriteDrawPos.x + camSizeX * spriteDrawPos.y)
+		};
+
+		int spriteScreenX = int( (width / 2) * (1 + transform.x / transform.y) );
+
+		// Calculate height of the sprite on screen
+		int spriteHeight = abs( int( height / transform.y ) ); // using 'transform.y' instead of real distance to prevent fisheye eye
+
+		// Calculate lowest and highest pixel to fill stripe
+		int drawStartY = -spriteHeight / 2 + height / 2;
+
+		if (drawStartY < 0)
+		{
+			drawStartY = 0;
+		}
+
+		int drawEndY = spriteHeight / 2 + height / 2;
+
+		if (drawEndY >= height)
+		{
+			drawEndY = height + 1;
+		}
+
+		// Calculate width of sprite
+		int spriteWidth = abs( int( height / transform.y ) );
+		int drawStartX = -spriteWidth / 2 + spriteScreenX;
+		
+		if (drawStartX < 0)
+		{
+			drawStartX = 0;
+		}
+
+		int drawEndX = spriteWidth / 2 + spriteScreenX;
+		if (drawEndX >= width)
+		{
+			drawEndX = width + 1;
+		}
+
+		Texture* spriteTexture = sprite->GetTexture();
+
+		Vector2i textureSize = spriteTexture->GetSize();
+
+		for (int stripe = drawStartX; stripe < drawEndX; stripe++)
+		{
+			Vector2i texturePos = Vector2i();
+			texturePos.x = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureSize.x / spriteWidth) / 256;
+			texturePos.x = std::clamp(texturePos.x, 0, textureSize.x - 1);
+			/*
+				1) it's in front of camera plane so you don't see things behind you
+				2) it's on the screen (left)
+				3) it's on the screen (right)
+				4) ZBuffer, with perpendicular distance
+			*/
+			if (transform.y > 0 && stripe > 0 && stripe < width && transform.y < zBuffer[stripe])
+			{
+				for (int y = drawStartY; y < drawEndY; y++)
+				{
+					int d = (y) * 256 - height * 128 + spriteHeight * 128;
+					texturePos.y = ((d * textureSize.y) / spriteHeight) / 256;
+					texturePos.y = std::clamp(texturePos.y, 0, textureSize.y - 1);
+
+					ColorA color = spriteTexture->GetTexture()[texturePos.y * textureSize.x + texturePos.x];
+					viewport->AddColorAToBuffer(stripe, y, color);
+				}
+			}
+		}
+	}
+
+	delete[] spriteOrder;
+	delete[] spriteDistance;
+}
+
+void SortSprites(int*& order, float*& distance, int amount)
+{
+	std::vector< std::pair<float, int> > sprites(amount);
+	for (int i = 0; i < amount; i++)
+	{
+		sprites[i].first = distance[i];
+		sprites[i].second = order[i];
+	}
+	std::sort(sprites.begin(), sprites.end());
+	// restore in recerse order to go from farthest to nearest
+	for (int i = 0; i < amount; i++)
+	{
+		distance[i] = sprites[amount - i - 1].first;
+		order[i] = sprites[amount - i - 1].second;
+	}
 }
 
 unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
 {
-	switch (map->contents[x][y])
+	switch (map->GetMapData()[y * map->GetMapSize().x + x])
 
 	{
 	case 1:

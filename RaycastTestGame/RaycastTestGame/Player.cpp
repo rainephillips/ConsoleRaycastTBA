@@ -4,18 +4,21 @@
 #include "Camera.h"
 
 Player::Player()
-	: position{ 0.f, 0.f }, direction{ -1.f, 0.f }, m_camera { new Camera() }
+	: position{ 0.f, 0.f }, direction{ -1.f, 0.f }, m_camera { new Camera() },
+	m_movementSpeed{ 0.25f }, m_rotationSpeed{ 0.33f }
 {
 }
 
 Player::Player(Vector2 position, Vector2 direction)
-	: position{ position }, direction{ direction }, m_camera{ new Camera() }
+	: position{ position }, direction{ direction }, m_camera{ new Camera() },
+	m_movementSpeed{ 0.25f }, m_rotationSpeed{ 0.33f }
 {
 }
 
 Player::Player(Vector2 position, Vector2 direction, Vector2 cameraSize, Vector2i viewportPosition, Vector2i viewportSize)
 	: position{ position }, direction{ direction }, 
-	m_camera{ new Camera(cameraSize, viewportPosition, viewportSize ) }
+	m_camera{ new Camera(cameraSize, viewportPosition, viewportSize ) },
+	m_movementSpeed{ 0.25f }, m_rotationSpeed{ 0.33f }
 {
 }
 
@@ -73,4 +76,24 @@ Camera* Player::GetCamera()
 bool Player::IsMoving()
 {
 	return (m_playerTweens.size() > 0);
+}
+
+float Player::GetMovementSpeed()
+{
+	return m_movementSpeed;
+}
+
+float Player::GetRotationSpeed()
+{
+	return m_rotationSpeed;
+}
+
+void Player::SetMovementSpeed(float speed)
+{
+	m_movementSpeed = speed;
+}
+
+void Player::SetRotationSpeed(float speed)
+{
+	m_rotationSpeed = speed;
 }

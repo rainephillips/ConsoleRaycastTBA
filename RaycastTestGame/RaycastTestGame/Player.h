@@ -19,16 +19,27 @@ public:
 public:
 	void RunTweens(float delta);
 	void AddTween(Tween<float>* tween);
-	Camera* GetCamera();
+
 	bool IsMoving();
+
+	float GetMovementSpeed();
+	float GetRotationSpeed();
+
+	void SetMovementSpeed(float speed);
+	void SetRotationSpeed(float speed);
+
+	Camera* GetCamera();
 
 public:
 	Vector2 position;
 	Vector2 direction;
+
 private:
 	Camera* m_camera;
 
-private:
+	float m_movementSpeed;
+	float m_rotationSpeed;
+
 	vector<Tween<float>*> m_playerTweens;
 };
 

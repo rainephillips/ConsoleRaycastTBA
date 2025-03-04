@@ -27,7 +27,7 @@ string Color::ToStringValue(byte& colorValue)
 	return string(std::to_string(short(colorValue)));
 }
 
-ColorA Color::RGBToRGBA(Color& color)
+ColorA Color::RGBToRGBA()
 {
 	return ColorA(r, g, b, 0);
 }
@@ -36,6 +36,8 @@ string Color::ToANSIEscape()
 {
 	return std::format("\033[48;2;{};{};{}m ", r, g, b);
 }
+
+// RGBA
 
 ColorA::ColorA()
 	:r{ 0 }, g{ 0 }, b{ 0 }, a{ 0 }
@@ -61,12 +63,35 @@ string ColorA::ToStringValue(byte& colorValue)
 	return string(std::to_string(short(colorValue)));
 }
 
-Color ColorA::RGBAToRGB(ColorA& color)
+Color ColorA::RGBAToRGB()
 {
 	return Color(r, g, b);
 }
 
+Color ColorA::LayerRGBAOnRGB(Color layerColor)
+{
+	float alpha = a / 255.f; 
+
+	layerColor.r = layerColor.r * (1 - alpha) + r * alpha;
+	layerColor.g = layerColor.g * (1 - alpha) + g * alpha;
+	layerColor.b = layerColor.b * (1 - alpha) + b * alpha;
+
+	return layerColor;
+}
+
 Color& operator/=(Color& color, float divisor)
+{
+	if (divisor != 0.f) // Prevents dividing by 0
+	{
+		color.r /= divisor;
+		color.g /= divisor;
+		color.b /= divisor;
+	}
+
+	return color;
+}
+
+ColorA& operator/=(ColorA& color, float divisor)
 {
 	if (divisor != 0.f) // Prevents dividing by 0
 	{
