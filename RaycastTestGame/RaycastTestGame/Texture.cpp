@@ -1,12 +1,14 @@
 #include "Texture.h"
 
+#include <iostream>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 // TEXTURE NO ALPHA 
 
 Texture::Texture()
-	: m_size{ Vector2i( 2, 2 ) }
+	: m_size{ Vector2i( 2, 2 ) }, m_textureData{ nullptr }
 {
 	m_textureData = GetNewErrorTexture();
 }
@@ -22,7 +24,7 @@ Texture::Texture(ColorA* image, int sizeX, int sizeY)
 }
 
 Texture::Texture(const char* filepath)
-	: m_size{ Vector2i(2, 2) }
+	: m_size{ Vector2i(2, 2) }, m_textureData{ nullptr }
 {
 	m_textureData = GetNewErrorTexture();
 	SetTexture(filepath);
@@ -41,6 +43,7 @@ void Texture::SetTexture(ColorA* image, Vector2i size)
 	if (m_textureData != nullptr)
 	{
 		delete[] m_textureData;
+
 		m_textureData = image;
 		m_size = size;
 	}
@@ -61,8 +64,9 @@ void Texture::SetTexture(const char* filepath)
 		int channelAmt;
 		unsigned char* imgData = stbi_load(filepath, &size.x, &size.y, &channelAmt, 0);
 
-		if (imgData == nullptr)
+		if (imgData == nullptr && size.x > 0 && size.y > 0)
 		{
+
 			m_size = Vector2i(2, 2);
 			m_textureData = GetNewErrorTexture();
 		}
@@ -83,34 +87,35 @@ void Texture::SetTexture(const char* filepath)
 					{
 						switch (c)
 						{
-						case 0:
-						{
-							color.r = imgData[(y * size.x + x) * channelAmt + c];
-							break;
-						}
-						case 1:
-						{
-							color.g = imgData[(y * size.x + x) * channelAmt + c];
-							break;
-						}
-						case 2:
-						{
-							color.b = imgData[(y * size.x + x) * channelAmt + c];
-							break;
-						}
-						case 3:
-						{
-							color.a = imgData[(y * size.x + x) * channelAmt + c];
-							break;
-						}
-						default:
-						{
-							break;
-						}
+							case 0:
+							{
+								color.r = imgData[(y * size.x + x) * channelAmt + c];
+								break;
+							}
+							case 1:
+							{
+								color.g = imgData[(y * size.x + x) * channelAmt + c];
+								break;
+							}
+							case 2:
+							{
+								color.b = imgData[(y * size.x + x) * channelAmt + c];
+								break;
+							}
+							case 3:
+							{
+								color.a = imgData[(y * size.x + x) * channelAmt + c];
+								break;
+							}
+							default:
+							{
+								break;
+							}
 						}
 
-						m_textureData[y * m_size.x + x] = color;
+						
 					}
+					SetTextureColor(x, y, color);
 				}
 			}
 		}
@@ -129,6 +134,8 @@ void Texture::CreateNewTexture(Vector2i size)
 	if (m_textureData != nullptr)
 	{
 		delete[] m_textureData;
+		m_textureData = nullptr;
+
 		m_textureData = new ColorA[size.x * size.y];
 		m_size = size;
 	}
@@ -168,7 +175,7 @@ ColorA* Texture::GetTexture()
 
 ColorA Texture::GetColorFromLocation(int x, int y)
 {
-	if (x < m_size.x && y < m_size.y)
+	if (x < m_size.x && x >= 0 && y < m_size.y && y >= 0)
 	{
 		return m_textureData[y * m_size.x + x];
 	}

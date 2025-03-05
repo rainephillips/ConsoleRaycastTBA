@@ -17,8 +17,7 @@
 
 /* TO DO
 NEEDED:
-	ADD SPRITES
-	ADD SETTINGS AS BITWISE VALUE
+	
 
 ASSESSMENT COMPLIANCE:
 	NEW COMMANDS FOR ASSESMENT COMPLIANCE
@@ -29,17 +28,50 @@ ASSESSMENT COMPLIANCE:
 
 OPTIONAL:
 	ADD MAP EDITOR / CREATOR
+	ADD SETTINGS AS BITWISE VALUE
 */
 
 using std::vector;
 
 Game::Game()
-	: m_oldTime{ 0.f }, m_time{ 0.f }, gameIsRunning{ true }, deltaTime{ 0.f }, m_player{ nullptr }
+	: m_oldTime{ 0.f }, m_time{ 0.f }, m_gameIsRunning{ true }, m_deltaTime{ 0.f }, m_player{ nullptr }, m_currentMap{ nullptr }
 {
 
 }
 
 int Game::Run()
+{
+	int exitCode;
+	
+	exitCode = BeginPlay();
+
+	if (exitCode != 0)
+	{
+		return exitCode;
+	}
+
+	while (m_gameIsRunning)
+	{
+		// Timelord shenanigans
+		m_deltaTime = (clock() - m_oldTime) / 1000.f;
+		m_oldTime = clock();
+
+		exitCode = Tick(m_deltaTime);
+
+		if (exitCode != 0)
+		{
+			return exitCode;
+		}
+
+	}
+
+	exitCode = EndPlay();
+
+	return exitCode;
+	
+}
+
+int Game::BeginPlay()
 {
 	// Create Map
 	uint16_t tempMapWall[24 * 24] =
@@ -76,7 +108,7 @@ int Game::Run()
 		tempMapData[i] = tempMapWall[i];
 	}
 
-	Map* m_currentMap = new Map(24, 24);
+	m_currentMap = new Map(24, 24);
 
 	m_currentMap->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i(24, 24));
 
@@ -84,19 +116,12 @@ int Game::Run()
 
 	// Create Player Camera & Viewport
 
-	Player* m_player = new Player
+	m_player = new Player
 	(
 		Vector2(22.5f, 1.5f), Vector2(-1.f, 0.f),  // Player Data
 		Vector2(0.f, -1.4f), // Camera Data
 		Vector2i(10, 3), Vector2i(128, 32) // Viewport Data
 	);
-
-	Camera* mainCam = m_player->GetCamera();
-	
-	Viewport* mainViewport = mainCam->GetViewport();
-
-	int& width = mainViewport->size.x;
-	int& height = mainViewport->size.y;
 
 	// Create Textures
 
@@ -131,14 +156,14 @@ int Game::Run()
 
 	// Add Sprites to map TEMP
 
-	m_currentMap->AddSprite(new Sprite( Vector2(20.5f, 11.5f), m_textureList[11]) );
-	m_currentMap->AddSprite(new Sprite( Vector2(18.5f, 4.5f), m_textureList[11]) );
-	m_currentMap->AddSprite(new Sprite( Vector2(10.5f, 4.5f), m_textureList[11]) );
-	m_currentMap->AddSprite(new Sprite( Vector2(10.5f, 12.5f), m_textureList[11]) );
-	m_currentMap->AddSprite(new Sprite( Vector2(3.5f, 6.5f), m_textureList[11]) );
-	m_currentMap->AddSprite(new Sprite( Vector2(3.5f, 20.5f), m_textureList[11]) );
-	m_currentMap->AddSprite(new Sprite( Vector2(3.5f, 14.5f), m_textureList[11]) );
-	m_currentMap->AddSprite(new Sprite( Vector2(14.5f, 20.5f), m_textureList[11]) );
+	m_currentMap->AddSprite(new Sprite(Vector2(20.5f, 11.5f), m_textureList[11]));
+	m_currentMap->AddSprite(new Sprite(Vector2(18.5f, 4.5f), m_textureList[11]));
+	m_currentMap->AddSprite(new Sprite(Vector2(10.5f, 4.5f), m_textureList[11]));
+	m_currentMap->AddSprite(new Sprite(Vector2(10.5f, 12.5f), m_textureList[11]));
+	m_currentMap->AddSprite(new Sprite(Vector2(3.5f, 6.5f), m_textureList[11]));
+	m_currentMap->AddSprite(new Sprite(Vector2(3.5f, 20.5f), m_textureList[11]));
+	m_currentMap->AddSprite(new Sprite(Vector2(3.5f, 14.5f), m_textureList[11]));
+	m_currentMap->AddSprite(new Sprite(Vector2(14.5f, 20.5f), m_textureList[11]));
 
 	m_currentMap->AddSprite(new Sprite(Vector2(18.5f, 10.5f), m_textureList[10]));
 	m_currentMap->AddSprite(new Sprite(Vector2(18.5f, 11.5f), m_textureList[10]));
@@ -161,68 +186,82 @@ int Game::Run()
 
 	ToggleANSI(true);
 
+	return 0;
+}
 
-	while (gameIsRunning)
-	{
-		// Timelord shenanigans
-		deltaTime = (clock() - m_oldTime) / 1000.f;
-		unsigned int fps = (1.f / deltaTime);
-		m_oldTime = clock();
-		
-
-		SetConsoleCursorPos(0, (height + mainViewport->position.y));
-		std::cout << "\033[2K"; // Erase current line
-		std::cout << "FPS: " << fps;
-
-		SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
-		std::cout << "\033[2K"; // Erase current line
-		std::cout << std::format("Player Position: [{}, {}]", int(m_player->position.x), int(m_player->position.y));
-		
-
-		
-		//OldKeyboardInput(m_player, mainCam, m_currentMap);
-		KeyboardInput(m_player, mainCam, m_currentMap);
-
-		m_player->RunTweens(deltaTime);
-
-		Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList, false);
-		//DrawASCIIViewport(mainViewport);
-		DrawColorViewport(mainViewport);
-		
-		
-
-		//if (m_player->IsMoving() == false)
-		//{
-		//	SetCursorVis(true);
-
-		//	string command;
-
-		//	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
-
-		//	std::cout << "\033[2K"; // Erase current line
-
-		//	std::cout << "Please enter input: ";
-		//	std::getline(std::cin, command);
-
-		//	// Reset old time not to account for time waiting typing to delta
-		//	m_oldTime = clock();
-
-		//	CommandInput(command, m_player, mainCam, m_currentMap);
-
-		//	SetCursorVis(false);
-		//}
-
-	}
-
+int Game::EndPlay()
+{
 	for (Texture* texture : m_textureList)
 	{
-		delete texture;
+		if (texture != nullptr)
+		{
+			delete texture;
+		}
 	}
 
 	delete m_player;
 	delete m_currentMap;
 
 	return EXIT_SUCCESS;
+}
+
+int Game::Tick(float deltaTime)
+{
+	Camera* mainCam = m_player->GetCamera();
+
+	Viewport* mainViewport = mainCam->GetViewport();
+
+	int& width = mainViewport->size.x;
+	int& height = mainViewport->size.y;
+
+	unsigned int fps = (1.f / deltaTime);
+
+	SetConsoleCursorPos(0, (height + mainViewport->position.y));
+	std::cout << "\033[2K"; // Erase current line
+	std::cout << "FPS: " << fps;
+
+	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+	std::cout << "\033[2K"; // Erase current line
+	std::cout << std::format("Player Position: [{}, {}]", int(m_player->position.x), int(m_player->position.y));
+
+	SetConsoleCursorPos(0, (height + mainViewport->position.y + 2));
+	std::cout << "\033[2K"; // Erase current line
+	std::cout << std::format("Player Direction: [{}, {}]", int(m_player->direction.x), int(m_player->direction.y));
+
+	m_player->RunTweens(deltaTime);
+
+	//OldKeyboardInput(m_player, mainCam, m_currentMap, m_deltaTime);
+	KeyboardInput(m_player, mainCam, m_currentMap);
+
+
+	Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList, false);
+	//DrawASCIIViewport(mainViewport);
+	DrawColorViewport(mainViewport);
+
+
+
+	//if (m_player->IsMoving() == false)
+	//{
+	//	SetCursorVis(true);
+
+	//	string command;
+
+	//	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+
+	//	std::cout << "\033[2K"; // Erase current line
+
+	//	std::cout << "Please enter input: ";
+	//	std::getline(std::cin, command);
+
+	//	// Reset old time not to account for time waiting typing to delta
+	//	m_oldTime = clock();
+
+	//	CommandInput(command, m_player, mainCam, m_currentMap);
+
+	//	SetCursorVis(false);
+	//}
+
+	return 0;
 }
 
 void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII)
@@ -249,7 +288,7 @@ void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*
 	delete[] zBuffer;
 }
 
-void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
+void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float deltaTime)
 {
 	float moveSpeed = deltaTime * 5.0f; // Cells per second
 	float rotSpeed = deltaTime * 3.0f; // radians / second
@@ -319,7 +358,7 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 	}
 	if (GetAsyncKeyState(VK_ESCAPE))
 	{
-		gameIsRunning = false;
+		m_gameIsRunning = false;
 	}
 
 	delete[] wallData;
@@ -327,129 +366,47 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map)
 
 void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 {
-	float rotAmt = DEG_TO_RAD(90);
-	float moveSpeed = player->GetMovementSpeed();
-	float rotSpeed = player->GetRotationSpeed();
-
-	float& plPosX = player->position.x;
-	float& plPosY = player->position.y;
-
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
-	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
-	Vector2i mapSize = map->GetMapSize();
-
 	// Keyboard Inputs
 	// Move Forward if not crash into wall
-	if (GetAsyncKeyState(VK_UP))
+	if (player->IsMoving() == false)
 	{
-		if (player->IsMoving() == false)
+		if (GetAsyncKeyState(VK_UP))
 		{
-			if (wallData[int(plPosY) * mapSize.x + int(plPosX + plDirX)] == 0)
-			{
-				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX, std::ref(player->position.x), moveSpeed, true));
-			}
-			else
-			{
-				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
-			}
-
-			if (wallData[int(plPosY + plDirY) * mapSize.x + int(plPosX)] == 0)
-			{
-				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY, std::ref(player->position.y), moveSpeed, true));
-			}
-			else
-			{
-				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
-			}
+			player->PlayerMoveAttempt(Vector2(plDirX, plDirY), map);
+			return;
+		}
+		if (GetAsyncKeyState(VK_DOWN))
+		{
+			player->PlayerMoveAttempt(Vector2(-plDirX, -plDirY), map);
+			return;
+		}
+		if (GetAsyncKeyState(VK_LEFT))
+		{
+			player->TurnPlayer(DEG_TO_RAD(-90));
+			return;
+		}
+		if (GetAsyncKeyState(VK_RIGHT))
+		{
+			player->TurnPlayer(DEG_TO_RAD(90));
+			return;
 		}
 	}
-	if (GetAsyncKeyState(VK_DOWN))
-	{
-		if (player->IsMoving() == false)
-		{
-			if (wallData[int(plPosY) * mapSize.x + int(plPosX - plDirX)] == 0)
-			{
-				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX, std::ref(player->position.x), moveSpeed, true));
-			}
-			else
-			{
-				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
-			}
 
-			if (wallData[int(plPosY - plDirY) * mapSize.x + int(plPosX)] == 0)
-			{
-				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY, std::ref(player->position.y), moveSpeed, true));
-			}
-			else
-			{
-				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosY - plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
-			}
-		}
-
-	}
-	if (GetAsyncKeyState(VK_LEFT))
-	{
-
-		float plNewDirX = plDirX * cos(-rotAmt) - plDirY * sin(-rotAmt);
-		float plNewDirY = plDirX * sin(-rotAmt) + plDirY * cos(-rotAmt);
-
-		float newCamSizeX = camera->size.x * cos(-rotAmt) - camera->size.y * sin(-rotAmt);
-		float newCamSizeY = camera->size.x * sin(-rotAmt) + camera->size.y * cos(-rotAmt);
-
-		if (player->IsMoving() == false)
-		{
-			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
-			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
-			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
-			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
-		}
-	}
-	if (GetAsyncKeyState(VK_RIGHT))
-	{
-
-		float plNewDirX = plDirX * cos(rotAmt) - plDirY * sin(rotAmt);
-		float plNewDirY = plDirX * sin(rotAmt) + plDirY * cos(rotAmt);
-
-		float newCamSizeX = camera->size.x * cos(rotAmt) - camera->size.y * sin(rotAmt);;
-		float newCamSizeY = camera->size.x * sin(rotAmt) + camera->size.y * cos(rotAmt);;
-
-		if (player->IsMoving() == false)
-		{
-			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
-			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
-			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
-			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
-		}
-	}
 	if (GetAsyncKeyState(VK_ESCAPE))
 	{
-		gameIsRunning = false;
+		m_gameIsRunning = false;
 		return;
 	}
 
-	delete[] wallData;
 }
 
 void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& map)
 {
-	float rotAmt = DEG_TO_RAD(90);
-	float moveSpeed = player->GetMovementSpeed();
-	float rotSpeed = player->GetRotationSpeed();
-
-	float& plPosX = player->position.x;
-	float& plPosY = player->position.y;
-
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
-
-	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
-	Vector2i mapSize = map->GetMapSize();
 
 	// Convert string to lowercase
 	for (int i = 0; i < command.size(); i++)
@@ -463,102 +420,44 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 
 	if (command == "move forward")
 	{
-		if (player->IsMoving() == false)
-		{
-			if (wallData[int(plPosY) * mapSize.x + int(plPosX + plDirX)] == 0)
-			{
-				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX, std::ref(player->position.x), moveSpeed, true));
-			}
-			else
-			{
-				player->AddTween(new Tween<float>(plPosX, plPosX + plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosX + plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
-			}
-
-			if (wallData[int(plPosY + plDirY) * mapSize.x + int(plPosX)] == 0)
-			{
-				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY, std::ref(player->position.y), moveSpeed, true));
-			}
-			else
-			{
-				player->AddTween(new Tween<float>(plPosY, plPosY + plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosY + plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
-			}
-		}
+		player->PlayerMoveAttempt(Vector2(plDirX, plDirY), map);
+		return;
 	}
 	else if (command == "move backward")
 	{
-		if (player->IsMoving() == false)
-		{
-			if (wallData[int(plPosY) * mapSize.x + int(plPosX - plDirX)] == 0)
-			{
-				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX, std::ref(player->position.x), moveSpeed, true));
-			}
-			else
-			{
-				player->AddTween(new Tween<float>(plPosX, plPosX - plDirX * 0.45f, std::ref(player->position.x), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosX - plDirX * 0.45f, plPosX, std::ref(player->position.x), moveSpeed / 2, true));
-			}
-
-			if (wallData[int(plPosY - plDirY) * mapSize.x + int(plPosX)] == 0)
-			{
-				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY, std::ref(player->position.y), moveSpeed, true));
-			}
-			else
-			{
-				player->AddTween(new Tween<float>(plPosY, plPosY - plDirY * 0.45f, std::ref(player->position.y), moveSpeed / 2, false));
-				player->AddTween(new Tween<float>(plPosY - plDirY * 0.45f, plPosY, std::ref(player->position.y), moveSpeed / 2, true));
-			}
-		}
+		player->PlayerMoveAttempt(Vector2(-plDirX, -plDirY), map);
+		return;
+	}
+	else if (command == "move left")
+	{
+		player->TurnPlayer(DEG_TO_RAD(-90));
+		player->PlayerMoveAttempt(Vector2(0, -plDirX), map);
+		return;
+	}
+	else if (command == "move right")
+	{
+		player->TurnPlayer(DEG_TO_RAD(90));
+		player->PlayerMoveAttempt(Vector2(0, plDirX), map);
+		return;
 	}
 	else if (command == "turn left")
 	{
-		float plNewDirX = plDirX * cos(-rotAmt) - plDirY * sin(-rotAmt);
-		float plNewDirY = plDirX * sin(-rotAmt) + plDirY * cos(-rotAmt);
-
-		float newCamSizeX = camera->size.x * cos(-rotAmt) - camera->size.y * sin(-rotAmt);
-		float newCamSizeY = camera->size.x * sin(-rotAmt) + camera->size.y * cos(-rotAmt);
-
-		if (player->IsMoving() == false)
-		{
-			// Rotate Player
-			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
-			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
-
-			// Rotate Camera
-			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
-			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
-		}
+		player->TurnPlayer(DEG_TO_RAD(-90));
+		return;
 	}
 	else if (command == "turn right")
 	{
-		float plNewDirX = plDirX * cos(rotAmt) - plDirY * sin(rotAmt);
-		float plNewDirY = plDirX * sin(rotAmt) + plDirY * cos(rotAmt);
-
-		float newCamSizeX = camera->size.x * cos(rotAmt) - camera->size.y * sin(rotAmt);;
-		float newCamSizeY = camera->size.x * sin(rotAmt) + camera->size.y * cos(rotAmt);;
-
-		if (player->IsMoving() == false)
-		{
-			// Rotate Player
-			player->AddTween(new Tween<float>(plDirX, plNewDirX, std::ref(plDirX), rotSpeed, true));
-			player->AddTween(new Tween<float>(plDirY, plNewDirY, std::ref(plDirY), rotSpeed, true));
-
-			// Rotate Camera
-			player->AddTween(new Tween<float>(camera->size.x, newCamSizeX, std::ref(camera->size.x), rotSpeed, true));
-			player->AddTween(new Tween<float>(camera->size.y, newCamSizeY, std::ref(camera->size.y), rotSpeed, true));
-		}
+		player->TurnPlayer(DEG_TO_RAD(90));
+		return;
 	}
 	else if (command == "escape")
 	{
-		gameIsRunning = false;
+		m_gameIsRunning = false;
 	}
 	else
 	{
 
 	}
-
-	delete[] wallData;
 }
 
 void Game::CreateDefaultTextures(vector<Texture*>& textureList, Vector2i textureSize)

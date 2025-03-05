@@ -68,7 +68,7 @@ Color ColorA::RGBAToRGB()
 	return Color(r, g, b);
 }
 
-Color ColorA::LayerRGBAOnRGB(Color layerColor)
+Color ColorA::LayerRGBAOnRGB(Color layerColor) const
 {
 	float alpha = a / 255.f; 
 

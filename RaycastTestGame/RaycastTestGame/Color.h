@@ -40,7 +40,7 @@ public:
 	string ToStringValue(byte& colorValue);
 	Color RGBAToRGB();
 
-	Color LayerRGBAOnRGB(Color layerColor);
+	Color LayerRGBAOnRGB(Color layerColor) const;
 
 
 	friend ColorA& operator/=(ColorA& color, float divisor);

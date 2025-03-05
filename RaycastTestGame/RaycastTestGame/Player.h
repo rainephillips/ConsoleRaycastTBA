@@ -8,6 +8,8 @@
 
 using std::vector;
 
+class Map;
+
 class Player
 {
 public:
@@ -21,6 +23,10 @@ public:
 	void AddTween(Tween<float>* tween);
 
 	bool IsMoving();
+	bool CheckCollision(Vector2 position, Map*& map, bool xAxis);
+
+	void PlayerMoveAttempt(Vector2 position, Map*& map);
+	void TurnPlayer(float rotation);
 
 	float GetMovementSpeed();
 	float GetRotationSpeed();

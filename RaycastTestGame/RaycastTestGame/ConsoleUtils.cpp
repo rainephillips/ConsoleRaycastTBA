@@ -1,5 +1,6 @@
 #include "ConsoleUtils.h"
 
+#include <cmath>
 #include <string>
 #include <thread>
 #include <vector>
@@ -15,7 +16,7 @@ using std::thread;
 
 extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
-// ASCII Renderings
+// ASCII Renderings 
 
 void DrawPoint(int x, int y, char character)
 {
@@ -197,6 +198,8 @@ void DrawColorViewport(Viewport* viewport)
 		delete threadContainer[i];
 	}
 
+	threadContainer.clear();
+
 	outputString.append("\033[" + std::to_string(height + posY) + ";0H");
 	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 
@@ -239,5 +242,3 @@ void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yM
 	//outputString.append(tmpOutputString);
 	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
 }
-
-
