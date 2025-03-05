@@ -19,6 +19,12 @@
     <Filter Include="Source Files\DataTypes">
       <UniqueIdentifier>{9fb11b39-a2e2-4ef2-92d4-39293793e374}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AssessmentCompliance">
+      <UniqueIdentifier>{c740a1d5-3b78-48a4-a9a8-4511c3c53caf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\AssessmentCompliance">
+      <UniqueIdentifier>{96e657c4-529c-4564-8595-ecb02b5501ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,6 +65,21 @@
     </ClCompile>
     <ClCompile Include="Sprite.cpp">
       <Filter>Source Files\DataTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Source Files\AssessmentCompliance</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxOfDonuts.cpp">
+      <Filter>Source Files\AssessmentCompliance</Filter>
+    </ClCompile>
+    <ClCompile Include="Lamp.cpp">
+      <Filter>Source Files\AssessmentCompliance</Filter>
+    </ClCompile>
+    <ClCompile Include="Cat.cpp">
+      <Filter>Source Files\AssessmentCompliance</Filter>
+    </ClCompile>
+    <ClCompile Include="Room.cpp">
+      <Filter>Source Files\AssessmentCompliance</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +124,21 @@
     </ClInclude>
     <ClInclude Include="Sprite.h">
       <Filter>Header Files\DataTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>Header Files\AssessmentCompliance</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxOfDonuts.h">
+      <Filter>Header Files\AssessmentCompliance</Filter>
+    </ClInclude>
+    <ClInclude Include="Lamp.h">
+      <Filter>Header Files\AssessmentCompliance</Filter>
+    </ClInclude>
+    <ClInclude Include="Cat.h">
+      <Filter>Header Files\AssessmentCompliance</Filter>
+    </ClInclude>
+    <ClInclude Include="Room.h">
+      <Filter>Header Files\AssessmentCompliance</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
