@@ -167,38 +167,40 @@ void DrawColorViewport(Viewport* viewport)
 	string outputString;
 	outputString.reserve(height * (width * 15 + 13));
 
-	int threadCount = 4;
-	vector<thread*> threadContainer;
-	threadContainer.reserve(threadCount);
+	CreateColorStringRange(viewport, buffer, 0, height, outputString);
 
-	for (int i = 0; i < threadCount; i++)
-	{
-		threadContainer.emplace_back
-		(
-			new thread
-			(
-				CreateColorStringRange, // Function Pointer
-				// Parameters
-				viewport,
-				std::ref(buffer),
-				(height / threadCount) * i,
-				(height / threadCount) * (i + 1),
-				std::ref(outputString)
-			)
-		);
-	}
+	//int threadCount = 1;
+	//vector<thread*> threadContainer;
+	//threadContainer.reserve(threadCount);
 
-	for (int i = 0; i < threadCount; i++)
-	{
-		threadContainer[i]->join();
-	}
+	//for (int i = 0; i < threadCount; i++)
+	//{
+	//	threadContainer.emplace_back
+	//	(
+	//		new thread
+	//		(
+	//			CreateColorStringRange, // Function Pointer
+	//			// Parameters
+	//			viewport,
+	//			std::ref(buffer),
+	//			(height / threadCount) * i,
+	//			(height / threadCount) * (i + 1),
+	//			std::ref(outputString)
+	//		)
+	//	);
+	//}
 
-	for (int i = 0; i < threadCount; i++)
-	{
-		delete threadContainer[i];
-	}
+	//for (int i = 0; i < threadCount; i++)
+	//{
+	//	threadContainer[i]->join();
+	//}
 
-	threadContainer.clear();
+	//for (int i = 0; i < threadCount; i++)
+	//{
+	//	delete threadContainer[i];
+	//}
+
+	//threadContainer.clear();
 
 	outputString.append("\033[" + std::to_string(height + posY) + ";0H");
 	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);

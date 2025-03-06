@@ -25,6 +25,11 @@ bool Vector2::operator!=(Vector2& const rhs)
 	return (x == rhs.x && y == rhs.y) ? false : true;
 }
 
+const Vector2& Vector2::operator+(Vector2& const rhs)
+{
+	return Vector2(x + rhs.x, y + rhs.y);
+}
+
 /*
 	VECTOR2i
 */
@@ -52,4 +57,9 @@ bool Vector2i::operator==(Vector2i& const rhs)
 bool Vector2i::operator!=(Vector2i& const rhs)
 {
 	return (x == rhs.x && y == rhs.y) ? false : true;
+}
+
+const Vector2i& Vector2i::operator+(Vector2i& const rhs)
+{
+	return Vector2i(x + rhs.x, y + rhs.y);
 }

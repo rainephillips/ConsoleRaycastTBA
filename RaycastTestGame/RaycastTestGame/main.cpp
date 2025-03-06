@@ -17,7 +17,7 @@ int main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	// This function will enable a breakpoint when the program
 	// reaches a piece of memoery with the matching ID
-	//_CrtSetBreakAlloc(214425);
+	//_CrtSetBreakAlloc(286);
 	#endif 
 
 	Game* newGame = new Game();

@@ -11,6 +11,8 @@ public:
 	bool operator==(Vector2& const rhs);
 	bool operator!=(Vector2& const rhs);
 
+	const Vector2& operator+(Vector2& const rhs);
+
 public:
 	float x;
 	float y;
@@ -27,6 +29,8 @@ public:
 public:
 	bool operator==(Vector2i& const rhs);
 	bool operator!=(Vector2i& const rhs);
+
+	const Vector2i& operator+(Vector2i& const rhs);
 
 public:
 	int x;

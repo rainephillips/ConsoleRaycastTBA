@@ -24,7 +24,10 @@ Map::~Map()
 
 	for (Sprite* sprite : m_staticSpriteData)
 	{
-		delete sprite;
+		if (sprite != nullptr)
+		{
+			delete sprite;
+		}
 	}
 }
 

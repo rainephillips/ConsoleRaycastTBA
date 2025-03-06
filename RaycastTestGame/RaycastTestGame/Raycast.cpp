@@ -303,7 +303,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	}
 
 	// Set Zbuffer for sprite casting
-	zBuffer[x] = perpWallDist;
+	zBuffer[x] = abs(perpWallDist);
 
 	delete[] wallData;
 }
@@ -379,9 +379,9 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 
 		int drawEndY = spriteHeight / 2 + height / 2;
 
-		if (drawEndY >= height)
+		if (drawEndY > height)
 		{
-			drawEndY = height + 1;
+			drawEndY = height;
 		}
 
 		// Calculate width of sprite
@@ -394,9 +394,9 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 		}
 
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
-		if (drawEndX >= width)
+		if (drawEndX > width)
 		{
-			drawEndX = width + 1;
+			drawEndX = width;
 		}
 
 		Texture* spriteTexture = sprite->GetTexture();
