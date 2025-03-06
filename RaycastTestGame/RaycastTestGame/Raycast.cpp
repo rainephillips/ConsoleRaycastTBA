@@ -93,12 +93,12 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		// Drawing floor
 		ColorA floorColor = floorTexture->GetColorFromLocation(floorTexturePos.x, floorTexturePos.y);
 		floorColor /= 1.25f; // Dim the color
-		viewport->AddColorToBuffer(x, y, floorColor.RGBAToRGB());
+		viewport->AddColorAToBuffer(x, y, floorColor);
 		
 		// Drawing ceiling
 		ColorA ceilingColor = ceilTexture->GetColorFromLocation(ceilTexturePos.x, ceilTexturePos.y);
 		ceilingColor /= 1.25f; // Dim the color as before
-		viewport->AddColorToBuffer(x, height - y - 1, ceilingColor.RGBAToRGB());
+		viewport->AddColorAToBuffer(x, height - y - 1, ceilingColor);
 	}
 }
 
@@ -283,7 +283,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		float texPosY = (drawStart - (height / 2.f) + (lineHeight / 2)) * step;
 
 		// Repeat for each character in the raycast
-		Color color;
+		ColorA color;
 		for (int y = drawStart; y < drawEnd; y++)
 		{
 
@@ -291,14 +291,14 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 			int texY = (int)texPosY & (texSize.y - 1);
 
 
-			color = textures[texNum]->GetColorFromLocation(texPosX, texPosY).RGBAToRGB();
+			color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
 			if (isHorizontalWall)
 			{
 				color /= 1.5f;
 			}
 			texPosY += step;
 
-			viewport->AddColorToBuffer(x, y, color);
+			viewport->AddColorAToBuffer(x, y, color);
 		}
 	}
 
@@ -366,18 +366,24 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 
 		int spriteScreenX = int( (width / 2) * (1 + transform.x / transform.y) );
 
+		float yOffset = sprite->GetOffset();
+
+		Vector2 scale = sprite->GetScale();
+
+		int vMoveScreen = int(yOffset / transform.y);
+
 		// Calculate height of the sprite on screen
-		int spriteHeight = abs( int( height / transform.y ) ); // using 'transform.y' instead of real distance to prevent fisheye eye
+		int spriteHeight = abs( int( height / transform.y)) / scale.y; // using 'transform.y' instead of real distance to prevent fisheye eye
 
 		// Calculate lowest and highest pixel to fill stripe
-		int drawStartY = -spriteHeight / 2 + height / 2;
+		int drawStartY = -spriteHeight / 2 + height / 2 + vMoveScreen;
 
 		if (drawStartY < 0)
 		{
 			drawStartY = 0;
 		}
 
-		int drawEndY = spriteHeight / 2 + height / 2;
+		int drawEndY = spriteHeight / 2 + height / 2 + vMoveScreen;
 
 		if (drawEndY > height)
 		{
@@ -385,7 +391,7 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 		}
 
 		// Calculate width of sprite
-		int spriteWidth = abs( int( height / transform.y ) );
+		int spriteWidth = abs( int( height / transform.y)) / scale.x;
 		int drawStartX = -spriteWidth / 2 + spriteScreenX;
 		
 		if (drawStartX < 0)
@@ -418,7 +424,7 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 			{
 				for (int y = drawStartY; y < drawEndY; y++)
 				{
-					int d = (y) * 256 - height * 128 + spriteHeight * 128;
+					int d = (y - vMoveScreen) * 256 - height * 128 + spriteHeight * 128;
 					texturePos.y = ((d * textureSize.y) / spriteHeight) / 256;
 					texturePos.y = std::clamp(texturePos.y, 0, textureSize.y - 1);
 

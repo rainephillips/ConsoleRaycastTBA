@@ -8,12 +8,14 @@ Player::Player()
 	: position{ 0.f, 0.f }, direction{ -1.f, 0.f }, m_camera { new Camera() },
 	m_movementSpeed{ 0.25f }, m_rotationSpeed{ 0.33f }
 {
+	AddSpells();
 }
 
 Player::Player(Vector2 position, Vector2 direction)
 	: position{ position }, direction{ direction }, m_camera{ new Camera() },
 	m_movementSpeed{ 0.25f }, m_rotationSpeed{ 0.33f }
 {
+	AddSpells();
 }
 
 Player::Player(Vector2 position, Vector2 direction, Vector2 cameraSize, Vector2i viewportPosition, Vector2i viewportSize)
@@ -21,6 +23,7 @@ Player::Player(Vector2 position, Vector2 direction, Vector2 cameraSize, Vector2i
 	m_camera{ new Camera(cameraSize, viewportPosition, viewportSize ) },
 	m_movementSpeed{ 0.25f }, m_rotationSpeed{ 0.33f }
 {
+	AddSpells();
 }
 
 Player::~Player()
@@ -72,6 +75,17 @@ void Player::AddTween(Tween<float>* tween)
 Camera* Player::GetCamera()
 {
 	return m_camera;
+}
+
+void Player::AddSpells()
+{
+	m_spells.emplace_back("Maziodyne");
+	m_spells.emplace_back("Myriad Truths");
+	m_spells.emplace_back("Psi");
+}
+
+void Player::SearchForSpell(string spell)
+{
 }
 
 bool Player::IsMoving()
@@ -152,6 +166,11 @@ float Player::GetMovementSpeed()
 float Player::GetRotationSpeed()
 {
 	return m_rotationSpeed;
+}
+
+bool Player::HasSpell(string spell)
+{
+	return false;
 }
 
 void Player::SetMovementSpeed(float speed)

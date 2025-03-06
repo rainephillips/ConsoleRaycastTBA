@@ -115,6 +115,12 @@ void Texture::SetTexture(const char* filepath)
 
 						
 					}
+
+					if (channelAmt != 4)
+					{
+						color.a = 255;
+					}
+
 					SetTextureColor(x, y, color);
 				}
 			}

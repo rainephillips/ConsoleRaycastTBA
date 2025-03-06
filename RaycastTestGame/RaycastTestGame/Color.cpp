@@ -29,7 +29,7 @@ string Color::ToStringValue(byte& colorValue)
 
 ColorA Color::RGBToRGBA()
 {
-	return ColorA(r, g, b, 0);
+	return ColorA(r, g, b, 255);
 }
 
 string Color::ToANSIEscape()

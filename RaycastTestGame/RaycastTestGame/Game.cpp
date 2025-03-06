@@ -35,7 +35,7 @@ using std::vector;
 Game::Game()
 	: m_oldTime{ 0.f }, m_time{ 0.f }, m_deltaTime{ 0.f }, 
 	m_gameIsRunning{ true },  m_player{ nullptr }, m_currentMap{ nullptr },
-	m_currentRoom{ 0, 0 }
+	m_currentRoom{ 0, 0 }, m_rooms{ nullptr }
 {
 
 }
@@ -84,7 +84,7 @@ int Game::BeginPlay()
 
 	//for (int i = 0; i < 8; i++)
 	//{
-	//	m_textureList[i]->SetTexture("images\\trollface.png");
+	//	m_textureList[i]->SetTexture("images\\coffeecup.png");
 	//}
 
 	m_textureList.emplace_back(new Texture("images\\adachifalse.jpeg"));
@@ -92,7 +92,7 @@ int Game::BeginPlay()
 	// Add sprite textures
 
 	m_textureList.emplace_back(new Texture("images\\coffeecup.png"));
-	m_textureList.emplace_back(new Texture("images\\trollface.png"));
+	m_textureList.emplace_back(new Texture("images\\lobotomy.jpeg"));
 	m_textureList.emplace_back(new Texture("images\\smalladachi.png"));
 
 	//Texture testTexture = Texture("images\\smalladachi.png");
@@ -167,7 +167,13 @@ int Game::BeginPlay()
 
 	// Add Sprites to map TEMP
 
-	room1->GetMap()->AddSprite(new Sprite(Vector2(20.5f, 11.5f), m_textureList[11]));
+	Sprite* sprite;
+
+	sprite = new Sprite(Vector2(20.5f, 11.5f), m_textureList[11]);
+	sprite->SetYOffset(-40.f);
+	sprite->SetScale(Vector2(2, 2));
+
+	room1->GetMap()->AddSprite(sprite);
 	room1->GetMap()->AddSprite(new Sprite(Vector2(18.5f, 4.5f), m_textureList[11]));
 	room1->GetMap()->AddSprite(new Sprite(Vector2(10.5f, 4.5f), m_textureList[11]));
 	room1->GetMap()->AddSprite(new Sprite(Vector2(10.5f, 12.5f), m_textureList[11]));
@@ -226,18 +232,21 @@ int Game::EndPlay()
 		}
 	}
 
-	for (int y = 0; y < m_roomsSize.y; y++)
+	if (m_rooms != nullptr)
 	{
-		for (int x = 0; x < m_roomsSize.x; x++)
+		for (int y = 0; y < m_roomsSize.y; y++)
 		{
-			if (m_rooms[y][x] != nullptr)
+			for (int x = 0; x < m_roomsSize.x; x++)
 			{
-				delete m_rooms[y][x];
+				if (m_rooms[y][x] != nullptr)
+				{
+					delete m_rooms[y][x];
+				}
 			}
+			delete[] m_rooms[y];
 		}
-		delete[] m_rooms[y];
 	}
-
+	
 	delete[] m_rooms;
 
 	m_textureList.clear();
@@ -275,6 +284,7 @@ int Game::Tick(float deltaTime)
 	//OldKeyboardInput(m_player, mainCam, m_currentMap, m_deltaTime);
 	KeyboardInput(m_player, mainCam, m_currentMap);
 
+	//mainViewport->ClearViewport(true);
 
 	Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList, false);
 	//DrawASCIIViewport(mainViewport);
@@ -519,14 +529,14 @@ void Game::CreateDefaultTextures(vector<Texture*>& textureList, Vector2i texture
 
 			int xyColor = (y * 128 / textureSize.y + x * 128 / textureSize.x);
 			int xorColor = xColor ^ yColor;
-			textureList[0]->SetTextureColor(x, y, ColorA( 255 * (x != y && x != textureSize.x - y) ) ); // flat red texture w/ black cross
-			textureList[1]->SetTextureColor(x, y, ColorA( xyColor + 245 * xyColor + 65536 * xyColor )); // sloped greyscale
-			textureList[2]->SetTextureColor(x, y, ColorA( 256 * xyColor + 65536 * xyColor)); // sloped yellow gradient
-			textureList[3]->SetTextureColor(x, y, ColorA( xorColor + 256 * xorColor + 65536 * xorColor )); // xor greyscale
-			textureList[4]->SetTextureColor(x, y, ColorA( 256 * xorColor) ); // xor green
-			textureList[5]->SetTextureColor(x, y, ColorA( 255 * (x % 16 && y % 16) ) ); // red bricks
-			textureList[6]->SetTextureColor(x, y, ColorA( 255 * yColor) ); // red gradient
-			textureList[7]->SetTextureColor(x, y, ColorA( 8421504 )); // flat gray texture
+			textureList[0]->SetTextureColor(x, y, Color( 255 * (x != y && x != textureSize.x - y) ).RGBToRGBA() ); // flat red texture w/ black cross
+			textureList[1]->SetTextureColor(x, y, Color( xyColor + 245 * xyColor + 65536 * xyColor ).RGBToRGBA()); // sloped greyscale
+			textureList[2]->SetTextureColor(x, y, Color( 256 * xyColor + 65536 * xyColor).RGBToRGBA()); // sloped yellow gradient
+			textureList[3]->SetTextureColor(x, y, Color( xorColor + 256 * xorColor + 65536 * xorColor ).RGBToRGBA()); // xor greyscale
+			textureList[4]->SetTextureColor(x, y, Color( 256 * xorColor).RGBToRGBA()); // xor green
+			textureList[5]->SetTextureColor(x, y, Color( 255 * (x % 16 && y % 16) ).RGBToRGBA()); // red bricks
+			textureList[6]->SetTextureColor(x, y, Color( 255 * yColor).RGBToRGBA()); // red gradient
+			textureList[7]->SetTextureColor(x, y, Color( 8421504 ).RGBToRGBA()); // flat gray texture
 		}
 	}
 }

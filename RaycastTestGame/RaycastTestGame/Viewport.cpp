@@ -115,6 +115,28 @@ void Viewport::SetColorABuffer(Vector2i size, ColorA* buffer)
 	}
 }
 
+void Viewport::ClearViewport(bool usePattern)
+{
+	for (int x = 0; x < size.x; x++)
+	{
+		for (int y = 0; y < size.y; y++)
+		{
+			Color color;
+			if (usePattern)
+			{
+				color = ((x + y) % 2 == 0) ? Color(255, 0, 255) : Color(0, 0, 0);
+			}
+			else
+			{
+				color = Color(255, 0, 255);
+			}
+
+			m_colorScreenBuffer[y * size.x + x] = color;
+
+		}
+	}
+}
+
 char Viewport::GetCharFromDepth(float depth)
 {
 	return charByDepth[int(depth * 91.f)];
