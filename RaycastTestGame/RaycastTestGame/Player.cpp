@@ -79,13 +79,52 @@ Camera* Player::GetCamera()
 
 void Player::AddSpells()
 {
-	m_spells.emplace_back("Maziodyne");
-	m_spells.emplace_back("Myriad Truths");
-	m_spells.emplace_back("Psi");
+	m_spells.emplace_back("maziodyne");
+	m_spells.emplace_back("myriad truths");
+	m_spells.emplace_back("psi");
 }
 
-void Player::SearchForSpell(string spell)
+int Player::SearchForSpell(string spell)
 {
+	int lowIndex = 0;
+	int highIndex = m_spells.size() - 1;
+
+	int midpoint;
+	int comparrisonResult;
+
+	while (lowIndex <= highIndex)
+	{
+		midpoint = (lowIndex + highIndex) / 2;
+
+		comparrisonResult = strcmp(spell.c_str(), m_spells[midpoint].c_str());
+
+		switch (comparrisonResult)
+		{
+			case 0:
+			{
+				return midpoint;
+			}
+
+			case 1:
+			{
+				lowIndex = midpoint + 1;
+				break;
+			}
+
+			case -1:
+			{
+				highIndex = midpoint - 1;
+				break;
+			}
+
+			default:
+			{
+				break;
+			}
+		}
+	}
+
+	return -1;
 }
 
 bool Player::IsMoving()
@@ -170,7 +209,7 @@ float Player::GetRotationSpeed()
 
 bool Player::HasSpell(string spell)
 {
-	return false;
+	return !(SearchForSpell(spell) == -1);
 }
 
 void Player::SetMovementSpeed(float speed)

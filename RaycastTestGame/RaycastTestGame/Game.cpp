@@ -282,7 +282,7 @@ int Game::Tick(float deltaTime)
 	m_player->RunTweens(deltaTime);
 
 	//OldKeyboardInput(m_player, mainCam, m_currentMap, m_deltaTime);
-	KeyboardInput(m_player, mainCam, m_currentMap);
+	//KeyboardInput(m_player, mainCam, m_currentMap);
 
 	//mainViewport->ClearViewport(true);
 
@@ -292,26 +292,27 @@ int Game::Tick(float deltaTime)
 
 
 
-	//if (m_player->IsMoving() == false)
-	//{
-	//	SetCursorVis(true);
+	if (m_player->IsMoving() == false)
+	{
+		SetCursorVis(true);
 
-	//	string command;
+		string command;
 
-	//	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+		SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
 
-	//	std::cout << "\033[2K"; // Erase current line
+		std::cout << "\033[2K"; // Erase current line
 
-	//	std::cout << "Please enter input: ";
-	//	std::getline(std::cin, command);
+		std::cout << "Please enter input: ";
+		std::getline(std::cin, command);
+		std::cin.clear();
 
-	//	// Reset old time not to account for time waiting typing to delta
-	//	m_oldTime = clock();
+		// Reset old time not to account for time waiting typing to delta
+		m_oldTime = clock();
 
-	//	CommandInput(command, m_player, mainCam, m_currentMap);
+		CommandInput(command, m_player, mainCam, m_currentMap);
 
-	//	SetCursorVis(false);
-	//}
+		SetCursorVis(false);
+	}
 
 	return 0;
 }
@@ -461,14 +462,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	float& plDirY = player->direction.y;
 
 	// Convert string to lowercase
-	for (int i = 0; i < command.size(); i++)
-	{
-		if (command[i] >= 'A' && command[i] <= 'Z')
-		{
-			command[i] += 32;
-		}
-	}
-
+	command = StringToLower(command);
 
 	if (command == "move forward")
 	{
@@ -480,18 +474,6 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 		player->PlayerMoveAttempt(Vector2(-plDirX, -plDirY), map);
 		return;
 	}
-	else if (command == "move left")
-	{
-		player->TurnPlayer(DEG_TO_RAD(-90));
-		player->PlayerMoveAttempt(Vector2(0, -plDirX), map);
-		return;
-	}
-	else if (command == "move right")
-	{
-		player->TurnPlayer(DEG_TO_RAD(90));
-		player->PlayerMoveAttempt(Vector2(0, plDirX), map);
-		return;
-	}
 	else if (command == "turn left")
 	{
 		player->TurnPlayer(DEG_TO_RAD(-90));
@@ -500,6 +482,22 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	else if (command == "turn right")
 	{
 		player->TurnPlayer(DEG_TO_RAD(90));
+		return;
+	}
+	else if (command == "spell")
+	{
+		std::cout << "\033[2KPlease enter a spell to check whether you know it or not: ";
+		std::getline(std::cin, command);
+		std::cin.clear();
+
+		command = StringToLower(command);
+
+		std::cout << std::format
+		(
+			"\033[2KYou{} know {}!",
+			(player->HasSpell(command)) ? "" : " don't",
+			StringCapitalise(command)
+		);
 		return;
 	}
 	else if (command == "escape")

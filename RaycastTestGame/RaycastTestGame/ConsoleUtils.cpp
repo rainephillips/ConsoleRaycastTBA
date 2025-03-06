@@ -244,3 +244,67 @@ void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yM
 	//outputString.append(tmpOutputString);
 	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
 }
+
+string StringToLower(string input)
+{
+	string output = input;
+
+	for (int i = 0; i < output.size(); i++)
+	{
+		if (output[i] >= 'A' && output[i] <= 'Z')
+		{
+			output[i] += 32;
+		}
+	}
+
+	return output;
+}
+
+string StringCapitalise(string input)
+{
+	string output = input;
+
+	bool changeChar = true;
+
+	for (char i = 0; i < output.size(); i++)
+	{
+		if (changeChar)
+		{
+			if (output[i] >= 'a' && output[i] <= 'z')
+			{
+				output[i] -= 32;
+				changeChar = false;
+			}
+		}
+		else
+		{
+			switch (output[i])
+			{
+				case ' ':
+				{
+					changeChar = true;
+					break;
+				}
+
+				case '-':
+				{
+					changeChar = true;
+					break;
+				}
+
+				case '_':
+				{
+					changeChar = true;
+					break;
+				}
+
+				default:
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	return output;
+}

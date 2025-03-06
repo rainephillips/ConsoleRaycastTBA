@@ -48,7 +48,7 @@ public:
 private:
 	void AddSpells();
 
-	void SearchForSpell(string spell);
+	int SearchForSpell(string spell);
 
 private:
 	Camera* m_camera;
