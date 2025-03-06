@@ -15,15 +15,30 @@ const void Lamp::Description()
 
 	if (m_turnedOn)
 	{
-		output.append("has fizzled out and is no longer burning... Would you like to light the lamp?");
+		output.append("is burning bright! Would you like to destroy the flame?");
 	}
 	else
 	{
-		output.append("is burning bright! Would you like to destroy the flame?");
+		output.append("has fizzled out and is no longer burning... Would you like to light the lamp?");
 	}
+
+	std::cout << output;
 }
 
 void Lamp::Use()
 {
 	m_turnedOn = !m_turnedOn;
+
+	string output = string("\033[2KYou ");
+
+	if (m_turnedOn)
+	{
+		output.append("lit the flame... The light burns bright.");
+	}
+	else
+	{
+		output.append("extinguished the flame... The world feels empty...");
+	}
+
+	std::cout << output;
 }

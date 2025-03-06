@@ -33,7 +33,7 @@ public:
 	float GetMovementSpeed();
 	float GetRotationSpeed();
 
-	bool HasSpell(string spell);
+	bool FindSpell(string spell);
 
 	void SetMovementSpeed(float speed);
 	void SetRotationSpeed(float speed);

@@ -9,7 +9,7 @@ Cat::Cat()
 
 const void Cat::Description()
 {
-	string output = "	It's a tuxedo cat! ";
+	string output = "It's a tuxedo cat! ";
 	if (m_purring)
 	{
 		output.append("They are happily purring rigt now! ");

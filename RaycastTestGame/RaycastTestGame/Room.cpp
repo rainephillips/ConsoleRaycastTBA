@@ -6,14 +6,13 @@
 #include "Map.h";
 
 Room::Room()
-    : m_description{ string() }, m_map{ nullptr }
+    : m_description{ string() }, m_map{ nullptr }, m_item{ nullptr }
 {
-    m_items.clear();
     m_description = string("Too lazy to write description :(");
 }
 
-Room::Room(string decription, vector<Item*> items, Map* map)
-    : m_description{ decription }, m_items{ items }, m_map{ map }
+Room::Room(string decription, Item* item, Map* map, Vector2i position)
+    : m_description{ decription }, m_item{ item }, m_map{ map }, m_roomPosition{ position }
 {
 }
 
@@ -24,12 +23,10 @@ Room::~Room()
         delete m_map;
     }
 
-    for (int item = 0; item < m_items.size(); item++)
+    if (m_item != nullptr)
     {
-        delete m_items[item];
-    }  
-
-    m_items.clear();
+        delete m_item;
+    }
 }
 
 void Room::SetMap(Map* map)
@@ -56,6 +53,16 @@ Vector2 Room::GetStartingDirection()
     return m_startingDirection;
 }
 
+Vector2i Room::GetPos()
+{
+    return m_roomPosition;
+}
+
+Item* Room::GetItem()
+{
+    return m_item;
+}
+
 void Room::SetStartingPosition(Vector2 position)
 {
     m_startingPosition = position;
@@ -64,6 +71,26 @@ void Room::SetStartingPosition(Vector2 position)
 void Room::SetStartingDirection(Vector2 direction)
 {
     m_startingDirection = direction;
+}
+
+void Room::SetDescription(string description)
+{
+    m_description = description;
+}
+
+void Room::SetRoomPosition(Vector2i position)
+{
+    m_roomPosition = position;
+}
+
+void Room::AddItem(Item* item)
+{
+    if (m_item != nullptr)
+    {
+        delete m_item;
+    }
+
+    m_item = item;
 }
 
 Map* Room::GetMap()

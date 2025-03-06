@@ -39,11 +39,10 @@ private:
 	void CommandInput(string command, Player*& player, Camera*& camera, Map*& map);
 	void CreateDefaultTextures(vector<Texture*>& textureList, Vector2i textureSize);
 
-	void MoveRoom(Vector2i direction);
 	void ChangeRoom(Room* room);
-	Room* GetRoom(Vector2i position);
+	Room* GetRoomFromPos(Vector2i position);
 
-	void SetRoom(Vector2i position, Room* room);
+	void SetRoom(Room* room);
 
 private:	
 	float m_deltaTime;
@@ -53,7 +52,7 @@ private:
 	Room*** m_rooms;
 
 	Vector2i m_roomsSize;
-	Vector2i m_currentRoom;
+	Room* m_currentRoom;
 
 	Player* m_player;
 	Map* m_currentMap;

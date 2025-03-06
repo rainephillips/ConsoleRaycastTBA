@@ -38,6 +38,8 @@ void Tween<val>::RunTween(float delta)
 	if (m_time > m_timeLimit)
 	{
 		m_time = m_timeLimit;
+		m_target = m_goal;
+		return;
 	}
 
 	// Calculate influence

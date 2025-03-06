@@ -207,7 +207,7 @@ float Player::GetRotationSpeed()
 	return m_rotationSpeed;
 }
 
-bool Player::HasSpell(string spell)
+bool Player::FindSpell(string spell)
 {
 	return !(SearchForSpell(spell) == -1);
 }

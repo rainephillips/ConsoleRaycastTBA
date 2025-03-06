@@ -23,7 +23,11 @@ void BoxOfDonuts::Use()
 	if (m_count > 0)
 	{
 		m_count--;
-		std::cout << "\033[2KYou ate a donut! It did absolutely nothing!";
+		std::cout << std::format
+		(
+			"\033[2KYou ate a donut! It did absolutely nothing! There are {} donuts remaining!",
+			(m_count > 0) ? std::to_string(m_count) : "no"
+		);
 	}
 	else
 	{

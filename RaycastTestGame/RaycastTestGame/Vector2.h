@@ -11,7 +11,7 @@ public:
 	bool operator==(Vector2& const rhs);
 	bool operator!=(Vector2& const rhs);
 
-	const Vector2& operator+(Vector2& const rhs);
+	const Vector2& operator+(const Vector2& rhs);
 
 public:
 	float x;
@@ -30,7 +30,7 @@ public:
 	bool operator==(Vector2i& const rhs);
 	bool operator!=(Vector2i& const rhs);
 
-	const Vector2i& operator+(Vector2i& const rhs);
+	const Vector2i& operator+(const Vector2i& rhs);
 
 public:
 	int x;
