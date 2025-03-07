@@ -9,8 +9,11 @@ Cat::Cat()
 
 const void Cat::Description()
 {
+	// Create output string
+
 	string output = "It's a tuxedo cat! ";
-	if (m_purring)
+
+	if (m_purring) // If cat is purring
 	{
 		output.append("They are happily purring rigt now! ");
 	}
@@ -26,9 +29,9 @@ const void Cat::Description()
 
 void Cat::Use()
 {
-	m_purring = !m_purring;
+	m_purring = !m_purring; // Invert m_purring
 
-	if (m_purring)
+	if (m_purring) // If purring
 	{
 		std::cout << "\033[2K\"Mwhehehe mrow!\" The cat is loving it!";
 	}

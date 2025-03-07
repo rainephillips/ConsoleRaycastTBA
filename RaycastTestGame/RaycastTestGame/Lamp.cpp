@@ -9,11 +9,12 @@ Lamp::Lamp()
 
 const void Lamp::Description()
 {
+	// Create output string
 	string output;
 
 	output.append("\033[2KThere is a lamp! The candle ");
 
-	if (m_turnedOn)
+	if (m_turnedOn) // If lamp is on
 	{
 		output.append("is burning bright! Would you like to destroy the flame?");
 	}
@@ -27,11 +28,11 @@ const void Lamp::Description()
 
 void Lamp::Use()
 {
-	m_turnedOn = !m_turnedOn;
+	m_turnedOn = !m_turnedOn; // Invert m_turnedOn
 
 	string output = string("\033[2KYou ");
 
-	if (m_turnedOn)
+	if (m_turnedOn) // If lamp is on
 	{
 		output.append("lit the flame... The light burns bright.");
 	}

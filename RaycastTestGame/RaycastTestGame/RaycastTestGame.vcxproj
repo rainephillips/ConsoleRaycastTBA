@@ -141,7 +141,6 @@
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Raycast.cpp" />
-    <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -160,7 +159,6 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Raycast.h" />
-    <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="stb_image.h" />

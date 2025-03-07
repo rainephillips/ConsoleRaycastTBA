@@ -3,6 +3,43 @@
 
 #include "Game.h"
 
+/*
+
+	WELCOME TO THE CONSOLE RENDERED TEXT BASED ADVENTURE
+
+	IT IS RECCOMENDED YOU RESIZE THE CONSOLE BEFORE 
+	RUNNING THE PROGRAM TO PREVENT PIXELS FROM REARRANGING
+
+	COMMANDS (None are case sensitive)
+
+	MAP MOVEMENT:
+
+		- "Move Forward"	|	Moves player forward on the map.
+		- "Move Backward"	|	Moves player backward on the map.
+		- "Turn Left"		|	Turns the player left on the map.
+		- "Turn Right"		|	Turns the player right on the map.
+
+	ROOM MOVEMENT:
+
+		- "Move Room North"	|	Move the player to the room north of current room if it exists.
+		- "Move Room South"	|	Move the player to the room south of current room if it exists.
+		- "Move Room East"	|	Move the player to the room east of current room if it exists.
+		- "Move Room West"	|	Move the player to the room west of current room if it exists.
+
+	MISC:
+
+		- "Spell"			|	Asks the player to input a spell to search and returns whether the player knows the spell or not.
+		- "Room Desc"		|	Returns the description of the room.
+		- "Item Desc"		|	Returns the description of the item in the room if there is one.
+		- "Item Interact"	|	Uses the item in the room if there is one.
+
+	ESCAPE:
+
+		- "Escape"			|	Exits the game.
+
+
+*/
+
 // _DEBUG is a macro that is automatically set when we are in debug builds
 #if _DEBUG
 // Define the macro that will enable the memory leak detection tools

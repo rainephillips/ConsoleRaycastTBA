@@ -33,7 +33,7 @@ private:
 	int Tick(float deltaTime);
 
 
-	void Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII);
+	void Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures);
 	void OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float deltaTime);
 	void KeyboardInput(Player*& player, Camera*& camera, Map*& map);
 	void CommandInput(string command, Player*& player, Camera*& camera, Map*& map);

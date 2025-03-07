@@ -8,7 +8,7 @@
 Room::Room()
     : m_description{ string() }, m_map{ nullptr }, m_item{ nullptr }
 {
-    m_description = string("Too lazy to write description :(");
+    m_description = string("Too lazy to write description :("); // Default descirption
 }
 
 Room::Room(string decription, Item* item, Map* map, Vector2i position)
@@ -31,6 +31,7 @@ Room::~Room()
 
 void Room::SetMap(Map* map)
 {
+    // If map exists
     if (m_map != nullptr)
     {
         delete m_map;
@@ -85,6 +86,7 @@ void Room::SetRoomPosition(Vector2i position)
 
 void Room::AddItem(Item* item)
 {
+    // If item items
     if (m_item != nullptr)
     {
         delete m_item;

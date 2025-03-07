@@ -6,6 +6,7 @@
 Map::Map(int sizeX, int sizeY)
 	: m_size{ sizeX, sizeY }
 {
+	// Create new map data and set all values to 0 to prevent misread info
 	m_mapData = new uint64_t[sizeX * sizeY];
 	ClearMapData();
 
@@ -20,6 +21,7 @@ Map::Map(int sizeX, int sizeY)
 Map::Map(Vector2i size)
 	: m_size{ size }
 {
+	// Create new map data and set all values to 0 to prevent misread info
 	m_mapData = new uint64_t[size.x * size.y];
 	ClearMapData();
 
@@ -34,6 +36,7 @@ Map::~Map()
 {
 	delete m_mapData;
 
+	// For each sprite if it exists delete it
 	for (Sprite* sprite : m_staticSpriteData)
 	{
 		if (sprite != nullptr)
@@ -66,8 +69,10 @@ unsigned int Map::GetSpriteAmt()
 
 void Map::SetContents(uint64_t* mapData, Vector2i size)
 {
+	// If map data exists
 	if (m_mapData != nullptr)
 	{
+		// If map size is different delete map and make new one with correct size
 		if (m_size != size)
 		{
 			delete m_mapData;
@@ -77,6 +82,7 @@ void Map::SetContents(uint64_t* mapData, Vector2i size)
 			m_size = size;
 		}
 
+		// For each cell assign data
 		for (int column = 0; column < size.y; column++)
 		{
 			for (int row = 0; row < size.x; row++)
@@ -105,8 +111,10 @@ void Map::SetContentsFromLocation(int x, int y, uint16_t value, MapDataType laye
 
 void Map::SetContentDataType(uint16_t* data, MapDataType dataType, Vector2i size)
 {
+	// If map exists
 	if (m_mapData != nullptr)
 	{
+		// If size invalid abort
 		if (m_size != size)
 		{
 			return;
@@ -140,8 +148,7 @@ uint16_t* Map::GetDataTypeBuffer(MapDataType dataType)
 		uint16_t* seperatedData = reinterpret_cast<uint16_t*>(&m_mapData[cell]);
 
 		// Cast mapData into shorts and get the datatype
-
-		dataArray[cell] = (seperatedData)[dataType];
+		dataArray[cell] = seperatedData[dataType];
 	}
 
 	return dataArray;
@@ -149,8 +156,10 @@ uint16_t* Map::GetDataTypeBuffer(MapDataType dataType)
 
 void Map::ClearMapData()
 {
+	// If map exists
 	if (m_mapData != nullptr)
 	{
+		// Set all cells to 0
 		for (int y = 0; y < m_size.y; y++)
 		{
 			for (int x = 0; x < m_size.x; x++)
@@ -163,6 +172,7 @@ void Map::ClearMapData()
 
 void Map::ClearSpriteData()
 {
+	// If sprite exists delete it
 	for (Sprite* sprite : m_staticSpriteData)
 	{
 		if (sprite != nullptr)
@@ -170,6 +180,8 @@ void Map::ClearSpriteData()
 			delete sprite;
 		}
 	}
+
+	// Clear vector
 	m_staticSpriteData.clear();
 }
 
@@ -181,7 +193,6 @@ void Map::AddSprite(Sprite* sprite)
 void Map::SetLayerTexture(size_t texturePos, unsigned short position, MapDataType layer)
 {
 	// Add location of texture to respective layer
-
 	m_mapTextures[layer]->insert(m_mapTextures[layer]->begin() + position, texturePos);
 }
 
@@ -200,6 +211,7 @@ Texture* Map::GetTexture(unsigned short texture, MapDataType layer, vector<Textu
 	}
 	else
 	{
+		// Return first texture - should be error texture
 		return textureList[0];
 	}
 	

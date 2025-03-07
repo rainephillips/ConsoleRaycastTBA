@@ -122,7 +122,7 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 	delete[] roofData;
 }
 
-void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, bool useASCII, float*& zBuffer)
+void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, float*& zBuffer)
 {
 	float& plPosX = player->position.x;
 	float& plPosY = player->position.y;
@@ -250,77 +250,64 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		drawEnd = height;
 	}
 
-	// Checks whether using 24bit color or ASCII Renderer
-	if (useASCII)
+	
+	// Allows texture 0 to be used
+	Texture* texture = map->GetTexture(wallData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::WALL, textures);
+
+	// Calculate exact part of the wall hit instead of just cell
+	float wallX; // Technically its the y cord of the wall if its 
+	// horizontal but its the x cord of the texture
+	if (isHorizontalWall)
 	{
-		// Choose Wall Color
-		unsigned char color = GetASCIIColorFromRaycast(mapPos.x, mapPos.y, map, isHorizontalWall);
-
-		// Get Character
-		char pixel = viewport->GetCharFromDepth(float((lineHeight >= height) ? height : lineHeight) / float(height));
-
-		//Add Line to Buffer
-		viewport->AddScanlineToBuffer(x, height, drawStart, drawEnd, pixel, color, 0);
+		wallX = plPosX + perpWallDist * rayDir.x;
 	}
 	else
 	{
-		// Allows texture 0 to be used
-		Texture* texture = map->GetTexture(wallData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::WALL, textures);
+		wallX = plPosY + perpWallDist * rayDir.y;
+	}
+	wallX -= floor(wallX); // % of the x coordinate if start = 0 and end = 1
 
-		// Calculate exact part of the wall hit instead of just cell
-		float wallX; // Technically its the y cord of the wall if its 
-		// horizontal but its the x cord of the texture
+	Vector2i texSize = texture->GetSize();
+
+	// Get X Coordinate on the texture
+
+	// Flip Texture Accordingly Depending on if on NSEW Wall
+	int texPosX = int(wallX * (float)texSize.x);
+	if (isHorizontalWall == 0 && rayDir.x < 0)
+	{
+		texPosX = texSize.x - texPosX - 1;
+	}
+	if (isHorizontalWall == 1 && rayDir.y > 0)
+	{
+		texPosX = texSize.x - texPosX - 1;
+	}
+	// X coordinate stays the same for each cast but y has to be calculated for each
+
+	// How much to increase the texture coordinate per pixel
+	float texStep = 1.f * texSize.y / lineHeight;
+
+	// Starting texture coordinate
+	float texPosY = (drawStart - (height / 2.f) + (lineHeight / 2)) * texStep;
+
+	// Repeat for each character in the raycast
+	ColorA color;
+	for (int y = drawStart; y < drawEnd; y++)
+	{
+
+		// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
+		int texY = (int)texPosY & (texSize.y - 1);
+
+
+		color = texture->GetColorFromLocation(texPosX, texPosY);
 		if (isHorizontalWall)
 		{
-			wallX = plPosX + perpWallDist * rayDir.x;
+			color /= 1.5f;
 		}
-		else
-		{
-			wallX = plPosY + perpWallDist * rayDir.y;
-		}
-		wallX -= floor(wallX); // % of the x coordinate if start = 0 and end = 1
+		texPosY += texStep;
 
-		Vector2i texSize = texture->GetSize();
-
-		// Get X Coordinate on the texture
-
-		// Flip Texture Accordingly Depending on if on NSEW Wall
-		int texPosX = int(wallX * (float)texSize.x);
-		if (isHorizontalWall == 0 && rayDir.x < 0)
-		{
-			texPosX = texSize.x - texPosX - 1;
-		}
-		if (isHorizontalWall == 1 && rayDir.y > 0)
-		{
-			texPosX = texSize.x - texPosX - 1;
-		}
-		// X coordinate stays the same for each cast but y has to be calculated for each
-
-		// How much to increase the texture coordinate per pixel
-		float step = 1.f * texSize.y / lineHeight;
-
-		// Starting texture coordinate
-		float texPosY = (drawStart - (height / 2.f) + (lineHeight / 2)) * step;
-
-		// Repeat for each character in the raycast
-		ColorA color;
-		for (int y = drawStart; y < drawEnd; y++)
-		{
-
-			// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
-			int texY = (int)texPosY & (texSize.y - 1);
-
-
-			color = texture->GetColorFromLocation(texPosX, texPosY);
-			if (isHorizontalWall)
-			{
-				color /= 1.5f;
-			}
-			texPosY += step;
-
-			viewport->AddColorAToBuffer(x, y, color);
-		}
+		viewport->AddColorAToBuffer(x, y, color);
 	}
+	
 
 	// Set Zbuffer for sprite casting
 	zBuffer[x] = abs(perpWallDist);
@@ -455,20 +442,24 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 		}
 	}
 
+	// Delete sprite distance buffer
 	delete[] spriteOrder;
 	delete[] spriteDistance;
 }
 
 void SortSprites(int*& order, float*& distance, int amount)
 {
+	// Create new vector container pairs of floats and ints with the length of all sprites
 	std::vector< std::pair<float, int> > sprites(amount);
 	for (int i = 0; i < amount; i++)
 	{
+		// Add data to vector
 		sprites[i].first = distance[i];
 		sprites[i].second = order[i];
 	}
+	// Sort sprites in ascending order
 	std::sort(sprites.begin(), sprites.end());
-	// restore in recerse order to go from farthest to nearest
+	// restore in recverse order to go from farthest to nearest
 	for (int i = 0; i < amount; i++)
 	{
 		distance[i] = sprites[amount - i - 1].first;
@@ -478,6 +469,7 @@ void SortSprites(int*& order, float*& distance, int amount)
 
 unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
 {
+	// For ascii return color based on map
 	switch (map->GetMapData()[y * map->GetMapSize().x + x])
 
 	{

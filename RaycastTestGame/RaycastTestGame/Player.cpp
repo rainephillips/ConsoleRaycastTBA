@@ -28,6 +28,7 @@ Player::Player(Vector2 position, Vector2 direction, Vector2 cameraSize, Vector2i
 
 Player::~Player()
 {
+	// For all remaining tweens delete them
 	for (Tween<float>* tween : m_playerTweens)
 	{
 		delete tween;
@@ -38,8 +39,10 @@ Player::~Player()
 
 void Player::RunTweens(float delta)
 {
+	// For each tween
 	for (int tween = 0; tween < m_playerTweens.size(); tween++)
 	{
+		// If tween is finished already delete it and go back to now moved back tween
 		if (m_playerTweens[tween]->IsFinished())
 		{
 			// Remove tween and restart for loop
@@ -49,13 +52,17 @@ void Player::RunTweens(float delta)
 		}
 		else
 		{
+			// Run tween
 			m_playerTweens[tween]->RunTween(delta);
 
+			// If tween allows next tweens to run along with it
 			if (m_playerTweens[tween]->IsContinuous() == false)
 			{
+				// Finish tween loop
 				return;
 			}
 
+			// Same as first if statement now checking if tween is done
 			if (m_playerTweens[tween]->IsFinished())
 			{
 				// Remove tween and restart for loop
@@ -86,31 +93,38 @@ void Player::AddSpells()
 
 int Player::SearchForSpell(string spell)
 {
+	// BINARY SEARCH FOR SPELL STRING
 	int lowIndex = 0;
 	int highIndex = m_spells.size() - 1;
 
 	int midpoint;
 	int comparrisonResult;
 
+	// WHILE THERE ARE MORE VALUES TO CHECK
 	while (lowIndex <= highIndex)
 	{
+		// Assign midpoint
 		midpoint = (lowIndex + highIndex) / 2;
 
+		// Compare the 2 strings to see if before after or exact same in ascii order
 		comparrisonResult = strcmp(spell.c_str(), m_spells[midpoint].c_str());
 
 		switch (comparrisonResult)
 		{
+			// If identical found
 			case 0:
 			{
 				return midpoint;
 			}
 
+			// If after cut array in half on rhs
 			case 1:
 			{
 				lowIndex = midpoint + 1;
 				break;
 			}
 
+			// If before cut array in half on rhs
 			case -1:
 			{
 				highIndex = midpoint - 1;
@@ -134,12 +148,16 @@ bool Player::IsMoving()
 
 bool Player::CheckCollision(Vector2 position, Map*& map, bool xAxis)
 {
+	// Get wall data
 	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
 
+	// Get map size
 	Vector2i mapSize = map->GetMapSize();
 
 	bool result;
 	
+	// If location is intesecting with a wall
+	// Return true if not colliding
 	if (xAxis)
 	{
 		result = (wallData[int(this->position.y) * mapSize.x + int(this->position.x + position.x)] == 0);
@@ -156,25 +174,29 @@ bool Player::CheckCollision(Vector2 position, Map*& map, bool xAxis)
 
 void Player::PlayerMoveAttempt(Vector2 position, Map*& map)
 {
-
-	// Change to if x if y else pushback
-
+	
+	// If Colliding on x axis
 	if (CheckCollision(position, map, true))
 	{
+		// Tween x movement
 		AddTween(new Tween<float>(this->position.x, this->position.x + position.x, std::ref(this->position.x), m_movementSpeed, true));
 	}
 	else
 	{
+		// Tween ram into wall and bounce back
 		AddTween(new Tween<float>(this->position.x, this->position.x + position.x * 0.45f, std::ref(this->position.x), m_movementSpeed / 2, false));
 		AddTween(new Tween<float>(this->position.x + position.x * 0.45f, this->position.x, std::ref(this->position.x), m_movementSpeed / 2, true));
 	}
 
+	// If colliding on y axis
 	if (CheckCollision(position, map, false))
 	{
+		// Tween y movement
 		AddTween(new Tween<float>(this->position.y, this->position.y + position.y, std::ref(this->position.y), m_movementSpeed, true));
 	}
 	else
 	{
+		// Tween ram into wall and bounce back
 		AddTween(new Tween<float>(this->position.y, this->position.y + position.y * 0.45f, std::ref(this->position.y), m_movementSpeed / 2, false));
 		AddTween(new Tween<float>(this->position.y + position.y * 0.45f, this->position.y, std::ref(this->position.y), m_movementSpeed / 2, true));
 	}

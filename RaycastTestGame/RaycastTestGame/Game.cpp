@@ -43,7 +43,7 @@ using std::vector;
 Game::Game()
 	: m_oldTime{ 0.f }, m_time{ 0.f }, m_deltaTime{ 0.f }, 
 	m_gameIsRunning{ true },  m_player{ nullptr }, m_currentMap{ nullptr },
-	m_currentRoom{ nullptr }, m_rooms{ nullptr }, m_useCommandInput{ false }
+	m_currentRoom{ nullptr }, m_rooms{ nullptr }, m_useCommandInput{ true }
 {
 
 }
@@ -484,8 +484,7 @@ int Game::BeginPlay()
 
 	// First Frame Draw
 
-	Raycaster(viewport, m_player, camera, m_currentMap, m_textureList, false);
-	//DrawASCIIViewport(mainViewport);
+	Raycaster(viewport, m_player, camera, m_currentMap, m_textureList);
 	DrawColorViewport(viewport);
 
 	return EXIT_SUCCESS;
@@ -529,8 +528,8 @@ int Game::EndPlay()
 
 int Game::Tick(float deltaTime)
 {
+	// Define camera and
 	Camera* mainCam = m_player->GetCamera();
-
 	Viewport* mainViewport = mainCam->GetViewport();
 
 	int& width = mainViewport->size.x;
@@ -538,9 +537,10 @@ int Game::Tick(float deltaTime)
 
 	unsigned int fps = (1.f / deltaTime);
 
-	SetConsoleCursorPos(0, (height + mainViewport->position.y));
+	// Print out data to console
+	SetConsoleCursorPos(0, (height + mainViewport->position.y)); // Move position of the cursor
 	std::cout << "\033[2K"; // Erase current line
-	std::cout << "FPS: " << fps;
+	std::cout << "FPS: " << fps; // Output fps
 
 	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
 	std::cout << "\033[2K"; // Erase current line
@@ -550,32 +550,42 @@ int Game::Tick(float deltaTime)
 	std::cout << "\033[2K"; // Erase current line
 	std::cout << std::format("Player Direction: [{}, {}]", m_player->direction.x, m_player->direction.y);
 
+	// Run the players tweens to interpolate movement
 	m_player->RunTweens(deltaTime);
 
-	
-
+	// If using command input
 	if (m_useCommandInput)
 	{
+		// Check if player is not moving
 		if (m_player->IsMoving() == false)
 		{
+			// Make cursor visible
 			SetCursorVis(true);
-
+			
+			// create new stream command
 			string command;
 
+			// Set console cursor pos to 2 rows below viewport bottom
 			SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
 
 			std::cout << "\033[2K"; // Erase current line
 
 			std::cout << "Please enter input: ";
+
+			// Get the current line of the player input and clear input stream
 			std::getline(std::cin, command);
 			std::cin.clear();
 
 			// Reset old time not to account for time waiting typing to delta
 			m_oldTime = clock();
 
+			// Move console 4 rows below console
 			SetConsoleCursorPos(0, (height + mainViewport->position.y + 3));
+
+			// Call comand input function
 			CommandInput(command, m_player, mainCam, m_currentMap);
 
+			// Make cursor invisible
 			SetCursorVis(false);
 		}
 	}
@@ -587,48 +597,59 @@ int Game::Tick(float deltaTime)
 
 	//mainViewport->ClearViewport(true);
 
-	Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList, false);
+	// Run Raycaster
+	Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList);
+
+
 	//DrawASCIIViewport(mainViewport);
 	DrawColorViewport(mainViewport);
 
 	return 0;
 }
 
-void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures, bool useASCII)
+void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures)
 {
 	// Raycasting Loop
+
+	// Create Zbuffer for sprite so it can find the walls distance to the camera
 	float* zBuffer = new float[viewport->size.x];
 
-	if (!useASCII)
+	// Run floor raycast for every row
+	for (int y = 0; y < viewport->size.y; y++)
 	{
-		for (int y = 0; y < viewport->size.y; y++)
-		{
-			FloorRaycast(y, viewport, player, camera, map, textures);
-		}
+		FloorRaycast(y, viewport, player, camera, map, textures);
 	}
 	
-
+	// Run wall raycast for ever column
 	for (int x = 0; x < viewport->size.x; x++)
 	{
-		WallRaycast(x, viewport, player, camera, map, textures, useASCII, zBuffer);
+		WallRaycast(x, viewport, player, camera, map, textures, zBuffer);
 	}
 
+	// Cast sprite
 	SpriteCasting(viewport, player, camera, textures, map, zBuffer);
 
+	// Delete 2 Buffer
 	delete[] zBuffer;
 }
 
 void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float deltaTime)
 {
+	// OLD KEYBOARD MOVEMENT THAT WASN'T LINEAR GRID BASED MOVEMENT
+	// DOESNT USE TWEENS
+
+	// Get rotation & movement speed
 	float moveSpeed = deltaTime * 5.0f; // Cells per second
 	float rotSpeed = deltaTime * 3.0f; // radians / second
 
+	// Reference vars for cleaner code
 	float& plPosX = player->position.x;
 	float& plPosY = player->position.y;
 
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
+	// Get the wall data of the map to detect collision
 	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
 	Vector2i mapSize = map->GetMapSize();
 
@@ -636,6 +657,7 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float d
 	// Move Forward if not crash into wall
 	if (GetAsyncKeyState(VK_UP))
 	{
+		// If x + direction or y + direction * movement speed  doesnt interact with wall
 		if (wallData[ int(plPosY) * mapSize.x + int(plPosX + plDirX * moveSpeed) ] == 0)
 		{
 			plPosX += plDirX * moveSpeed;
@@ -647,6 +669,7 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float d
 	}
 	if (GetAsyncKeyState(VK_DOWN))
 	{
+		// If x - direction or y - direction * movement speed  doesnt interact with wall
 		if (wallData[int(plPosY) * mapSize.x + int(plPosX - plDirX * moveSpeed)] == 0)
 		{
 			plPosX -= plDirX * moveSpeed;
@@ -659,6 +682,7 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float d
 	}
 	if (GetAsyncKeyState(VK_LEFT))
 	{
+		// Rotate Camera & Player
 		float plNewDirX = plDirX * cos(-rotSpeed) - plDirY * sin(-rotSpeed);
 		float plNewDirY = plDirX * sin(-rotSpeed) + plDirY * cos(-rotSpeed);
 
@@ -673,6 +697,7 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float d
 	}
 	if (GetAsyncKeyState(VK_RIGHT))
 	{
+		// Rotate Camera & Player
 		float plNewDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
 		float plNewDirY = plDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
 
@@ -688,9 +713,11 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float d
 	}
 	if (GetAsyncKeyState(VK_ESCAPE))
 	{
+		// Stop game running
 		m_gameIsRunning = false;
 	}
 
+	// delete wall data
 	delete[] wallData;
 }
 
@@ -727,6 +754,7 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 
 	if (GetAsyncKeyState(VK_ESCAPE))
 	{
+		// Exit game
 		m_gameIsRunning = false;
 		return;
 	}
@@ -767,8 +795,10 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	// Room Movement
 	else if (command == "move room north")
 	{
+		// Get room adjacent to direction
 		Room* room = GetRoomFromPos(m_currentRoom->GetPos() + Vector2i(0, 1));
 
+		// If room exists
 		if (room != nullptr)
 		{
 			ChangeRoom(room);
@@ -780,8 +810,10 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	}
 	else if (command == "move room south")
 	{
+		// Get room adjacent to direction
 		Room* room = GetRoomFromPos(m_currentRoom->GetPos() + Vector2i(0, -1));
 
+		// If room exists
 		if (room != nullptr)
 		{
 			ChangeRoom(room);
@@ -793,8 +825,10 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	}
 	else if (command == "move room east")
 	{
+		// Get room adjacent to direction
 		Room* room = GetRoomFromPos(m_currentRoom->GetPos() + Vector2i(1, 0));
 
+		// If room exists
 		if (room != nullptr)
 		{
 			ChangeRoom(room);
@@ -806,8 +840,10 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	}
 	else if (command == "move room west")
 	{
+		// Get room adjacent to direction
 		Room* room = GetRoomFromPos(m_currentRoom->GetPos() + Vector2i(-1, 0));
 
+		// If room exists
 		if (room != nullptr)
 		{
 			ChangeRoom(room);
@@ -821,17 +857,19 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	// Spells 
 	else if (command == "spell")
 	{
+		// Get input
 		std::cout << "\033[2KPlease enter a spell to check whether you know it or not: ";
 		std::getline(std::cin, command);
 		std::cin.clear();
 
+		// convert command to lowercase
 		command = StringToLower(command);
 
 		std::cout << std::format
 		(
 			"\033[2KYou{} know {}!",
-			(player->FindSpell(command)) ? "" : " don't",
-			StringCapitalise(command)
+			(player->FindSpell(command)) ? "" : " don't", // Find Spell
+			StringCapitalise(command) // Capitalise command
 		);
 		return;
 	}
@@ -848,8 +886,10 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	{
 		std::cout << "\033[2K";
 
+		// Get item in the room
 		Item* item = m_currentRoom->GetItem();
 
+		// If item exists
 		if (item != nullptr)
 		{
 			item->Use();
@@ -865,8 +905,10 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	{
 		std::cout << "\033[2K";
 
+		// Get item in the room
 		Item* item = m_currentRoom->GetItem();
 
+		// If item exists
 		if (item != nullptr)
 		{
 			item->Description();
@@ -882,6 +924,7 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 
 	else if (command == "escape")
 	{
+		// Exit game
 		m_gameIsRunning = false;
 		std::cout << "\033[2KExiting game...";
 	}
@@ -893,12 +936,15 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 
 void Game::CreateDefaultTextures(vector<Texture*>& textureList, Vector2i textureSize)
 {
+	// Create new textures and add them to texture vector
 	for (int i = 0; i < 8; i++)
 	{
 		Texture* texture = new Texture();
 		texture->CreateNewTexture(textureSize);
 		textureList.emplace_back(texture);
 	}
+
+	// Create proceedual textures by passing int as color and converting RGB TO RGBA
 	for (int x = 0; x < textureSize.x; x++)
 	{
 		for (int y = 0; y < textureSize.y; y++)
@@ -922,29 +968,41 @@ void Game::CreateDefaultTextures(vector<Texture*>& textureList, Vector2i texture
 
 void Game::ChangeRoom(Room* room)
 {
+	// If room exists
 	if (room != nullptr)
 	{
+		// Set current room
+		m_currentRoom = room;
+
+		// Change map
 		m_currentMap = room->GetMap();
 
+		// Get player starting position and direction
 		Vector2 direction = room->GetStartingDirection();
-
 		Vector2 position = room->GetStartingPosition();
 
+		// Set player position
 		m_player->position.x = position.x;
 		m_player->position.y = position.y;
 
-
+		// Set player direction
 		m_player->direction.x = direction.x;
 		m_player->direction.y = direction.y;
 
+		// Get Camera
 		Camera* camera = m_player->GetCamera();
 
+		// Get camera fov
 		float cameraFov = abs(camera->size.x) + abs(camera->size.y);
 
+		// Set camera direction
 		camera->size.x = -direction.y * abs(cameraFov);
 		camera->size.y = direction.x * abs(cameraFov);
 
+		// Get room item
 		Item* item = room->GetItem();
+
+		// If item exists
 		if (item != nullptr)
 		{
 			item->Description();
@@ -955,8 +1013,6 @@ void Game::ChangeRoom(Room* room)
 		}
 
 		std::cout << "\n";
-
-		m_currentRoom = room;
 
 		room->Description();
 	}
@@ -987,7 +1043,7 @@ void Game::SetRoom(Room* room)
 	1) Is not below 0 on x coordinate
 	2) Is not above total x coords
 	3) Is not below 0 on t coordinate
-	4) Is not	 above total y coords
+	4) Is not above total y coords
 	*/
 	if (position.x >= 0 && position.x < m_roomsSize.x && position.y >= 0 && position.y < m_roomsSize.y)
 	{

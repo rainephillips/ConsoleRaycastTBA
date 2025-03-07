@@ -26,7 +26,7 @@ Texture::Texture(ColorA* image, int sizeX, int sizeY)
 Texture::Texture(const char* filepath)
 	: m_size{ Vector2i(2, 2) }, m_textureData{ nullptr }
 {
-	m_textureData = GetNewErrorTexture();
+	m_textureData = GetNewErrorTexture(); // Just in case file fails to load
 	SetTexture(filepath);
 }
 
@@ -40,6 +40,7 @@ Texture::~Texture()
 
 void Texture::SetTexture(ColorA* image, Vector2i size)
 {
+	// If texture data exists
 	if (m_textureData != nullptr)
 	{
 		delete[] m_textureData;
@@ -49,6 +50,7 @@ void Texture::SetTexture(ColorA* image, Vector2i size)
 	}
 	else
 	{
+		// Change texture error texture
 		m_size = Vector2i(2, 2);
 		m_textureData = GetNewErrorTexture();
 	}
@@ -58,15 +60,22 @@ void Texture::SetTexture(const char* filepath)
 {
 	if (m_textureData != nullptr)
 	{
+		// Delete old texture data
 		delete[] m_textureData;
 
-		Vector2i size = Vector2i();
+		// New map size
+		Vector2i size;
+
+		// Amount of color channels the image has
 		int channelAmt;
+
+		// Imports image as a char array where it goes 'RGBA, RGBA,RGBA...'
 		unsigned char* imgData = stbi_load(filepath, &size.x, &size.y, &channelAmt, 0);
 
-		if (imgData == nullptr && size.x > 0 && size.y > 0)
+		// if image failed to load for size 0 or lower
+		if (imgData == nullptr || size.x < 1 && size.y < 1)
 		{
-
+			// Change texture error texture
 			m_size = Vector2i(2, 2);
 			m_textureData = GetNewErrorTexture();
 		}
@@ -77,33 +86,38 @@ void Texture::SetTexture(const char* filepath)
 			m_size = size;
 			m_textureData = new ColorA[size.x * size.y];
 
-
+			// For each color channel in each x pos and y pos
 			for (int x = 0; x < m_size.x; x++)
 			{
 				for (int y = 0; y < m_size.y; y++)
 				{
-					ColorA color;
+					// Create default color in case image doesnt have specific channels
+					ColorA color = ColorA(0, 0, 0, 255);
 					for (int c = 0; c < channelAmt; c++)
 					{
 						switch (c)
 						{
 							case 0:
 							{
+								// Set r value
 								color.r = imgData[(y * size.x + x) * channelAmt + c];
 								break;
 							}
 							case 1:
 							{
+								// Set g value
 								color.g = imgData[(y * size.x + x) * channelAmt + c];
 								break;
 							}
 							case 2:
 							{
+								// Set b value
 								color.b = imgData[(y * size.x + x) * channelAmt + c];
 								break;
 							}
 							case 3:
 							{
+								// Set alpha value
 								color.a = imgData[(y * size.x + x) * channelAmt + c];
 								break;
 							}
@@ -116,19 +130,17 @@ void Texture::SetTexture(const char* filepath)
 						
 					}
 
-					if (channelAmt != 4)
-					{
-						color.a = 255;
-					}
-
+					// Set color of texture at position
 					SetTextureColor(x, y, color);
 				}
 			}
 		}
+		// Free image
 		stbi_image_free(imgData);
 	}
 	else
 	{
+		// Change texture error texture
 		m_size = Vector2i(2, 2);
 		m_textureData = GetNewErrorTexture();
 	}
@@ -137,16 +149,19 @@ void Texture::SetTexture(const char* filepath)
 
 void Texture::CreateNewTexture(Vector2i size)
 {
+	// If texture data exists
 	if (m_textureData != nullptr)
 	{
+		// Delete texture
 		delete[] m_textureData;
-		m_textureData = nullptr;
 
+		// Create new texture with right size and garbage data
 		m_textureData = new ColorA[size.x * size.y];
 		m_size = size;
 	}
 	else
 	{
+		// Change texture error texture
 		m_size = Vector2i(2, 2);
 		m_textureData = GetNewErrorTexture();
 	}
@@ -163,6 +178,7 @@ void Texture::SetTextureColor(int x, int y, ColorA color)
 
 ColorA* Texture::GetNewErrorTexture()
 {
+	// Create Magenta and Black checker pattern 2x2
 	ColorA* textureData = new ColorA[4]
 	{
 	ColorA(255,0,255,255),
@@ -181,11 +197,13 @@ ColorA* Texture::GetTexture()
 
 ColorA Texture::GetColorFromLocation(int x, int y)
 {
+	// If in boundaries
 	if (x < m_size.x && x >= 0 && y < m_size.y && y >= 0)
 	{
 		return m_textureData[y * m_size.x + x];
 	}
 
+	// Return error color
 	return ColorA(255, 0, 255, 255);
 }
 
