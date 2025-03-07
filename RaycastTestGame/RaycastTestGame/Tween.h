@@ -35,9 +35,13 @@ void Tween<val>::RunTween(float delta)
 	// Add time to timer
 	m_time += delta;
 
+	// If timer is above limit
 	if (m_time > m_timeLimit)
 	{
+		// Set data to goal and exit
 		m_time = m_timeLimit;
+		m_target = m_goal;
+		return;
 	}
 
 	// Calculate influence
@@ -50,6 +54,7 @@ void Tween<val>::RunTween(float delta)
 template<typename val>
 bool Tween<val>::IsFinished()
 {
+	// If timer is finished
 	if (m_time >= m_timeLimit)
 	{
 		return true;

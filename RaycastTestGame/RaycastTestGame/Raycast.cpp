@@ -21,8 +21,13 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
+	Vector2i& mapSize = map->GetMapSize();
+
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
+
+	uint16_t* floorData = map->GetDataTypeBuffer(MapDataType::FLOOR);
+	uint16_t* roofData = map->GetDataTypeBuffer(MapDataType::ROOF);
 
 	// Ray direction for leftmost ray (x = 0) and righmost ( x = width)
 	Vector2 l_rayDir =
@@ -60,30 +65,42 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		plPosY + rowDist * l_rayDir.y
 	};
 
-	for (int x = 0; x < width; x++)
+	for (int x = 0; x < width; ++x)
 	{
 		// the map cell pos
 		Vector2i mapPos = { (int)floorPos.x, (int)floorPos.y };
+		
+		// Skip if out of map boundary
+		if (!(mapPos.x >= 0 && mapPos.y >= 0 && mapPos.x <= mapSize.x && mapPos.y <= mapSize.y))
+		{
+			// Update floor and ceiling positions
+			floorPos.x += floorStep.x;
+			floorPos.y += floorStep.y;
 
-		Texture* floorTexture = textures[8];
+			continue;
+		}
+
+		// Get Floor texture from position on map
+		Texture* floorTexture = map->GetTexture(floorData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::FLOOR, textures);
 
 		Vector2i floorTextureSize = floorTexture->GetSize();
 
 		// Texture pos from fractional part
 		Vector2i floorTexturePos =
 		{
-			// (int)(texWidth * (floorX - cellX)) & (texWidth - 1)
 			((int)(floorTextureSize.x * (floorPos.x - mapPos.x))) & (floorTextureSize.x - 1),
 			((int)(floorTextureSize.y * (floorPos.y - mapPos.y))) & (floorTextureSize.y - 1)
 		};
 
-		Texture* ceilTexture = textures[8];
+		// Get roof texture from position on map
+		Texture* ceilTexture = map->GetTexture(roofData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::ROOF, textures);
 
 		Vector2i ceilTextureSize = ceilTexture->GetSize();
 
-		Vector2i ceilTexturePos = {
-		((int)(ceilTextureSize.x * (floorPos.x - mapPos.x))) & (ceilTextureSize.x - 1),
-		((int)(ceilTextureSize.y * (floorPos.y - mapPos.y))) & (ceilTextureSize.y - 1)
+		Vector2i ceilTexturePos = 
+		{
+			((int)(ceilTextureSize.x * (floorPos.x - mapPos.x))) & (ceilTextureSize.x - 1),
+			((int)(ceilTextureSize.y * (floorPos.y - mapPos.y))) & (ceilTextureSize.y - 1)
 		};
 
 		// Update floor and ceiling positions
@@ -93,16 +110,19 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		// Drawing floor
 		ColorA floorColor = floorTexture->GetColorFromLocation(floorTexturePos.x, floorTexturePos.y);
 		floorColor /= 1.25f; // Dim the color
-		viewport->AddColorToBuffer(x, y, floorColor.RGBAToRGB());
+		viewport->AddColorAToBuffer(x, y, floorColor);
 		
 		// Drawing ceiling
 		ColorA ceilingColor = ceilTexture->GetColorFromLocation(ceilTexturePos.x, ceilTexturePos.y);
 		ceilingColor /= 1.25f; // Dim the color as before
-		viewport->AddColorToBuffer(x, height - y - 1, ceilingColor.RGBAToRGB());
+		viewport->AddColorAToBuffer(x, height - y - 1, ceilingColor);
 	}
+
+	delete[] floorData;
+	delete[] roofData;
 }
 
-void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, bool useASCII, float*& zBuffer)
+void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, float*& zBuffer)
 {
 	float& plPosX = player->position.x;
 	float& plPosY = player->position.y;
@@ -230,80 +250,67 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		drawEnd = height;
 	}
 
-	// Checks whether using 24bit color or ASCII Renderer
-	if (useASCII)
+	
+	// Allows texture 0 to be used
+	Texture* texture = map->GetTexture(wallData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::WALL, textures);
+
+	// Calculate exact part of the wall hit instead of just cell
+	float wallX; // Technically its the y cord of the wall if its 
+	// horizontal but its the x cord of the texture
+	if (isHorizontalWall)
 	{
-		// Choose Wall Color
-		unsigned char color = GetASCIIColorFromRaycast(mapPos.x, mapPos.y, map, isHorizontalWall);
-
-		// Get Character
-		char pixel = viewport->GetCharFromDepth(float((lineHeight >= height) ? height : lineHeight) / float(height));
-
-		//Add Line to Buffer
-		viewport->AddScanlineToBuffer(x, height, drawStart, drawEnd, pixel, color, 0);
+		wallX = plPosX + perpWallDist * rayDir.x;
 	}
 	else
 	{
-		// Allows texture 0 to be used
-		int texNum = wallData[mapPos.y * mapSize.x + mapPos.x] - 1;
+		wallX = plPosY + perpWallDist * rayDir.y;
+	}
+	wallX -= floor(wallX); // % of the x coordinate if start = 0 and end = 1
 
-		// Calculate exact part of the wall hit instead of just cell
-		float wallX; // Technically its the y cord of the wall if its 
-		// horizontal but its the x cord of the texture
+	Vector2i texSize = texture->GetSize();
+
+	// Get X Coordinate on the texture
+
+	// Flip Texture Accordingly Depending on if on NSEW Wall
+	int texPosX = int(wallX * (float)texSize.x);
+	if (isHorizontalWall == 0 && rayDir.x < 0)
+	{
+		texPosX = texSize.x - texPosX - 1;
+	}
+	if (isHorizontalWall == 1 && rayDir.y > 0)
+	{
+		texPosX = texSize.x - texPosX - 1;
+	}
+	// X coordinate stays the same for each cast but y has to be calculated for each
+
+	// How much to increase the texture coordinate per pixel
+	float texStep = 1.f * texSize.y / lineHeight;
+
+	// Starting texture coordinate
+	float texPosY = (drawStart - (height / 2.f) + (lineHeight / 2)) * texStep;
+
+	// Repeat for each character in the raycast
+	ColorA color;
+	for (int y = drawStart; y < drawEnd; y++)
+	{
+
+		// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
+		int texY = (int)texPosY & (texSize.y - 1);
+
+
+		color = texture->GetColorFromLocation(texPosX, texPosY);
 		if (isHorizontalWall)
 		{
-			wallX = plPosX + perpWallDist * rayDir.x;
+			color /= 1.5f;
 		}
-		else
-		{
-			wallX = plPosY + perpWallDist * rayDir.y;
-		}
-		wallX -= floor(wallX); // % of the x coordinate if start = 0 and end = 1
+		texPosY += texStep;
 
-		Vector2i texSize = textures[texNum]->GetSize();
-
-		// Get X Coordinate on the texture
-
-		// Flip Texture Accordingly Depending on if on NSEW Wall
-		int texPosX = int(wallX * (float)texSize.x);
-		if (isHorizontalWall == 0 && rayDir.x < 0)
-		{
-			texPosX = texSize.x - texPosX - 1;
-		}
-		if (isHorizontalWall == 1 && rayDir.y > 0)
-		{
-			texPosX = texSize.x - texPosX - 1;
-		}
-		// X coordinate stays the same for each cast but y has to be calculated for each
-
-		// How much to increase the texture coordinate per pixel
-		float step = 1.f * texSize.y / lineHeight;
-
-		// Starting texture coordinate
-		float texPosY = (drawStart - (height / 2.f) + (lineHeight / 2)) * step;
-
-		// Repeat for each character in the raycast
-		Color color;
-		for (int y = drawStart; y < drawEnd; y++)
-		{
-
-			// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
-			int texY = (int)texPosY & (texSize.y - 1);
-
-
-			color = textures[texNum]->GetColorFromLocation(texPosX, texPosY).RGBAToRGB();
-			if (isHorizontalWall)
-			{
-				color /= 1.5f;
-			}
-			texPosY += step;
-
-			viewport->AddColorToBuffer(x, y, color);
-		}
+		viewport->AddColorAToBuffer(x, y, color);
 	}
+	
 
 	// Set Zbuffer for sprite casting
-	zBuffer[x] = perpWallDist;
+	zBuffer[x] = abs(perpWallDist);
 
 	delete[] wallData;
 }
@@ -366,26 +373,32 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 
 		int spriteScreenX = int( (width / 2) * (1 + transform.x / transform.y) );
 
+		float yOffset = sprite->GetOffset();
+
+		Vector2 scale = sprite->GetScale();
+
+		int vMoveScreen = int(yOffset / transform.y);
+
 		// Calculate height of the sprite on screen
-		int spriteHeight = abs( int( height / transform.y ) ); // using 'transform.y' instead of real distance to prevent fisheye eye
+		int spriteHeight = abs( int( height / transform.y)) / scale.y; // using 'transform.y' instead of real distance to prevent fisheye eye
 
 		// Calculate lowest and highest pixel to fill stripe
-		int drawStartY = -spriteHeight / 2 + height / 2;
+		int drawStartY = -spriteHeight / 2 + height / 2 + vMoveScreen;
 
 		if (drawStartY < 0)
 		{
 			drawStartY = 0;
 		}
 
-		int drawEndY = spriteHeight / 2 + height / 2;
+		int drawEndY = spriteHeight / 2 + height / 2 + vMoveScreen;
 
-		if (drawEndY >= height)
+		if (drawEndY > height)
 		{
-			drawEndY = height + 1;
+			drawEndY = height;
 		}
 
 		// Calculate width of sprite
-		int spriteWidth = abs( int( height / transform.y ) );
+		int spriteWidth = abs( int( height / transform.y)) / scale.x;
 		int drawStartX = -spriteWidth / 2 + spriteScreenX;
 		
 		if (drawStartX < 0)
@@ -394,9 +407,9 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 		}
 
 		int drawEndX = spriteWidth / 2 + spriteScreenX;
-		if (drawEndX >= width)
+		if (drawEndX > width)
 		{
-			drawEndX = width + 1;
+			drawEndX = width;
 		}
 
 		Texture* spriteTexture = sprite->GetTexture();
@@ -418,7 +431,7 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 			{
 				for (int y = drawStartY; y < drawEndY; y++)
 				{
-					int d = (y) * 256 - height * 128 + spriteHeight * 128;
+					int d = (y - vMoveScreen) * 256 - height * 128 + spriteHeight * 128;
 					texturePos.y = ((d * textureSize.y) / spriteHeight) / 256;
 					texturePos.y = std::clamp(texturePos.y, 0, textureSize.y - 1);
 
@@ -429,20 +442,24 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 		}
 	}
 
+	// Delete sprite distance buffer
 	delete[] spriteOrder;
 	delete[] spriteDistance;
 }
 
 void SortSprites(int*& order, float*& distance, int amount)
 {
+	// Create new vector container pairs of floats and ints with the length of all sprites
 	std::vector< std::pair<float, int> > sprites(amount);
 	for (int i = 0; i < amount; i++)
 	{
+		// Add data to vector
 		sprites[i].first = distance[i];
 		sprites[i].second = order[i];
 	}
+	// Sort sprites in ascending order
 	std::sort(sprites.begin(), sprites.end());
-	// restore in recerse order to go from farthest to nearest
+	// restore in recverse order to go from farthest to nearest
 	for (int i = 0; i < amount; i++)
 	{
 		distance[i] = sprites[amount - i - 1].first;
@@ -452,6 +469,7 @@ void SortSprites(int*& order, float*& distance, int amount)
 
 unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
 {
+	// For ascii return color based on map
 	switch (map->GetMapData()[y * map->GetMapSize().x + x])
 
 	{

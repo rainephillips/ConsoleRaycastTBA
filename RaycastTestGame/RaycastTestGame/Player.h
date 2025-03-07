@@ -1,12 +1,16 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include "Camera.h"
 #include "Tween.h";
 #include "Vector2.h"
 
 using std::vector;
+using std::string;
+
+class Map;
 
 class Player
 {
@@ -21,9 +25,15 @@ public:
 	void AddTween(Tween<float>* tween);
 
 	bool IsMoving();
+	bool CheckCollision(Vector2 position, Map*& map, bool xAxis);
+
+	void PlayerMoveAttempt(Vector2 position, Map*& map);
+	void TurnPlayer(float rotation);
 
 	float GetMovementSpeed();
 	float GetRotationSpeed();
+
+	bool FindSpell(string spell);
 
 	void SetMovementSpeed(float speed);
 	void SetRotationSpeed(float speed);
@@ -34,11 +44,19 @@ public:
 	Vector2 position;
 	Vector2 direction;
 
+
+private:
+	void AddSpells();
+
+	int SearchForSpell(string spell);
+
 private:
 	Camera* m_camera;
 
 	float m_movementSpeed;
 	float m_rotationSpeed;
+
+	vector<string> m_spells;
 
 	vector<Tween<float>*> m_playerTweens;
 };

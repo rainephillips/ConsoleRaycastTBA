@@ -1,5 +1,6 @@
 #include "ConsoleUtils.h"
 
+#include <cmath>
 #include <string>
 #include <thread>
 #include <vector>
@@ -7,42 +8,51 @@
 #include "Windows.h"
 #include "Vector2.h"
 #include "Viewport.h"
-#include "Rectangle.h"
 
 using std::string;
 using std::vector;
 using std::thread;
 
+// Get current console
 extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
-// ASCII Renderings
+// ASCII Renderings 
 
 void DrawPoint(int x, int y, char character)
 {
+	// Convert x, y into COORD
 	COORD pos = { (short)x, (short)y };
-		
+	
+	// Create char array to output (character + null terminator)
 	char charArray[2] = { character };
 
 	SetConsoleCursorPosition(console, pos);
+
+	// Output to console
 	WriteConsoleA(console, charArray, 1, NULL, NULL);
 }
 
 void DrawPoint(int x, int y, char character, unsigned char textColor, unsigned char bgColor)
 {
+	// Set console color to text + background color
 	SetConsoleColor(textColor, bgColor);
-
+	
+	// Convert x, y into COORD
 	COORD pos = { (short)x, (short)y };
 
 	char charArray[2] = { character };
-
+	
+	// Create char array to output (character + null terminator)
 	SetConsoleCursorPosition(console, pos);
 	WriteConsole(console, charArray, 1, NULL, NULL);
 
+	// Clear console color
 	ClearConsoleColor();
 }
 
 void DrawRect(int x, int y, int w, int h, char character)
 {
+	// Scanline drawing of a rectangle
 	for(int i = 0; i < h; ++i)
 	{ 
 		for (int j = 0; j < w; ++j)
@@ -59,13 +69,16 @@ void DrawRect(Vector2i position, Vector2i size, char character)
 
 void DrawVertLine(int x, int height, int start, int end, char character, unsigned char textColor, unsigned char bgColor)
 {
+	// ORIGINALLY USED FOR ASCII RENDERED THAT DIDN'T HAVE ROOF AND FLOOR SUPPORT
 	SetConsoleColor(textColor, bgColor);
 	for (int i = 0; i < height; i++)
 	{
+		// If position above wall
 		if (i < start)
 		{
 			DrawPoint(x, i, ' ');
 		}
+		// If position below wall
 		else if (i > end)
 		{
 			SetConsoleColor(CLR_BROWN, bgColor);
@@ -106,6 +119,20 @@ void DrawASCIIViewport(Viewport* viewport)
 
 // CONSOLE SETTINGS
 
+void SetConsoleInfo(Vector2i position, Vector2i size)
+{
+	// Creates a rectangle containing console boundaries (x1, y1, x2, y,2)
+	SMALL_RECT consoleBoundaries =
+	{
+		short(position.x),
+		short(position.y),
+		short(position.x + size.x - 1),
+		short(position.y + size.y - 1)
+	};
+
+	SetConsoleWindowInfo(console, TRUE, &consoleBoundaries);
+}
+
 void SetConsoleCursorPos(short x, short y)
 {
 	COORD pos = { (short)x, (short)y };
@@ -113,7 +140,7 @@ void SetConsoleCursorPos(short x, short y)
 	SetConsoleCursorPosition(console, pos);
 }
 
-void SetConsoleBufferResolution(unsigned int x, unsigned int y)
+void SetConsoleBufferResolution(unsigned short x, unsigned short y)
 {
 	COORD size = { x, y };
 	SetConsoleScreenBufferSize(console, size);
@@ -121,11 +148,13 @@ void SetConsoleBufferResolution(unsigned int x, unsigned int y)
 
 void SetConsoleColor(unsigned char textColor, unsigned char bgColor)
 {
+	// bitwise combine text color and bg color
 	SetConsoleTextAttribute(console, (textColor) | bgColor);
 }
 
 void ClearConsoleColor()
 {
+	// Set console color to black bg and black fg
 	SetConsoleTextAttribute(console, (0) | 1);
 }
 
@@ -133,16 +162,21 @@ void SetCursorVis(bool visibility)
 {
 	CONSOLE_CURSOR_INFO cursorInfo;
 	cursorInfo.bVisible = visibility;
-	cursorInfo.dwSize = 20;
 	SetConsoleCursorInfo(console, &cursorInfo);
 }
 
 void ToggleANSI(bool enabled)
 {
+	// Create DWORD var that stores console flags
 	DWORD consoleFlags;
-	GetConsoleMode(console, &consoleFlags);
-	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0;
 
+	// Add current flags to 
+	GetConsoleMode(console, &consoleFlags);
+
+	// Set console flags to either ANSI escape support or not
+	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : ~ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+	// Set console flags
 	SetConsoleMode(console, consoleFlags);
 }
 
@@ -166,10 +200,16 @@ void DrawColorViewport(Viewport* viewport)
 	string outputString;
 	outputString.reserve(height * (width * 15 + 13));
 
+	//CreateColorStringRange(viewport, buffer, 0, height, outputString);
+
+	// Create thread vector container threadcount amount of threads and reserve that size
+
+	// The threads render 1/threadcount the viewport (ie 4 would mean each thread handles 1/4 of the viewport)
 	int threadCount = 4;
 	vector<thread*> threadContainer;
 	threadContainer.reserve(threadCount);
 
+	// For each thread
 	for (int i = 0; i < threadCount; i++)
 	{
 		threadContainer.emplace_back
@@ -180,8 +220,8 @@ void DrawColorViewport(Viewport* viewport)
 				// Parameters
 				viewport,
 				std::ref(buffer),
-				(height / threadCount) * i,
-				(height / threadCount) * (i + 1),
+				(height / threadCount) * i, // Starting point
+				(height / threadCount) * (i + 1), // Ending point
 				std::ref(outputString)
 			)
 		);
@@ -189,14 +229,18 @@ void DrawColorViewport(Viewport* viewport)
 
 	for (int i = 0; i < threadCount; i++)
 	{
-		threadContainer[i]->join();
+		threadContainer[i]->join(); // Wait for all threads to finish
 	}
 
 	for (int i = 0; i < threadCount; i++)
 	{
-		delete threadContainer[i];
+		delete threadContainer[i]; // Delete thread
 	}
 
+	// Empty thread container
+	threadContainer.clear();
+
+	// Reset color
 	outputString.append("\033[" + std::to_string(height + posY) + ";0H");
 	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
 
@@ -240,4 +284,74 @@ void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yM
 	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
 }
 
+string StringToLower(string input)
+{
+	// Create output string
+	string output = input;
 
+	// For each character
+	for (int i = 0; i < output.size(); i++)
+	{
+		// If uppercase alphabet convert to lowercase
+		if (output[i] >= 'A' && output[i] <= 'Z')
+		{
+			output[i] += 32;
+		}
+	}
+
+	return output;
+}
+
+string StringCapitalise(string input)
+{
+	// Create output string
+	string output = input;
+
+	// If its looking to capitalise character
+	bool changeChar = true;
+
+	// For each character
+	for (char i = 0; i < output.size(); i++)
+	{
+		if (changeChar)
+		{
+			// If lowercase make uppercase and disable capitalising the next character
+			if (output[i] >= 'a' && output[i] <= 'z')
+			{
+				output[i] -= 32;
+				changeChar = false;
+			}
+		}
+		else
+		{
+			// If '-', '_', or ' ' convert next alphabetical character to uppecase
+			switch (output[i])
+			{
+				case ' ':
+				{
+					changeChar = true;
+					break;
+				}
+
+				case '-':
+				{
+					changeChar = true;
+					break;
+				}
+
+				case '_':
+				{
+					changeChar = true;
+					break;
+				}
+
+				default:
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	return output;
+}

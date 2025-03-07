@@ -12,7 +12,7 @@ using std::vector;
 
 void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures);
 
-void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, bool useASCII, float*& zBuffer);
+void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, float*& zBuffer);
 
 void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector<Texture*>& textures, Map* map, float*& zBuffer);
 
