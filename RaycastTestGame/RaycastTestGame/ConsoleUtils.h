@@ -30,9 +30,13 @@ void DrawASCIIViewport(Viewport* viewport);
 
 // CONSOLE SETTINGS
 
+void SetConsoleInfo(Vector2i position, Vector2i size);
+
 void SetConsoleCursorPos(short x, short y);
 
-void SetConsoleBufferResolution(unsigned int x, unsigned int y);
+void SetConsoleBufferResolution(unsigned short x, unsigned short y);
+
+void SetConsoleInfo(Vector2i position, Vector2i size);
 
 void SetConsoleColor(unsigned char textColor, unsigned char bgColor);
 

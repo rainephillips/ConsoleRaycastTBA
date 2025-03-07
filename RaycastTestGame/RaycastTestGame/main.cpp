@@ -33,8 +33,9 @@
 		- "Item Desc"		|	Returns the description of the item in the room if there is one.
 		- "Item Interact"	|	Uses the item in the room if there is one.
 
-	ESCAPE:
+	ESCAPE AND WINDOW PROPERTIES:
 
+		- "Clear Screen"	|	Clears the console window do that you can resize the window and have the game properly display.
 		- "Escape"			|	Exits the game.
 
 

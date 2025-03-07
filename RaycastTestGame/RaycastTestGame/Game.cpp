@@ -537,19 +537,6 @@ int Game::Tick(float deltaTime)
 
 	unsigned int fps = (1.f / deltaTime);
 
-	// Print out data to console
-	SetConsoleCursorPos(0, (height + mainViewport->position.y)); // Move position of the cursor
-	std::cout << "\033[2K"; // Erase current line
-	std::cout << "FPS: " << fps; // Output fps
-
-	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
-	std::cout << "\033[2K"; // Erase current line
-	std::cout << std::format("Player Position: [{}, {}]", int(m_player->position.x), int(m_player->position.y));
-
-	SetConsoleCursorPos(0, (height + mainViewport->position.y + 2));
-	std::cout << "\033[2K"; // Erase current line
-	std::cout << std::format("Player Direction: [{}, {}]", m_player->direction.x, m_player->direction.y);
-
 	// Run the players tweens to interpolate movement
 	m_player->RunTweens(deltaTime);
 
@@ -595,6 +582,19 @@ int Game::Tick(float deltaTime)
 		KeyboardInput(m_player, mainCam, m_currentMap);
 	}
 
+	// Print out data to console
+	SetConsoleCursorPos(0, (height + mainViewport->position.y)); // Move position of the cursor
+	std::cout << "\033[2K"; // Erase current line
+	std::cout << "FPS: " << fps; // Output fps
+
+	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+	std::cout << "\033[2K"; // Erase current line
+	std::cout << std::format("Player Position: [{}, {}]", int(m_player->position.x), int(m_player->position.y));
+
+	SetConsoleCursorPos(0, (height + mainViewport->position.y + 2));
+	std::cout << "\033[2K"; // Erase current line
+	std::cout << std::format("Player Direction: [{}, {}]", m_player->direction.x, m_player->direction.y);
+
 	//mainViewport->ClearViewport(true);
 
 	// Run Raycaster
@@ -609,6 +609,7 @@ int Game::Tick(float deltaTime)
 
 void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures)
 {
+	SetConsoleBufferResolution(1024, 1024);
 	// Raycasting Loop
 
 	// Create Zbuffer for sprite so it can find the walls distance to the camera
@@ -920,8 +921,13 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 		return;
 	}
 
-	// Exiting
+	// Exiting and Window Handling
 
+	else if (command == "clear screen")
+	{
+		// Clears entire console
+		system("CLS");
+	}
 	else if (command == "escape")
 	{
 		// Exit game

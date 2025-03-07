@@ -13,6 +13,7 @@ using std::string;
 using std::vector;
 using std::thread;
 
+// Get current console
 extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
 // ASCII Renderings 
@@ -118,6 +119,20 @@ void DrawASCIIViewport(Viewport* viewport)
 
 // CONSOLE SETTINGS
 
+void SetConsoleInfo(Vector2i position, Vector2i size)
+{
+	// Creates a rectangle containing console boundaries (x1, y1, x2, y,2)
+	SMALL_RECT consoleBoundaries =
+	{
+		short(position.x),
+		short(position.y),
+		short(position.x + size.x - 1),
+		short(position.y + size.y - 1)
+	};
+
+	SetConsoleWindowInfo(console, TRUE, &consoleBoundaries);
+}
+
 void SetConsoleCursorPos(short x, short y)
 {
 	COORD pos = { (short)x, (short)y };
@@ -125,7 +140,7 @@ void SetConsoleCursorPos(short x, short y)
 	SetConsoleCursorPosition(console, pos);
 }
 
-void SetConsoleBufferResolution(unsigned int x, unsigned int y)
+void SetConsoleBufferResolution(unsigned short x, unsigned short y)
 {
 	COORD size = { x, y };
 	SetConsoleScreenBufferSize(console, size);
