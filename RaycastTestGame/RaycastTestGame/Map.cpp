@@ -8,6 +8,12 @@ Map::Map(int sizeX, int sizeY)
 {
 	m_mapData = new uint64_t[sizeX * sizeY];
 	ClearMapData();
+
+	// Add 1 texture layer per layer
+	for (size_t i = 0; i < MapDataType::MAX - 1; i++)
+	{
+		m_mapTextures.emplace_back(new vector<size_t>);
+	}
 }
 
 
@@ -16,6 +22,12 @@ Map::Map(Vector2i size)
 {
 	m_mapData = new uint64_t[size.x * size.y];
 	ClearMapData();
+
+	// Add 1 texture layer per layer
+	for (size_t i = 0; i < MapDataType::MAX - 1; i++)
+	{
+		m_mapTextures.emplace_back(new vector<size_t>);
+	}
 }
 
 Map::~Map()
@@ -28,6 +40,12 @@ Map::~Map()
 		{
 			delete sprite;
 		}
+	}
+
+	// delete all texture vectors
+	for (int i = 0; i < m_mapTextures.size(); i++)
+	{
+		delete m_mapTextures[i];
 	}
 }
 
@@ -69,6 +87,22 @@ void Map::SetContents(uint64_t* mapData, Vector2i size)
 	}
 }
 
+void Map::SetContentsFromLocation(int x, int y, uint16_t value, MapDataType layer)
+{
+	// If not out of bounds
+	if (x >= 0 && y >= 0 && x < m_size.x && y < m_size.y)
+	{
+		// Separate uint64_to 4 shorts (8 bytes 64 bits)
+		uint16_t* seperatedData = reinterpret_cast<uint16_t*>(&m_mapData[y * m_size.x + x]);
+
+		// Change Datatype
+		seperatedData[layer] = value;
+
+		// Put seperated data back into mapData
+		m_mapData[y * m_size.x + x] = *reinterpret_cast<uint64_t*>(seperatedData);
+	}
+}
+
 void Map::SetContentDataType(uint16_t* data, MapDataType dataType, Vector2i size)
 {
 	if (m_mapData != nullptr)
@@ -90,7 +124,7 @@ void Map::SetContentDataType(uint16_t* data, MapDataType dataType, Vector2i size
 
 				// Put seperated data back into mapData
 				m_mapData[column * size.x + row] = *reinterpret_cast<uint64_t*>(seperatedData);
-				//m_mapData[column * size.x + row] = 18446462598732840960;
+
 			}
 		}
 	}
@@ -108,8 +142,6 @@ uint16_t* Map::GetDataTypeBuffer(MapDataType dataType)
 		// Cast mapData into shorts and get the datatype
 
 		dataArray[cell] = (seperatedData)[dataType];
-
-		GetMapSize();
 	}
 
 	return dataArray;
@@ -144,6 +176,33 @@ void Map::ClearSpriteData()
 void Map::AddSprite(Sprite* sprite)
 {
 	m_staticSpriteData.emplace_back(sprite);
+}
+
+void Map::SetLayerTexture(size_t texturePos, unsigned short position, MapDataType layer)
+{
+	// Add location of texture to respective layer
+
+	m_mapTextures[layer]->insert(m_mapTextures[layer]->begin() + position, texturePos);
+}
+
+void Map::EmplaceLayerTexture(size_t texturePos, MapDataType layer)
+{
+	// Emplace back location of texture to respective layer
+	m_mapTextures[layer]->emplace_back(texturePos);
+}
+
+Texture* Map::GetTexture(unsigned short texture, MapDataType layer, vector<Texture*> textureList)
+{
+	// Get texture from layer and short value
+	if (texture < m_mapTextures[layer]->size()) // Checks if not out of range
+	{
+		return textureList[ m_mapTextures[layer]->at(texture) ];
+	}
+	else
+	{
+		return textureList[0];
+	}
+	
 }
 
 uint64_t* Map::GetMapData()

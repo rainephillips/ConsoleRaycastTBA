@@ -21,8 +21,13 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 	float& plDirX = player->direction.x;
 	float& plDirY = player->direction.y;
 
+	Vector2i& mapSize = map->GetMapSize();
+
 	int& width = viewport->size.x;
 	int& height = viewport->size.y;
+
+	uint16_t* floorData = map->GetDataTypeBuffer(MapDataType::FLOOR);
+	uint16_t* roofData = map->GetDataTypeBuffer(MapDataType::ROOF);
 
 	// Ray direction for leftmost ray (x = 0) and righmost ( x = width)
 	Vector2 l_rayDir =
@@ -64,8 +69,19 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 	{
 		// the map cell pos
 		Vector2i mapPos = { (int)floorPos.x, (int)floorPos.y };
+		
+		// Skip if out of map boundary
+		if (!(mapPos.x >= 0 && mapPos.y >= 0 && mapPos.x <= mapSize.x && mapPos.y <= mapSize.y))
+		{
+			// Update floor and ceiling positions
+			floorPos.x += floorStep.x;
+			floorPos.y += floorStep.y;
 
-		Texture* floorTexture = textures[8];
+			continue;
+		}
+
+		// Get Floor texture from position on map
+		Texture* floorTexture = map->GetTexture(floorData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::FLOOR, textures);
 
 		Vector2i floorTextureSize = floorTexture->GetSize();
 
@@ -77,7 +93,8 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 			((int)(floorTextureSize.y * (floorPos.y - mapPos.y))) & (floorTextureSize.y - 1)
 		};
 
-		Texture* ceilTexture = textures[8];
+		// Get roof texture from position on map
+		Texture* ceilTexture = map->GetTexture(roofData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::ROOF, textures);
 
 		Vector2i ceilTextureSize = ceilTexture->GetSize();
 
@@ -100,6 +117,9 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		ceilingColor /= 1.25f; // Dim the color as before
 		viewport->AddColorAToBuffer(x, height - y - 1, ceilingColor);
 	}
+
+	delete[] floorData;
+	delete[] roofData;
 }
 
 void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, bool useASCII, float*& zBuffer)
@@ -245,7 +265,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	else
 	{
 		// Allows texture 0 to be used
-		int texNum = wallData[mapPos.y * mapSize.x + mapPos.x] - 1;
+		Texture* texture = map->GetTexture(wallData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::WALL, textures);
 
 		// Calculate exact part of the wall hit instead of just cell
 		float wallX; // Technically its the y cord of the wall if its 
@@ -260,7 +280,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		}
 		wallX -= floor(wallX); // % of the x coordinate if start = 0 and end = 1
 
-		Vector2i texSize = textures[texNum]->GetSize();
+		Vector2i texSize = texture->GetSize();
 
 		// Get X Coordinate on the texture
 
@@ -291,7 +311,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 			int texY = (int)texPosY & (texSize.y - 1);
 
 
-			color = textures[texNum]->GetColorFromLocation(texPosX, texPosY);
+			color = texture->GetColorFromLocation(texPosX, texPosY);
 			if (isHorizontalWall)
 			{
 				color /= 1.5f;

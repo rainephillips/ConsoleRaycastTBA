@@ -60,5 +60,7 @@ private:
 	vector<Texture*> m_textureList;
 
 	bool m_gameIsRunning;
+
+	bool m_useCommandInput;
 };
 

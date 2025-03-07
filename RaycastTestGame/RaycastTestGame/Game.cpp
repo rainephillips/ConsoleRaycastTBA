@@ -43,7 +43,7 @@ using std::vector;
 Game::Game()
 	: m_oldTime{ 0.f }, m_time{ 0.f }, m_deltaTime{ 0.f }, 
 	m_gameIsRunning{ true },  m_player{ nullptr }, m_currentMap{ nullptr },
-	m_currentRoom{ nullptr }, m_rooms{ nullptr }
+	m_currentRoom{ nullptr }, m_rooms{ nullptr }, m_useCommandInput{ false }
 {
 
 }
@@ -93,38 +93,60 @@ int Game::BeginPlay()
 	Vector2i defaultTextureSize = Vector2i(64, 64);
 
 	// Create default proceedual textures
-	CreateDefaultTextures(m_textureList, defaultTextureSize);
+	//CreateDefaultTextures(m_textureList, defaultTextureSize);
 
 	//for (int i = 0; i < 8; i++)
 	//{
 	//	m_textureList[i]->SetTexture("images\\coffeecup.png");
 	//}
 
-	m_textureList[0]->SetTexture("images\\adachitrue.jpeg");
-	m_textureList[1]->SetTexture("images\\trollface.png");
+	// Emplace textures
+	m_textureList.emplace_back(new Texture()); // Error Texture at 0
 
+	m_textureList.emplace_back(new Texture("images\\adachitrue.jpeg"));
 	m_textureList.emplace_back(new Texture("images\\adachifalse.jpeg"));
+	m_textureList.emplace_back(new Texture("images\\adachimabye.jpeg"));
 
-	// Add sprite textures
+	m_textureList.emplace_back(new Texture("images\\tart_wall.png"));
+	m_textureList.emplace_back(new Texture("images\\tart_floor.png"));
+	m_textureList.emplace_back(new Texture("images\\tart_roof.png"));
+
+	m_textureList.emplace_back(new Texture("images\\bonafiedmonafied.png"));
+
+	m_textureList.emplace_back(new Texture("images\\trollface.png"));
+
+	m_textureList.emplace_back(new Texture("images\\wolftex\\eagle.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\redbrick.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\purplestone.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\greystone.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\bluestone.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\mossy.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\wood.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\colorstone.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\barrel.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\pillar.png"));
+	m_textureList.emplace_back(new Texture("images\\wolftex\\greenlight.png"));
 
 	m_textureList.emplace_back(new Texture("images\\coffeecup.png"));
 	m_textureList.emplace_back(new Texture("images\\lobotomy.jpeg"));
 	m_textureList.emplace_back(new Texture("images\\smalladachi.png"));
 
-	/*
-	THIS WAS FOR TESTING TEXTURES LOADING PROPERLY
-	KEEPING COMMENTED JUST IN CASE IT IS NEEDED IN THE FUTURE
+	
+	////THIS WAS FOR TESTING TEXTURES LOADING PROPERLY
+	////KEEPING COMMENTED JUST IN CASE IT IS NEEDED IN THE FUTURE
 
-	Texture testTexture = Texture("images\\smalladachi.png");
+	//Texture testTexture = Texture("images\\bonafiedmonafied.png");
 
-	Viewport* testViewport = new Viewport();
+	//Viewport* testViewport = new Viewport();
 
-	testViewport->SetColorABuffer(testTexture.GetSize(), testTexture.GetTexture());
+	//testViewport->SetColorABuffer(testTexture.GetSize(), testTexture.GetTexture());
 
-	DrawColorViewport(testViewport);
+	//DrawColorViewport(testViewport);
 
-	delete testViewport;
-	*/
+	//delete testViewport;
+
+	//return 0;
+	
 
 	// Create Rooms
 	{
@@ -192,6 +214,16 @@ int Game::BeginPlay()
 		// Delete 2D array as data is assigned to map
 		delete[] tempMapData;
 
+		// Set roof and floor data to checkerboard pattern
+		for (int x = 0; x < 24; x++)
+		{
+			for (int y = 0; y < 24; y++)
+			{
+				room1->GetMap()->SetContentsFromLocation(x, y, ((x + y) % 2 == 0) ? 1 : 2, MapDataType::FLOOR);
+				room1->GetMap()->SetContentsFromLocation(x, y, ((x + y) % 2 == 0) ? 1 : 2, MapDataType::ROOF);
+			}
+		}
+
 		// Set player starting position and direction
 		room1->SetStartingPosition(Vector2(22.5f, 1.5f));
 		room1->SetStartingDirection(Vector2(-1.f, 0.f));
@@ -208,7 +240,7 @@ int Game::BeginPlay()
 		Sprite* sprite;
 
 		// Set the sprite pointer to a new sprite in the position in the map and texture
-		sprite = new Sprite(Vector2(20.5f, 11.5f), m_textureList[11]);
+		sprite = new Sprite(Vector2(20.5f, 11.5f), m_textureList[19]);
 
 		// Set Y offset and scale of sprite
 		sprite->SetYOffset(-40.f);
@@ -216,26 +248,42 @@ int Game::BeginPlay()
 
 		// Add sprites to map
 		room1->GetMap()->AddSprite(sprite);
-		room1->GetMap()->AddSprite(new Sprite(Vector2(18.5f, 4.5f), m_textureList[11]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(10.5f, 4.5f), m_textureList[11]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(10.5f, 12.5f), m_textureList[11]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(3.5f, 6.5f), m_textureList[11]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(3.5f, 20.5f), m_textureList[11]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(3.5f, 14.5f), m_textureList[11]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(14.5f, 20.5f), m_textureList[11]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(18.5f, 4.5f), m_textureList[19]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(10.5f, 4.5f), m_textureList[19]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(10.5f, 12.5f), m_textureList[19]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(3.5f, 6.5f), m_textureList[19]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(3.5f, 20.5f), m_textureList[19]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(3.5f, 14.5f), m_textureList[19]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(14.5f, 20.5f), m_textureList[19]));
 
-		room1->GetMap()->AddSprite(new Sprite(Vector2(18.5f, 10.5f), m_textureList[10]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(18.5f, 11.5f), m_textureList[10]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(18.5f, 12.5f), m_textureList[10]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(18.5f, 10.5f), m_textureList[18]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(18.5f, 11.5f), m_textureList[18]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(18.5f, 12.5f), m_textureList[18]));
 
-		room1->GetMap()->AddSprite(new Sprite(Vector2(21.5f, 1.5f), m_textureList[9]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(15.5f, 1.5f), m_textureList[9]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(16.0f, 1.8f), m_textureList[9]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(16.2f, 1.2f), m_textureList[9]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(3.5f, 2.5f), m_textureList[9]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(9.5f, 15.5f), m_textureList[9]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(10.0f, 15.1f), m_textureList[9]));
-		room1->GetMap()->AddSprite(new Sprite(Vector2(10.5f, 15.8f), m_textureList[9]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(21.5f, 1.5f), m_textureList[17]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(15.5f, 1.5f), m_textureList[17]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(16.0f, 1.8f), m_textureList[17]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(16.2f, 1.2f), m_textureList[17]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(3.5f, 2.5f), m_textureList[17]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(9.5f, 15.5f), m_textureList[17]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(10.0f, 15.1f), m_textureList[17]));
+		room1->GetMap()->AddSprite(new Sprite(Vector2(10.5f, 15.8f), m_textureList[17]));
+
+		// Set textures for room 1
+		room1->GetMap()->EmplaceLayerTexture(9, MapDataType::WALL);
+		room1->GetMap()->EmplaceLayerTexture(10, MapDataType::WALL);
+		room1->GetMap()->EmplaceLayerTexture(11, MapDataType::WALL);
+		room1->GetMap()->EmplaceLayerTexture(12, MapDataType::WALL);
+		room1->GetMap()->EmplaceLayerTexture(13, MapDataType::WALL);
+		room1->GetMap()->EmplaceLayerTexture(14, MapDataType::WALL);
+		room1->GetMap()->EmplaceLayerTexture(15, MapDataType::WALL);
+		room1->GetMap()->EmplaceLayerTexture(16, MapDataType::WALL);
+
+		room1->GetMap()->EmplaceLayerTexture(12, MapDataType::FLOOR);
+		room1->GetMap()->EmplaceLayerTexture(14, MapDataType::FLOOR);
+
+		room1->GetMap()->EmplaceLayerTexture(10, MapDataType::ROOF);
+		room1->GetMap()->EmplaceLayerTexture(11, MapDataType::ROOF);
 
 		// Add item to the room
 		room1->AddItem(new Lamp());
@@ -272,9 +320,19 @@ int Game::BeginPlay()
 
 		room2->GetMap()->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i(5, 5));
 
+		// Set roof and floor data to 1
+		for (int x = 0; x < 5; x++)
+		{
+			for (int y = 0; y < 5; y++)
+			{
+				room2->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::FLOOR);
+				room2->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::ROOF);
+			}
+		}
+
 		delete[] tempMapData;
 
-		room2->GetMap()->AddSprite(new Sprite(Vector2(2.5f, 2.5f), m_textureList[0]));
+		room2->GetMap()->AddSprite(new Sprite(Vector2(2.5f, 2.5f), m_textureList[1]));
 
 		room2->SetStartingPosition(Vector2(2.5f, 3.5f));
 		room2->SetStartingDirection(Vector2(0.f, -1.f));
@@ -282,6 +340,11 @@ int Game::BeginPlay()
 		room2->SetDescription(string("What is this hell...?"));
 
 		room2->SetRoomPosition(Vector2i(1, 0));
+
+		// Set texture for each number (1 in this context)
+		room2->GetMap()->EmplaceLayerTexture(1, MapDataType::WALL);
+		room2->GetMap()->EmplaceLayerTexture(2, MapDataType::FLOOR);
+		room2->GetMap()->EmplaceLayerTexture(3, MapDataType::ROOF);
 
 		SetRoom(room2);
 
@@ -291,9 +354,9 @@ int Game::BeginPlay()
 
 		uint16_t temp3MapWall[3 * 3] =
 		{
-			2,2,2,
-			2,0,2,
-			2,2,2
+			1,1,1,
+			1,0,1,
+			1,1,1
 		};
 
 		tempMapData = new uint16_t[3*3];
@@ -310,6 +373,20 @@ int Game::BeginPlay()
 
 		delete[] tempMapData;
 
+		// Set roof and floor data to 1
+		for (int x = 0; x < 3; x++)
+		{
+			for (int y = 0; y < 3; y++)
+			{
+				room3->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::FLOOR);
+				room3->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::ROOF);
+			}
+		}
+
+		room3->GetMap()->EmplaceLayerTexture(8, MapDataType::WALL);
+		room3->GetMap()->EmplaceLayerTexture(8, MapDataType::FLOOR);
+		room3->GetMap()->EmplaceLayerTexture(8, MapDataType::ROOF);
+
 		room3->SetStartingPosition(Vector2(1.5f, 1.5f));
 		room3->SetStartingDirection(Vector2(1.f, 0.f));
 
@@ -322,31 +399,50 @@ int Game::BeginPlay()
 		// Create Room 4
 		Room* room4 = new Room();
 
-		uint16_t temp4MapWall[3 * 3] =
+		uint16_t temp4MapWall[7 * 7] =
 		{
-			2,2,2,
-			2,0,2,
-			2,2,2
+			1,1,1,1,1,1,1,
+			1,0,0,0,0,0,1,
+			1,0,0,0,0,0,1,
+			1,0,0,0,0,0,1,
+			1,0,0,0,0,0,1,
+			1,0,0,0,0,0,1,
+			1,1,1,1,1,1,1
 		};
 
-		tempMapData = new uint16_t[3 * 3];
-		for (int i = 0; i < 3 * 3; i++)
+		tempMapData = new uint16_t[7 * 7];
+		for (int i = 0; i < 7 * 7; i++)
 		{
 			tempMapData[i] = temp4MapWall[i];
 		}
 
-		room4->SetMap(new Map(3, 3));
+		room4->SetMap(new Map(7, 7));
 
-		room4->GetMap()->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i(3, 3));
+		room4->GetMap()->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i(7, 7));
 
-		room4->AddItem(new BoxOfDonuts());
+		room4->AddItem(new Cat());
 
 		delete[] tempMapData;
 
-		room4->SetStartingPosition(Vector2(1.5f, 1.5f));
-		room4->SetStartingDirection(Vector2(1.f, 0.f));
+		room4->GetMap()->EmplaceLayerTexture(4, MapDataType::WALL);
+		room4->GetMap()->EmplaceLayerTexture(5, MapDataType::FLOOR);
+		room4->GetMap()->EmplaceLayerTexture(6, MapDataType::ROOF);
 
-		room4->SetDescription(string("Trollge2"));
+		for (int x = 0; x < 7; x++)
+		{
+			for (int y = 0; y < 7; y++)
+			{
+				room4->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::FLOOR);
+				room4->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::ROOF);
+			}
+		}
+
+		room4->GetMap()->AddSprite(new Sprite(Vector2(3.5f, 3.5f), m_textureList[7]));
+
+		room4->SetStartingPosition(Vector2(5.5f, 5.5f));
+		room4->SetStartingDirection(Vector2(0.f, -1.f));
+
+		room4->SetDescription(string("bonafied monafied B)"));
 
 		room4->SetRoomPosition(Vector2i(1, 1));
 
@@ -374,8 +470,9 @@ int Game::BeginPlay()
 	// Enables ANSI Escape Keys which allows for RGB color backgrounds
 	ToggleANSI(true);
 
-	// Get viewport
-	Viewport* viewport = m_player->GetCamera()->GetViewport();
+	// Get viewport & camera
+	Camera* camera = m_player->GetCamera();
+	Viewport* viewport = camera->GetViewport();
 
 	// Move the console cursor to the end of the viewport so that it 
 	// doesn't get overwritten when the viewport is drawn
@@ -384,6 +481,12 @@ int Game::BeginPlay()
 	// Set Beginner Room
 
 	ChangeRoom(GetRoomFromPos(Vector2i(0, 0)));
+
+	// First Frame Draw
+
+	Raycaster(viewport, m_player, camera, m_currentMap, m_textureList, false);
+	//DrawASCIIViewport(mainViewport);
+	DrawColorViewport(viewport);
 
 	return EXIT_SUCCESS;
 }
@@ -449,38 +552,44 @@ int Game::Tick(float deltaTime)
 
 	m_player->RunTweens(deltaTime);
 
-	//OldKeyboardInput(m_player, mainCam, m_currentMap, m_deltaTime);
-	//KeyboardInput(m_player, mainCam, m_currentMap);
+	
+
+	if (m_useCommandInput)
+	{
+		if (m_player->IsMoving() == false)
+		{
+			SetCursorVis(true);
+
+			string command;
+
+			SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+
+			std::cout << "\033[2K"; // Erase current line
+
+			std::cout << "Please enter input: ";
+			std::getline(std::cin, command);
+			std::cin.clear();
+
+			// Reset old time not to account for time waiting typing to delta
+			m_oldTime = clock();
+
+			SetConsoleCursorPos(0, (height + mainViewport->position.y + 3));
+			CommandInput(command, m_player, mainCam, m_currentMap);
+
+			SetCursorVis(false);
+		}
+	}
+	else
+	{
+		//OldKeyboardInput(m_player, mainCam, m_currentMap, m_deltaTime);
+		KeyboardInput(m_player, mainCam, m_currentMap);
+	}
 
 	//mainViewport->ClearViewport(true);
 
 	Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList, false);
 	//DrawASCIIViewport(mainViewport);
 	DrawColorViewport(mainViewport);
-
-
-	if (m_player->IsMoving() == false)
-	{
-		SetCursorVis(true);
-
-		string command;
-
-		SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
-
-		std::cout << "\033[2K"; // Erase current line
-
-		std::cout << "Please enter input: ";
-		std::getline(std::cin, command);
-		std::cin.clear();
-
-		// Reset old time not to account for time waiting typing to delta
-		m_oldTime = clock();
-
-		SetConsoleCursorPos(0, (height + mainViewport->position.y + 3));
-		CommandInput(command, m_player, mainCam, m_currentMap);
-
-		SetCursorVis(false);
-	}
 
 	return 0;
 }
@@ -850,7 +959,6 @@ void Game::ChangeRoom(Room* room)
 		m_currentRoom = room;
 
 		room->Description();
-
 	}
 }
 
