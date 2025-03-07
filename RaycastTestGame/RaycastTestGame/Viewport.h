@@ -43,6 +43,8 @@ public:
 	void SetColorBuffer(Vector2i size, Color* buffer);
 	void SetColorABuffer(Vector2i size, ColorA* buffer);
 
+	void ClearViewport(bool usePattern);
+
 	char GetCharFromDepth(float depth);
 	CHAR_INFO* GetASCIIScreenBuffer();
 	Color* GetColorScreenBuffer();

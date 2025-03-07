@@ -10,6 +10,7 @@ Color::Color()
 
 Color::Color(unsigned int color)
 {
+	// Convert int into array of char array for each color
 	char* byte = reinterpret_cast<char*>(&color);
 	r = byte[0];
 	g = byte[1];
@@ -22,14 +23,9 @@ Color::Color(byte r, byte g, byte b)
 
 }
 
-string Color::ToStringValue(byte& colorValue)
-{
-	return string(std::to_string(short(colorValue)));
-}
-
 ColorA Color::RGBToRGBA()
 {
-	return ColorA(r, g, b, 0);
+	return ColorA(r, g, b, 255);
 }
 
 string Color::ToANSIEscape()
@@ -58,20 +54,17 @@ ColorA::ColorA(byte r, byte g, byte b, byte a)
 {
 }
 
-string ColorA::ToStringValue(byte& colorValue)
-{
-	return string(std::to_string(short(colorValue)));
-}
-
 Color ColorA::RGBAToRGB()
 {
 	return Color(r, g, b);
 }
 
-Color ColorA::LayerRGBAOnRGB(Color layerColor)
+Color ColorA::LayerRGBAOnRGB(Color layerColor) const
 {
+	// Get alpha as a range from 0-1
 	float alpha = a / 255.f; 
 
+	// Layer RGBA on RGB
 	layerColor.r = layerColor.r * (1 - alpha) + r * alpha;
 	layerColor.g = layerColor.g * (1 - alpha) + g * alpha;
 	layerColor.b = layerColor.b * (1 - alpha) + b * alpha;
