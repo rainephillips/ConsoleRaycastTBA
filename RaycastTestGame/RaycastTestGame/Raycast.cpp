@@ -65,7 +65,7 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		plPosY + rowDist * l_rayDir.y
 	};
 
-	for (int x = 0; x < width; x++)
+	for (int x = 0; x < width; ++x)
 	{
 		// the map cell pos
 		Vector2i mapPos = { (int)floorPos.x, (int)floorPos.y };
@@ -88,7 +88,6 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		// Texture pos from fractional part
 		Vector2i floorTexturePos =
 		{
-			// (int)(texWidth * (floorX - cellX)) & (texWidth - 1)
 			((int)(floorTextureSize.x * (floorPos.x - mapPos.x))) & (floorTextureSize.x - 1),
 			((int)(floorTextureSize.y * (floorPos.y - mapPos.y))) & (floorTextureSize.y - 1)
 		};
@@ -98,9 +97,10 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 
 		Vector2i ceilTextureSize = ceilTexture->GetSize();
 
-		Vector2i ceilTexturePos = {
-		((int)(ceilTextureSize.x * (floorPos.x - mapPos.x))) & (ceilTextureSize.x - 1),
-		((int)(ceilTextureSize.y * (floorPos.y - mapPos.y))) & (ceilTextureSize.y - 1)
+		Vector2i ceilTexturePos = 
+		{
+			((int)(ceilTextureSize.x * (floorPos.x - mapPos.x))) & (ceilTextureSize.x - 1),
+			((int)(ceilTextureSize.y * (floorPos.y - mapPos.y))) & (ceilTextureSize.y - 1)
 		};
 
 		// Update floor and ceiling positions
