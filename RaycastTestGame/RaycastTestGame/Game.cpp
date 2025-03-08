@@ -85,6 +85,10 @@ int Game::Run()
 
 int Game::BeginPlay()
 {
+
+	// Set rand seed to time
+	srand(time(nullptr));
+
 	/*
 		Creating Textures
 	*/
@@ -146,7 +150,6 @@ int Game::BeginPlay()
 	//delete testViewport;
 
 	//return 0;
-	
 
 	// Create Rooms
 	{
@@ -286,7 +289,7 @@ int Game::BeginPlay()
 		room1->GetMap()->EmplaceLayerTexture(11, MapDataType::ROOF);
 
 		// Add item to the room
-		room1->AddItem(new Lamp());
+		room1->AddRandomItem();
 
 		// Set the room in the Room 2D array
 		SetRoom(room1);
@@ -369,7 +372,7 @@ int Game::BeginPlay()
 
 		room3->GetMap()->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i(3, 3));
 
-		room3->AddItem(new BoxOfDonuts());
+		room3->AddRandomItem();
 
 		delete[] tempMapData;
 

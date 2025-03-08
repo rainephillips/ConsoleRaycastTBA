@@ -3,6 +3,11 @@
 #include <iostream>
 
 #include "Item.h";
+
+#include "BoxOfDonuts.h";
+#include "Lamp.h";
+#include "Cat.h";
+
 #include "Map.h";
 
 Room::Room()
@@ -82,6 +87,37 @@ void Room::SetDescription(string description)
 void Room::SetRoomPosition(Vector2i position)
 {
     m_roomPosition = position;
+}
+
+void Room::AddRandomItem()
+{
+    int result = rand() % 4;
+
+    // Add random item
+    switch (result)
+    {
+        case 0:
+        {
+            AddItem(new Cat());
+            break;
+        }
+        case 1:
+        {
+            AddItem(new Lamp());
+            break;
+        }
+        case 2:
+        {
+            AddItem(new BoxOfDonuts());
+            break;
+        }
+
+        default:
+        {
+            // Add no item
+            break;
+        }
+    }
 }
 
 void Room::AddItem(Item* item)

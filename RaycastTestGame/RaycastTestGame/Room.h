@@ -31,6 +31,8 @@ public:
 	void SetStartingDirection(Vector2 direction);
 	void SetDescription(string description);
 	void SetRoomPosition(Vector2i position);
+	
+	void AddRandomItem();
 
 	void AddItem(Item* item);
 
