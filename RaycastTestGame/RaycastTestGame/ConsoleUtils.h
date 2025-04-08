@@ -2,8 +2,6 @@
 
 #include <Windows.h>
 #include <string>
-#include <vector>
-#include <thread>
 
 #define PI 3.14159f
 #define DEG_TO_RAD(degree) ((degree) * PI / 180.f)
@@ -13,8 +11,6 @@ struct Vector2i;
 class Viewport;
 
 using std::string;
-using std::vector;
-using std::thread;
 
 // ASCII DRAWING
 

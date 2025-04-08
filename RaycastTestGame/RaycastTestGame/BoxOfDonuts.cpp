@@ -1,14 +1,17 @@
 #include "BoxOfDonuts.h"
 
-#include <iostream>
 #include <format>
+#include <iostream>
+#include <string>
+
+using std::string;
 
 BoxOfDonuts::BoxOfDonuts()
 	: m_count{ 6 }
 {
 }
 
-const void BoxOfDonuts::Description()
+void BoxOfDonuts::Description() const
 {
 	std::cout << std::format
 	(

@@ -1,18 +1,19 @@
 #include "Lamp.h"
 
 #include <iostream>
+#include <string>
+
+using std::string;
 
 Lamp::Lamp()
 	: m_turnedOn{ false }
 {
 }
 
-const void Lamp::Description()
+void Lamp::Description() const
 {
 	// Create output string
-	string output;
-
-	output.append("\033[2KThere is a lamp! The candle ");
+	string output = "\033[2KThere is a lamp! The candle ";
 
 	if (m_turnedOn) // If lamp is on
 	{

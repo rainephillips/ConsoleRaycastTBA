@@ -1,7 +1,6 @@
 #include "Color.h"
 
 #include <format>
-#include <iostream>
 
 Color::Color()
 	: r{ 255 }, g{ 0 }, b{ 255 }
@@ -25,7 +24,7 @@ Color::Color(byte r, byte g, byte b)
 
 ColorA Color::RGBToRGBA()
 {
-	return ColorA(r, g, b, 255);
+	return ColorA{r, g, b, 255};
 }
 
 string Color::ToANSIEscape()

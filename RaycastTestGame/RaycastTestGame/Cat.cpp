@@ -1,13 +1,16 @@
 #include "Cat.h"
 
 #include <iostream>
+#include <string>
+
+using std::string;
 
 Cat::Cat()
 	: m_purring{ false }
 {
 }
 
-const void Cat::Description()
+void Cat::Description() const
 {
 	// Create output string
 

@@ -2,12 +2,17 @@
 
 #include <algorithm>
 
-#include "Color.h";
-#include "Map.h";
-#include "Player.h";
-#include "Texture.h";
-#include "Sprite.h";
-#include "Viewport.h";
+#include "Camera.h"
+#include "Color.h"
+#include "Map.h"
+#include "Player.h"
+#include "Texture.h"
+#include "Sprite.h"
+#include "Viewport.h"
+
+// RAYCASTING ENGINE HEAVILY BASED ON LODE'S TUTORIAL
+// seen at https://lodev.org/cgtutor/raycasting.html
+// Modified to include more object oriented programming
 
 void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures)
 {
@@ -43,10 +48,10 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 	};
 
 	// Current y position compared to the center of viewport (midpoint / horizon)
-	int p = y - height * 0.5;
+	int p = y - height * 0.5f;
 
 	// Z position of the camera (the centre of the screen)
-	float z = 0.5 * height;
+	float z = 0.5f * height;
 
 	// 0.0 - 1.0 ratio of the z position. 0.5 is the centre of the screen
 	float rowDist = z / p;
@@ -68,7 +73,7 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 	for (int x = 0; x < width; ++x)
 	{
 		// the map cell pos
-		Vector2i mapPos = { (int)floorPos.x, (int)floorPos.y };
+		Vector2i mapPos = { static_cast<int>(floorPos.x), static_cast<int>(floorPos.y) };
 		
 		// Skip if out of map boundary
 		if (!(mapPos.x >= 0 && mapPos.y >= 0 && mapPos.x <= mapSize.x && mapPos.y <= mapSize.y))
@@ -88,8 +93,8 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		// Texture pos from fractional part
 		Vector2i floorTexturePos =
 		{
-			((int)(floorTextureSize.x * (floorPos.x - mapPos.x))) & (floorTextureSize.x - 1),
-			((int)(floorTextureSize.y * (floorPos.y - mapPos.y))) & (floorTextureSize.y - 1)
+			static_cast<int>((floorTextureSize.x * (floorPos.x - mapPos.x))) & (floorTextureSize.x - 1),
+			static_cast<int>((floorTextureSize.y * (floorPos.y - mapPos.y))) & (floorTextureSize.y - 1)
 		};
 
 		// Get roof texture from position on map
@@ -99,8 +104,8 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 
 		Vector2i ceilTexturePos = 
 		{
-			((int)(ceilTextureSize.x * (floorPos.x - mapPos.x))) & (ceilTextureSize.x - 1),
-			((int)(ceilTextureSize.y * (floorPos.y - mapPos.y))) & (ceilTextureSize.y - 1)
+			static_cast<int>((ceilTextureSize.x * (floorPos.x - mapPos.x))) & (ceilTextureSize.x - 1),
+			static_cast<int>((ceilTextureSize.y * (floorPos.y - mapPos.y))) & (ceilTextureSize.y - 1)
 		};
 
 		// Update floor and ceiling positions
@@ -137,7 +142,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	Vector2i mapSize = map->GetMapSize();
 
 	//  Right of Screen = 1, Left of Screen = - 1
-	float cameraX = 2 * x / (float)width - 1.f; // Camera X Position
+	float cameraX = 2 * x / static_cast<float>(width) - 1.f; // Camera X Position
 
 	// Set the direction of the ray to the players direction + the x axis of the camera
 	Vector2 rayDir = Vector2
@@ -149,12 +154,9 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	// Which map cell the Player is in
 	Vector2i mapPos = Vector2i
 	(
-		(int)player->position.x,
-		(int)player->position.y
+		static_cast<int>(player->position.x),
+		static_cast<int>(player->position.y)
 	);
-
-	// Distance to next x or y side
-	Vector2 sideDist = Vector2();
 
 	// Distance of ray from one x side or y side to next one
 	Vector2 deltaDist = Vector2
@@ -168,33 +170,23 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	// Will be used to calculate total ray length (Perpendicular Wall Distance)
 	float perpWallDist;
 
-	// What direction to make in x or y distance
-	Vector2i step = Vector2i();
-
 	bool wallHit = false; // If wall was hit
 	bool isHorizontalWall; // If a NS or EW wall was hit
 
-	// Calculate step and initial sideDist
-	if (rayDir.x < 0)
+	// Distance to next x or y side
+	Vector2 sideDist = Vector2
 	{
-		step.x = -1;
-		sideDist.x = (player->position.x - mapPos.x) * deltaDist.x;
-	}
-	else
+		(rayDir.x < 0) ? (player->position.x - mapPos.x) * deltaDist.x : (mapPos.x + 1.f - player->position.x) * deltaDist.x,
+		(rayDir.y < 0) ? (player->position.y - mapPos.y) * deltaDist.y : (mapPos.y + 1.f - player->position.y) * deltaDist.y
+	
+	};
+
+	// What direction to make in x or y distance
+	Vector2i step = Vector2i
 	{
-		step.x = 1;
-		sideDist.x = (mapPos.x + 1.f - player->position.x) * deltaDist.x;
-	}
-	if (rayDir.y < 0)
-	{
-		step.y = -1;
-		sideDist.y = (player->position.y - mapPos.y) * deltaDist.y;
-	}
-	else
-	{
-		step.y = 1;
-		sideDist.y = (mapPos.y + 1.f - player->position.y) * deltaDist.y;
-	}
+		(rayDir.x < 0) ? -1 : 1,
+		(rayDir.y < 0) ? -1 : 1
+	};
 
 	// DDA algorithm (Digital Differential Analyser)
 	while (!wallHit)
@@ -231,7 +223,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	}
 
 	// Calculate height of line to draw on screen
-	int lineHeight = (int)(height / perpWallDist);
+	int lineHeight = static_cast<int>(height / perpWallDist);
 
 	// Calculate the lowest and highest pixel to fill in current line
 	// (Center line in middle of viewport)
@@ -265,14 +257,14 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	{
 		wallX = plPosY + perpWallDist * rayDir.y;
 	}
-	wallX -= floor(wallX); // % of the x coordinate if start = 0 and end = 1
+	wallX -= floorf(wallX); // % of the x coordinate if start = 0 and end = 1
 
 	Vector2i texSize = texture->GetSize();
 
 	// Get X Coordinate on the texture
 
 	// Flip Texture Accordingly Depending on if on NSEW Wall
-	int texPosX = int(wallX * (float)texSize.x);
+	int texPosX = static_cast<int>(wallX * static_cast<float>(texSize.x));
 	if (isHorizontalWall == 0 && rayDir.x < 0)
 	{
 		texPosX = texSize.x - texPosX - 1;
@@ -287,7 +279,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	float texStep = 1.f * texSize.y / lineHeight;
 
 	// Starting texture coordinate
-	float texPosY = (drawStart - (height / 2.f) + (lineHeight / 2)) * texStep;
+	float texPosY = (drawStart - (height * 0.5f) + (lineHeight * 0.5f)) * texStep;
 
 	// Repeat for each character in the raycast
 	ColorA color;
@@ -295,7 +287,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	{
 
 		// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
-		int texY = (int)texPosY & (texSize.y - 1);
+		int texY = static_cast<int>(texPosY) & (texSize.y - 1);
 
 
 		color = texture->GetColorFromLocation(texPosX, texPosY);
@@ -371,16 +363,16 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 			invertedDet * (-camSizeY * spriteDrawPos.x + camSizeX * spriteDrawPos.y)
 		};
 
-		int spriteScreenX = int( (width / 2) * (1 + transform.x / transform.y) );
+		int spriteScreenX = static_cast<int>( (width / 2) * (1 + transform.x / transform.y) );
 
 		float yOffset = sprite->GetOffset();
 
 		Vector2 scale = sprite->GetScale();
 
-		int vMoveScreen = int(yOffset / transform.y);
+		int vMoveScreen = static_cast<int>(yOffset / transform.y);
 
 		// Calculate height of the sprite on screen
-		int spriteHeight = abs( int( height / transform.y)) / scale.y; // using 'transform.y' instead of real distance to prevent fisheye eye
+		int spriteHeight = abs(static_cast<int>( height / transform.y)) / scale.y; // using 'transform.y' instead of real distance to prevent fisheye eye
 
 		// Calculate lowest and highest pixel to fill stripe
 		int drawStartY = -spriteHeight / 2 + height / 2 + vMoveScreen;
@@ -398,7 +390,7 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 		}
 
 		// Calculate width of sprite
-		int spriteWidth = abs( int( height / transform.y)) / scale.x;
+		int spriteWidth = abs(static_cast<int>( height / transform.y)) / scale.x;
 		int drawStartX = -spriteWidth / 2 + spriteScreenX;
 		
 		if (drawStartX < 0)
@@ -418,9 +410,12 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 
 		for (int stripe = drawStartX; stripe < drawEndX; stripe++)
 		{
-			Vector2i texturePos = Vector2i();
-			texturePos.x = int(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureSize.x / spriteWidth) / 256;
-			texturePos.x = std::clamp(texturePos.x, 0, textureSize.x - 1);
+			Vector2i texturePos = Vector2i
+			{
+				static_cast<int>(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureSize.x / spriteWidth) / 256,
+				0
+			};
+
 			/*
 				1) it's in front of camera plane so you don't see things behind you
 				2) it's on the screen (left)
@@ -433,7 +428,6 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector
 				{
 					int d = (y - vMoveScreen) * 256 - height * 128 + spriteHeight * 128;
 					texturePos.y = ((d * textureSize.y) / spriteHeight) / 256;
-					texturePos.y = std::clamp(texturePos.y, 0, textureSize.y - 1);
 
 					ColorA color = spriteTexture->GetTexture()[texturePos.y * textureSize.x + texturePos.x];
 					viewport->AddColorAToBuffer(stripe, y, color);

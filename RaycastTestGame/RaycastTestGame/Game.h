@@ -37,7 +37,6 @@ private:
 	void OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float deltaTime);
 	void KeyboardInput(Player*& player, Camera*& camera, Map*& map);
 	void CommandInput(string command, Player*& player, Camera*& camera, Map*& map);
-	void CreateDefaultTextures(vector<Texture*>& textureList, Vector2i textureSize);
 
 	void ChangeRoom(Room* room);
 	Room* GetRoomFromPos(Vector2i position);
@@ -49,6 +48,12 @@ private:
 	float m_time;
 	float m_oldTime;
 	
+	float m_playerFOV;
+	Vector2i m_screenBufferResolution;
+	Vector2i m_mainViewportOffset;
+	Vector2i m_viewportResolution;
+	Vector2i m_beginnerRoomPos;
+
 	Room*** m_rooms;
 
 	Vector2i m_roomsSize;

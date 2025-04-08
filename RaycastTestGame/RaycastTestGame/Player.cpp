@@ -1,19 +1,21 @@
 #include "Player.h"
 
-#include "Vector2.h"
 #include "Camera.h"
 #include "Map.h"
 
+const float DEFAULT_ROTATION_SPEED = 0.33f;
+const float DEFAULT_MOVEMENT_SPEED = 0.25f;
+
 Player::Player()
 	: position{ 0.f, 0.f }, direction{ -1.f, 0.f }, m_camera { new Camera() },
-	m_movementSpeed{ 0.25f }, m_rotationSpeed{ 0.33f }
+	m_movementSpeed{ DEFAULT_MOVEMENT_SPEED }, m_rotationSpeed{ DEFAULT_ROTATION_SPEED }
 {
 	AddSpells();
 }
 
 Player::Player(Vector2 position, Vector2 direction)
 	: position{ position }, direction{ direction }, m_camera{ new Camera() },
-	m_movementSpeed{ 0.25f }, m_rotationSpeed{ 0.33f }
+	m_movementSpeed{ DEFAULT_MOVEMENT_SPEED }, m_rotationSpeed{ DEFAULT_ROTATION_SPEED }
 {
 	AddSpells();
 }
@@ -21,7 +23,7 @@ Player::Player(Vector2 position, Vector2 direction)
 Player::Player(Vector2 position, Vector2 direction, Vector2 cameraSize, Vector2i viewportPosition, Vector2i viewportSize)
 	: position{ position }, direction{ direction }, 
 	m_camera{ new Camera(cameraSize, viewportPosition, viewportSize ) },
-	m_movementSpeed{ 0.25f }, m_rotationSpeed{ 0.33f }
+	m_movementSpeed{ DEFAULT_MOVEMENT_SPEED }, m_rotationSpeed{ DEFAULT_ROTATION_SPEED }
 {
 	AddSpells();
 }
@@ -97,19 +99,15 @@ int Player::SearchForSpell(string spell)
 	int lowIndex = 0;
 	int highIndex = m_spells.size() - 1;
 
-	int midpoint;
-	int comparrisonResult;
-
 	// WHILE THERE ARE MORE VALUES TO CHECK
 	while (lowIndex <= highIndex)
 	{
 		// Assign midpoint
-		midpoint = (lowIndex + highIndex) / 2;
+		int midpoint = (lowIndex + highIndex) / 2;
 
 		// Compare the 2 strings to see if before after or exact same in ascii order
-		comparrisonResult = strcmp(spell.c_str(), m_spells[midpoint].c_str());
 
-		switch (comparrisonResult)
+		switch (strcmp(spell.c_str(), m_spells[midpoint].c_str()))
 		{
 			// If identical found
 			case 0:
@@ -146,7 +144,7 @@ bool Player::IsMoving()
 	return (m_playerTweens.size() > 0);
 }
 
-bool Player::CheckCollision(Vector2 position, Map*& map, bool xAxis)
+bool Player::CheckCollision(Vector2 position, Map*& map, bool xAxis) const
 {
 	// Get wall data
 	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
@@ -154,19 +152,11 @@ bool Player::CheckCollision(Vector2 position, Map*& map, bool xAxis)
 	// Get map size
 	Vector2i mapSize = map->GetMapSize();
 
-	bool result;
-	
 	// If location is intesecting with a wall
 	// Return true if not colliding
-	if (xAxis)
-	{
-		result = (wallData[int(this->position.y) * mapSize.x + int(this->position.x + position.x)] == 0);
-	}
-	else
-	{
-		result = (wallData[int(this->position.y + position.y) * mapSize.x + int(this->position.x)] == 0);
-	}
-
+	bool result = (xAxis) ? (wallData[static_cast<int>(this->position.y) * mapSize.x + static_cast<int>(this->position.x + position.x)] == 0) : 
+							(wallData[static_cast<int>(this->position.y + position.y) * mapSize.x + static_cast<int>(this->position.x)] == 0);
+	
 	delete[] wallData;
 
 	return result;
@@ -219,12 +209,12 @@ void Player::TurnPlayer(float rotation)
 	AddTween(new Tween<float>(m_camera->size.y, newCamSizeY, std::ref(m_camera->size.y), m_rotationSpeed, true));
 }
 
-float Player::GetMovementSpeed()
+float Player::GetMovementSpeed() const
 {
 	return m_movementSpeed;
 }
 
-float Player::GetRotationSpeed()
+float Player::GetRotationSpeed() const
 {
 	return m_rotationSpeed;
 }

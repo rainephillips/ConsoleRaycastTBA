@@ -1,9 +1,9 @@
 #pragma once
-template<typename val>
+template<typename VAL>
 struct Tween
 {
 public:
-	Tween(val start, val goal, val& target, float time, bool withNext); 
+	Tween(VAL start, VAL goal, VAL& target, float time, bool withNext);
 
 public:
 	void RunTween(float delta);
@@ -11,26 +11,26 @@ public:
 	bool IsContinuous();
 
 private:
-	val Lerp(val start, val goal, float influence);
+	VAL Lerp(VAL start, VAL goal, float influence);
 
 private:
-	val m_start;
-	val m_goal;
-	val& m_target;
+	VAL m_start;
+	VAL m_goal;
+	VAL& m_target;
 	float m_time;
 	float m_timeLimit;
 	bool m_withNext;
 };
 
-template<typename val>
-Tween<val>::Tween(val start, val goal, val& target, float time, bool withNext)
+template<typename VAL>
+Tween<VAL>::Tween(VAL start, VAL goal, VAL& target, float time, bool withNext)
 	: m_start{ start }, m_goal{ goal }, m_target{ target },
 	m_timeLimit{ time }, m_withNext{ withNext }, m_time{ 0.f }
 {
 }
 
-template<typename val>
-void Tween<val>::RunTween(float delta)
+template<typename VAL>
+void Tween<VAL>::RunTween(float delta)
 {
 	// Add time to timer
 	m_time += delta;
@@ -51,8 +51,8 @@ void Tween<val>::RunTween(float delta)
 
 }
 
-template<typename val>
-bool Tween<val>::IsFinished()
+template<typename VAL>
+bool Tween<VAL>::IsFinished()
 {
 	// If timer is finished
 	if (m_time >= m_timeLimit)
@@ -65,14 +65,14 @@ bool Tween<val>::IsFinished()
 
 
 
-template<typename val>
-bool Tween<val>::IsContinuous()
+template<typename VAL>
+bool Tween<VAL>::IsContinuous()
 {
 	return m_withNext;
 }
 
-template<typename val>
-val Tween<val>::Lerp(val start, val goal, float influence)
+template<typename VAL>
+VAL Tween<VAL>::Lerp(VAL start, VAL goal, float influence)
 {
 	return (start * (1.f - influence) + goal * influence);
 }

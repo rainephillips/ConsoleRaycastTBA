@@ -1,7 +1,6 @@
 #include "ConsoleUtils.h"
 
-#include <cmath>
-#include <string>
+
 #include <thread>
 #include <vector>
 
@@ -9,19 +8,18 @@
 #include "Vector2.h"
 #include "Viewport.h"
 
-using std::string;
 using std::vector;
 using std::thread;
 
 // Get current console
-extern HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+const HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
 // ASCII Renderings 
 
 void DrawPoint(int x, int y, char character)
 {
 	// Convert x, y into COORD
-	COORD pos = { (short)x, (short)y };
+	COORD pos = { static_cast<short>(x), static_cast<short>(y) };
 	
 	// Create char array to output (character + null terminator)
 	char charArray[2] = { character };
@@ -38,7 +36,7 @@ void DrawPoint(int x, int y, char character, unsigned char textColor, unsigned c
 	SetConsoleColor(textColor, bgColor);
 	
 	// Convert x, y into COORD
-	COORD pos = { (short)x, (short)y };
+	COORD pos = { static_cast<short>(x), static_cast<short>(y) };
 
 	char charArray[2] = { character };
 	
@@ -124,10 +122,10 @@ void SetConsoleInfo(Vector2i position, Vector2i size)
 	// Creates a rectangle containing console boundaries (x1, y1, x2, y,2)
 	SMALL_RECT consoleBoundaries =
 	{
-		short(position.x),
-		short(position.y),
-		short(position.x + size.x - 1),
-		short(position.y + size.y - 1)
+		static_cast<short>(position.x),
+		static_cast<short>(position.y),
+		static_cast<short>(position.x + size.x - 1),
+		static_cast<short>(position.y + size.y - 1)
 	};
 
 	SetConsoleWindowInfo(console, TRUE, &consoleBoundaries);
@@ -135,7 +133,7 @@ void SetConsoleInfo(Vector2i position, Vector2i size)
 
 void SetConsoleCursorPos(short x, short y)
 {
-	COORD pos = { (short)x, (short)y };
+	COORD pos = { static_cast<short>(x), static_cast<short>(y) };
 
 	SetConsoleCursorPosition(console, pos);
 }
@@ -168,13 +166,10 @@ void SetCursorVis(bool visibility)
 void ToggleANSI(bool enabled)
 {
 	// Create DWORD var that stores console flags
-	DWORD consoleFlags;
+	DWORD consoleFlags = (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : ~ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 	// Add current flags to 
 	GetConsoleMode(console, &consoleFlags);
-
-	// Set console flags to either ANSI escape support or not
-	consoleFlags |= (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : ~ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 	// Set console flags
 	SetConsoleMode(console, consoleFlags);
@@ -186,9 +181,6 @@ void DrawColorViewport(Viewport* viewport)
 {
 	// Get the 2D Color Array Buffer for the viewport
 	Color* buffer = viewport->GetColorScreenBuffer();
-
-	// Create Color Variable to decide the color of each "pixel"
-	Color currentColor;
 
 	// Create References for cleaner programming
 	int& posX = viewport->position.x;
@@ -253,9 +245,6 @@ void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yM
 	string tmpOutputString;
 	tmpOutputString.reserve(yMax * (width * 15 + 13));
 
-	// Create Color Variable to decide the color of each "pixel"
-	Color currentColor;
-
 	// Create References for cleaner programming
 	int& posX = viewport->position.x;
 	int& posY = viewport->position.y;
@@ -270,7 +259,7 @@ void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yM
 		for (int x = 0; x < width; x++)
 		{
 			// Get Color from y and x cord
-			currentColor = buffer[y * width + x];
+			Color currentColor = buffer[y * width + x];
 
 			// Set a blank ' ' (space) character with the background of the
 			// RGB Color value using ANSII Escape

@@ -59,7 +59,7 @@ void Viewport::AddScanlineToBuffer(int x, int height, int start, int end, char c
 void Viewport::AddCharToBuffer(int x, int y, char character, WORD textColor, WORD bgColor)
 {
 	// Create new char info var (stores character + color + bg color + other properties'
-	CHAR_INFO charInfo;
+	CHAR_INFO charInfo = { 0 };
 
 	// Add it as an ascii character
 	charInfo.Char.AsciiChar = (character);
@@ -175,14 +175,14 @@ void Viewport::ClearViewport(bool usePattern)
 // A LIST OF CHARACTERS ORDERED BY COVERAGE OF CELL
 // TAKEN FROM "https://stackoverflow.com/questions/30097953/"
 
-extern const char charByDepth[93] = { " `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@" };
+const char charByDepth[93] = { " `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@" };
 
 char Viewport::GetCharFromDepth(float depth)
 {
 	// Return depth by converting the 0-1 depth into a range in the array to take
 	// Technically inaccurate if there were large differences in shading detail
 	// But would require more computing for minimal return
-	return charByDepth[int(depth * 91.f)];
+	return charByDepth[static_cast<int>(depth * static_cast<float>(strlen(charByDepth) - 2))];
 }
 
 CHAR_INFO* Viewport::GetASCIIScreenBuffer()

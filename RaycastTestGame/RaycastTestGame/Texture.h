@@ -21,7 +21,7 @@ public:
 
 	ColorA* GetTexture();
 	ColorA GetColorFromLocation(int x, int y);
-	Vector2i GetSize();
+	Vector2i GetSize() const;
 
 protected:
 	ColorA* m_textureData;

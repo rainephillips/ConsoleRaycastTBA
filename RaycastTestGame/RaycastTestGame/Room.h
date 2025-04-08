@@ -20,12 +20,12 @@ public:
 
 public:
 	void SetMap(Map* map);
-	void Description();
+	void Description() const;
 
-	Vector2 GetStartingPosition();
-	Vector2 GetStartingDirection();
-	Vector2i GetPos();
-	Item* GetItem();
+	Vector2 GetStartingPosition() const;
+	Vector2 GetStartingDirection() const;
+	Vector2i GetPos() const;
+	Item* GetItem() const;
 
 	void SetStartingPosition(Vector2 position);
 	void SetStartingDirection(Vector2 direction);

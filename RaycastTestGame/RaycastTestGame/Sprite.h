@@ -11,11 +11,11 @@ public:
 	Sprite(Vector2 position, Texture* texture, Vector2 scale, float offset);
 
 public:
-	Vector2 GetPosition();
-	Texture* GetTexture();
+	Vector2 GetPosition() const;
+	Texture* GetTexture() const;
 
-	Vector2 GetScale();
-	float GetOffset();
+	Vector2 GetScale() const;
+	float GetOffset() const;
 
 	void SetScale(Vector2 scale);
 	void SetYOffset(float offset);

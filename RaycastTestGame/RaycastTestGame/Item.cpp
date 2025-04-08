@@ -1,6 +1,10 @@
 #include "Item.h"
 
-const void Item::Description()
+Item::~Item()
+{
+}
+
+void Item::Description() const
 {
     return void();
 }

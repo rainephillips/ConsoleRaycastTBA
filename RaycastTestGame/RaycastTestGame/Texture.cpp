@@ -1,7 +1,5 @@
 #include "Texture.h"
 
-#include <iostream>
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -207,7 +205,7 @@ ColorA Texture::GetColorFromLocation(int x, int y)
 	return ColorA(255, 0, 255, 255);
 }
 
-Vector2i Texture::GetSize()
+Vector2i Texture::GetSize() const
 {
 	return m_size;
 }

@@ -2,8 +2,10 @@
 
 #include "Viewport.h"
 
+const float DEFAULT_FOV = 0.9f;
+
 Camera::Camera()
-	: size{ 0.f, 0.9f }, m_viewport{new Viewport()}
+	: size{ 0.f, DEFAULT_FOV }, m_viewport{new Viewport()}
 {
 }
 

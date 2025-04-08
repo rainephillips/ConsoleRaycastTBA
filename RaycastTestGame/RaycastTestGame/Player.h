@@ -3,14 +3,14 @@
 #include <vector>
 #include <string>
 
-#include "Camera.h"
-#include "Tween.h";
+#include "Tween.h"
 #include "Vector2.h"
 
 using std::vector;
 using std::string;
 
 class Map;
+class Camera;
 
 class Player
 {
@@ -25,13 +25,13 @@ public:
 	void AddTween(Tween<float>* tween);
 
 	bool IsMoving();
-	bool CheckCollision(Vector2 position, Map*& map, bool xAxis);
+	bool CheckCollision(Vector2 position, Map*& map, bool xAxis) const;
 
 	void PlayerMoveAttempt(Vector2 position, Map*& map);
 	void TurnPlayer(float rotation);
 
-	float GetMovementSpeed();
-	float GetRotationSpeed();
+	float GetMovementSpeed() const;
+	float GetRotationSpeed() const;
 
 	bool FindSpell(string spell);
 

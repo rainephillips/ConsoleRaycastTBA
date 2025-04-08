@@ -19,6 +19,7 @@ public:
 	ColorA RGBToRGBA();
 	string ToANSIEscape();
 
+public:
 	friend Color& operator/=(Color& color, float divisor);
 
 public:
@@ -40,7 +41,7 @@ public:
 
 	Color LayerRGBAOnRGB(Color layerColor) const;
 
-
+public:
 	friend ColorA& operator/=(ColorA& color, float divisor);
 
 public:

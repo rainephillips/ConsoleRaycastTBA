@@ -11,9 +11,9 @@
 #include "Map.h";
 
 Room::Room()
-    : m_description{ string() }, m_map{ nullptr }, m_item{ nullptr }
+    : m_map{ nullptr }, m_item{ nullptr }
 {
-    m_description = string("Too lazy to write description :("); // Default descirption
+    m_description = "Too lazy to write description :("; // Default descirption
 }
 
 Room::Room(string decription, Item* item, Map* map, Vector2i position)
@@ -44,27 +44,27 @@ void Room::SetMap(Map* map)
     m_map = map;
 }
 
-void Room::Description()
+void Room::Description() const
 {
     std::cout << "\033[2K" << m_description;
 }
 
-Vector2 Room::GetStartingPosition()
+Vector2 Room::GetStartingPosition() const
 {
     return m_startingPosition;
 }
 
-Vector2 Room::GetStartingDirection()
+Vector2 Room::GetStartingDirection() const
 {
     return m_startingDirection;
 }
 
-Vector2i Room::GetPos()
+Vector2i Room::GetPos() const
 {
     return m_roomPosition;
 }
 
-Item* Room::GetItem()
+Item* Room::GetItem() const
 {
     return m_item;
 }
@@ -91,10 +91,8 @@ void Room::SetRoomPosition(Vector2i position)
 
 void Room::AddRandomItem()
 {
-    int result = rand() % 4;
-
     // Add random item
-    switch (result)
+    switch (rand() % 4)
     {
         case 0:
         {

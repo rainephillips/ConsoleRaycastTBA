@@ -27,7 +27,6 @@ public:
 	Vector2i position;
 	Vector2i size;
 	
-
 public:
 	Viewport();
 	Viewport(Vector2i position, Vector2i size);

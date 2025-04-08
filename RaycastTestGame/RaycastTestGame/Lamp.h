@@ -6,7 +6,7 @@ public:
 	Lamp();
 
 public:
-	const void Description() override;
+	void Description() const override;
 	void Use() override;
 
 private:

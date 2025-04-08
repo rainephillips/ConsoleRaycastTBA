@@ -1,6 +1,5 @@
 #include "Map.h"
 
-#include "Vector2.h"
 #include "Sprite.h"
 
 Map::Map(int sizeX, int sizeY)
