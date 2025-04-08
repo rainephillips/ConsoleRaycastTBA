@@ -33,25 +33,19 @@ public:
 	~Viewport();
 
 public:
-	void AddScanlineToBuffer(int x, int height, int start, int end, char character, WORD textColor, WORD bgColor);
-	void AddCharToBuffer(int x, int y, char character, WORD textColor, WORD bgColor);
 	void AddColorToBuffer(int x, int y, Color color);
 	void AddColorAToBuffer(int x, int y, ColorA color);
-	void AddScanlineToColorBuffer(int x, int height, int start, int end, Color color);
 
 	void SetColorBuffer(Vector2i size, Color* buffer);
 	void SetColorABuffer(Vector2i size, ColorA* buffer);
 
 	void ClearViewport(bool usePattern);
 
-	char GetCharFromDepth(float depth);
-	CHAR_INFO* GetASCIIScreenBuffer();
 	Color* GetColorScreenBuffer();
 
 	Color& GetColorFromLocation(int x, int y);
 
 private:
-	CHAR_INFO* m_screenBuffer;
 	Color* m_colorScreenBuffer;
 };
 

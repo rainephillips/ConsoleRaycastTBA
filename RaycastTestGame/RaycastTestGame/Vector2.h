@@ -14,7 +14,7 @@ public:
 	bool operator==(Vector2& const rhs);
 	bool operator!=(Vector2& const rhs);
 
-	const Vector2& operator+(const Vector2& rhs);
+	const Vector2 operator+(const Vector2& rhs);
 
 public:
 	Vector2 ONE();
@@ -36,7 +36,7 @@ public:
 	bool operator==(Vector2i& const rhs);
 	bool operator!=(Vector2i& const rhs);
 
-	const Vector2i& operator+(const Vector2i& rhs);
+	const Vector2i operator+(const Vector2i& rhs);
 
 public:
 	Vector2i ONE();

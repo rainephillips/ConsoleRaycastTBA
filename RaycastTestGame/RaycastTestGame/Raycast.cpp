@@ -247,16 +247,10 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	Texture* texture = map->GetTexture(wallData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::WALL, textures);
 
 	// Calculate exact part of the wall hit instead of just cell
-	float wallX; // Technically its the y cord of the wall if its 
+	float wallX = (isHorizontalWall) ? plPosX + perpWallDist * rayDir.x : plPosY + perpWallDist * rayDir.y;
+	// Technically its the y cord of the wall if its 
 	// horizontal but its the x cord of the texture
-	if (isHorizontalWall)
-	{
-		wallX = plPosX + perpWallDist * rayDir.x;
-	}
-	else
-	{
-		wallX = plPosY + perpWallDist * rayDir.y;
-	}
+
 	wallX -= floorf(wallX); // % of the x coordinate if start = 0 and end = 1
 
 	Vector2i texSize = texture->GetSize();

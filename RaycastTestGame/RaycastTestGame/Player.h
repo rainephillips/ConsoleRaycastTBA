@@ -15,6 +15,10 @@ class Camera;
 class Player
 {
 public:
+	Vector2 position;
+	Vector2 direction;
+
+public:
 	Player();
 	Player(Vector2 position, Vector2 direction);
 	Player(Vector2 position, Vector2 direction, Vector2 cameraSize, Vector2i viewportPosition, Vector2i viewportSize);
@@ -39,10 +43,6 @@ public:
 	void SetRotationSpeed(float speed);
 
 	Camera* GetCamera();
-
-public:
-	Vector2 position;
-	Vector2 direction;
 
 
 private:

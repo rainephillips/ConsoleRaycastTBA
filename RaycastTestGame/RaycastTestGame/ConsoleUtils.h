@@ -12,18 +12,6 @@ class Viewport;
 
 using std::string;
 
-// ASCII DRAWING
-
-void DrawPoint(int x, int y, char character);
-
-void DrawPoint(int x, int y, char character, unsigned char textColor, unsigned char bgColor);
-
-void DrawRect(int x, int y, int w, int h, char character);
-
-void DrawRect(Vector2i position, Vector2i size, char character);
-
-void DrawASCIIViewport(Viewport* viewport);
-
 // CONSOLE SETTINGS
 
 void SetConsoleInfo(Vector2i position, Vector2i size);

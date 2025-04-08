@@ -16,10 +16,7 @@
 
 // ASSESMENT HEADERS
 
-#include "Item.h"
-#include "BoxOfDonuts.h"
 #include "Cat.h"
-#include "Lamp.h"
 
 #include "Room.h"
 
@@ -52,9 +49,7 @@ Game::Game()
 
 int Game::Run()
 {
-	int exitCode;
-	
-	exitCode = BeginPlay();
+	int exitCode = BeginPlay();
 
 	// Checks for any start errors
 	if (exitCode != 0)
@@ -236,10 +231,8 @@ int Game::BeginPlay()
 		// Add Sprites to map
 
 		// Create sprite* so the sprite properties can be edited
-		Sprite* sprite;
-
 		// Set the sprite pointer to a new sprite in the position in the map and texture
-		sprite = new Sprite(Vector2{ 20.5f, 11.5f }, m_textureList[19]);
+		Sprite* sprite = new Sprite(Vector2{ 20.5f, 11.5f }, m_textureList[19]);
 
 		// Set Y offset and scale of sprite
 		sprite->SetYOffset(-40.f);
@@ -342,7 +335,7 @@ int Game::BeginPlay()
 
 		room2->SetDescription(string{ "What is this hell...?" });
 
-		room2->SetRoomPosition(Vector2i(1, 0));
+		room2->SetRoomPosition(Vector2i{ 1, 0 });
 
 		// Set texture for each number (1 in this context)
 		room2->GetMap()->EmplaceLayerTexture(1, MapDataType::WALL);
@@ -560,9 +553,6 @@ int Game::Tick(float deltaTime)
 		{
 			// Make cursor visible
 			SetCursorVis(true);
-			
-			// create new stream command
-			string command;
 
 			// Set console cursor pos to 2 rows below viewport bottom
 			SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
@@ -570,6 +560,9 @@ int Game::Tick(float deltaTime)
 			std::cout << "\033[2K"; // Erase current line
 
 			std::cout << "Please enter input: ";
+
+			// create new stream command
+			string command;
 
 			// Get the current line of the player input and clear input stream
 			std::getline(std::cin, command);
