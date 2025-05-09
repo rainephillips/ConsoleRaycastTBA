@@ -16,7 +16,7 @@ public:
 	Color(byte r, byte g, byte b);
 
 public:
-	ColorA RGBToRGBA();
+	ColorA RGBToRGBA() const;
 	string ToANSIEscape();
 
 public:
@@ -37,7 +37,7 @@ public:
 	ColorA(byte r, byte g, byte b, byte a);
 
 public:
-	Color RGBAToRGB();
+	Color RGBAToRGB() const;
 
 	Color LayerRGBAOnRGB(Color layerColor) const;
 

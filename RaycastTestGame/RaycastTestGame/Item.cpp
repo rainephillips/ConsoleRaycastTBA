@@ -1,8 +1,6 @@
 #include "Item.h"
 
-Item::~Item()
-{
-}
+Item::~Item() = default;
 
 void Item::Description() const
 {
@@ -11,4 +9,5 @@ void Item::Description() const
 
 void Item::Use()
 {
+    return void();
 }

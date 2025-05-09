@@ -28,7 +28,7 @@ public:
 	void RunTweens(float delta);
 	void AddTween(Tween<float>* tween);
 
-	bool IsMoving();
+	bool IsMoving() const;
 	bool CheckCollision(Vector2 position, Map*& map, bool xAxis) const;
 
 	void PlayerMoveAttempt(Vector2 position, Map*& map);
@@ -37,7 +37,7 @@ public:
 	float GetMovementSpeed() const;
 	float GetRotationSpeed() const;
 
-	bool FindSpell(string spell);
+	bool FindSpell(string const& spell);
 
 	void SetMovementSpeed(float speed);
 	void SetRotationSpeed(float speed);
@@ -48,7 +48,7 @@ public:
 private:
 	void AddSpells();
 
-	int SearchForSpell(string spell);
+	int SearchForSpell(string const& spell);
 
 private:
 	Camera* m_camera;

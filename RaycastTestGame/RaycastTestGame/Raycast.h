@@ -14,8 +14,6 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 
 void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, float*& zBuffer);
 
-void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector<Texture*>& textures, Map* map, float*& zBuffer);
+void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, Map* map, float*& zBuffer);
 
 void SortSprites(int*& order, float*& distance, int amount);
-
-unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal);

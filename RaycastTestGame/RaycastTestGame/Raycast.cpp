@@ -48,19 +48,19 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 	};
 
 	// Current y position compared to the center of viewport (midpoint / horizon)
-	int p = y - height * 0.5f;
+	int p = y - height / 2;
 
 	// Z position of the camera (the centre of the screen)
-	float z = 0.5f * height;
+	float z = 0.5f * static_cast<float>(height);
 
 	// 0.0 - 1.0 ratio of the z position. 0.5 is the centre of the screen
-	float rowDist = z / p;
+	float rowDist = z / static_cast<float>(p);
 
 	// calculate step vector we have to add for screen x pos (parallel to camera plane)
 	Vector2 floorStep =
 	{
-		rowDist * (r_rayDir.x - l_rayDir.x) / width,
-		rowDist * (r_rayDir.y - l_rayDir.y) / width,
+		rowDist * (r_rayDir.x - l_rayDir.x) / static_cast<float>(width),
+		rowDist * (r_rayDir.y - l_rayDir.y) / static_cast<float>(width),
 	};
 
 	// coordinates of the leftmost column (x = 0) on screen. Gets updated as we move right
@@ -93,8 +93,8 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		// Texture pos from fractional part
 		Vector2i floorTexturePos =
 		{
-			static_cast<int>((floorTextureSize.x * (floorPos.x - mapPos.x))) & (floorTextureSize.x - 1),
-			static_cast<int>((floorTextureSize.y * (floorPos.y - mapPos.y))) & (floorTextureSize.y - 1)
+			static_cast<int>((static_cast<float>(floorTextureSize.x) * (floorPos.x - static_cast<float>(mapPos.x)))) & (floorTextureSize.x - 1),
+			static_cast<int>((static_cast<float>(floorTextureSize.y) * (floorPos.y - static_cast<float>(mapPos.y)))) & (floorTextureSize.y - 1)
 		};
 
 		// Get roof texture from position on map
@@ -104,8 +104,8 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 
 		Vector2i ceilTexturePos = 
 		{
-			static_cast<int>((ceilTextureSize.x * (floorPos.x - mapPos.x))) & (ceilTextureSize.x - 1),
-			static_cast<int>((ceilTextureSize.y * (floorPos.y - mapPos.y))) & (ceilTextureSize.y - 1)
+			static_cast<int>((static_cast<float>(ceilTextureSize.x) * (floorPos.x - static_cast<float>(mapPos.x))))& (ceilTextureSize.x - 1),
+			static_cast<int>((static_cast<float>(ceilTextureSize.y) * (floorPos.y - static_cast<float>(mapPos.y))))& (ceilTextureSize.y - 1)
 		};
 
 		// Update floor and ceiling positions
@@ -129,20 +129,20 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 
 void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, float*& zBuffer)
 {
-	float& plPosX = player->position.x;
-	float& plPosY = player->position.y;
+	float const& plPosX = player->position.x;
+	float const& plPosY = player->position.y;
 
-	float& plDirX = player->direction.x;
-	float& plDirY = player->direction.y;
+	float const& plDirX = player->direction.x;
+	float const& plDirY = player->direction.y;
 
-	int& width = viewport->size.x;
-	int& height = viewport->size.y;
+	int const& width = viewport->size.x;
+	int const& height = viewport->size.y;
 
 	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
 	Vector2i mapSize = map->GetMapSize();
 
 	//  Right of Screen = 1, Left of Screen = - 1
-	float cameraX = 2 * x / static_cast<float>(width) - 1.f; // Camera X Position
+	float cameraX = 2.f * x / static_cast<float>(width) - 1.f; // Camera X Position
 
 	// Set the direction of the ray to the players direction + the x axis of the camera
 	Vector2 rayDir = Vector2
@@ -247,7 +247,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	Texture* texture = map->GetTexture(wallData[mapPos.y * mapSize.x + mapPos.x] - 1, MapDataType::WALL, textures);
 
 	// Calculate exact part of the wall hit instead of just cell
-	float wallX = (isHorizontalWall) ? plPosX + perpWallDist * rayDir.x : plPosY + perpWallDist * rayDir.y;
+	float wallX = isHorizontalWall ? plPosX + perpWallDist * rayDir.x : plPosY + perpWallDist * rayDir.y;
 	// Technically its the y cord of the wall if its 
 	// horizontal but its the x cord of the texture
 
@@ -258,7 +258,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	// Get X Coordinate on the texture
 
 	// Flip Texture Accordingly Depending on if on NSEW Wall
-	int texPosX = static_cast<int>(wallX * static_cast<float>(texSize.x));
+	float texPosX = static_cast<int>(wallX * static_cast<float>(texSize.x));
 	if (isHorizontalWall == 0 && rayDir.x < 0)
 	{
 		texPosX = texSize.x - texPosX - 1;
@@ -280,10 +280,6 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	for (int y = drawStart; y < drawEnd; y++)
 	{
 
-		// Cast the texture coordinate to integer, and bitwise and with (textHeight - 1) for overflow
-		int texY = static_cast<int>(texPosY) & (texSize.y - 1);
-
-
 		color = texture->GetColorFromLocation(texPosX, texPosY);
 		if (isHorizontalWall)
 		{
@@ -301,19 +297,19 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	delete[] wallData;
 }
 
-void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, vector<Texture*>& textures, Map* map, float*& zBuffer)
+void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, Map* map, float*& zBuffer)
 {
-	float& plPosX = player->position.x;
-	float& plPosY = player->position.y;
+	float const& plPosX = player->position.x;
+	float const& plPosY = player->position.y;
 
-	float& camSizeX = camera->size.x;
-	float& camSizeY = camera->size.y;
+	float const& camSizeX = camera->size.x;
+	float const& camSizeY = camera->size.y;
 
-	float& plDirX = player->direction.x;
-	float& plDirY = player->direction.y;
+	float const& plDirX = player->direction.x;
+	float const& plDirY = player->direction.y;
 
-	int& width = viewport->size.x;
-	int& height = viewport->size.y;
+	int const& width = viewport->size.x;
+	int const& height = viewport->size.y;
 
 	int spriteAmt = map->GetSpriteAmt();
 
@@ -452,34 +448,5 @@ void SortSprites(int*& order, float*& distance, int amount)
 	{
 		distance[i] = sprites[amount - i - 1].first;
 		order[i] = sprites[amount - i - 1].second;
-	}
-}
-
-unsigned char GetASCIIColorFromRaycast(int x, int y, Map*& map, bool isHorizontal)
-{
-	// For ascii return color based on map
-	switch (map->GetMapData()[y * map->GetMapSize().x + x])
-
-	{
-	case 1:
-	{
-		return (isHorizontal) ? CLR_RED : CLR_LIGHTRED;
-	}
-	case 2:
-	{
-		return (isHorizontal) ? CLR_GREEN : CLR_LIGHTGREEN;
-	}
-	case 3:
-	{
-		return (isHorizontal) ? CLR_CYAN : CLR_LIGHTCYAN;
-	}
-	case 4:
-	{
-		return (isHorizontal) ? CLR_MAGENTA : CLR_LIGHTMAGENTA;
-	}
-	default:
-	{
-		return (isHorizontal) ? CLR_DARKGREY : CLR_WHITE;
-	}
 	}
 }

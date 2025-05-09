@@ -84,6 +84,12 @@
     <ClCompile Include="Sprite.cpp">
       <Filter>Source Files\ConsoleRenderer</Filter>
     </ClCompile>
+    <ClCompile Include="MapData.cpp">
+      <Filter>Source Files\DataTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteData.cpp">
+      <Filter>Source Files\DataTypes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Map.h">
@@ -138,6 +144,12 @@
       <Filter>Header Files\ConsoleRenderer</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
+      <Filter>Header Files\DataTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData.h">
+      <Filter>Header Files\DataTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteData.h">
       <Filter>Header Files\DataTypes</Filter>
     </ClInclude>
   </ItemGroup>

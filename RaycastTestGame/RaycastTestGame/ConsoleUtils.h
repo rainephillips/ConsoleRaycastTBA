@@ -18,7 +18,7 @@ void SetConsoleInfo(Vector2i position, Vector2i size);
 
 void SetConsoleCursorPos(short x, short y);
 
-void SetConsoleBufferResolution(unsigned short x, unsigned short y);
+void SetConsoleBufferResolution( short x,  short y);
 
 void SetConsoleInfo(Vector2i position, Vector2i size);
 
@@ -34,10 +34,10 @@ void ToggleANSI(bool enabled);
 
 void DrawColorViewport(Viewport* viewport);
 
-void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax, string& outputString);
+void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax);
 
 // STRING UTILITIES
 
-string StringToLower(string input);
-
-string StringCapitalise(string input);
+string StringToLower(string const& input);
+ 
+string StringCapitalise(string const& input);

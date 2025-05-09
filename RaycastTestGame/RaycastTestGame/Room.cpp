@@ -2,22 +2,22 @@
 
 #include <iostream>
 
-#include "Item.h";
+#include "Item.h"
 
-#include "BoxOfDonuts.h";
-#include "Lamp.h";
-#include "Cat.h";
+#include "BoxOfDonuts.h"
+#include "Lamp.h"
+#include "Cat.h"
 
-#include "Map.h";
+#include "Map.h"
 
 Room::Room()
-    : m_map{ nullptr }, m_item{ nullptr }
+    : m_item{ nullptr }, m_map{ nullptr }
 {
     m_description = "Too lazy to write description :("; // Default descirption
 }
 
-Room::Room(string decription, Item* item, Map* map, Vector2i position)
-    : m_description{ decription }, m_item{ item }, m_map{ map }, m_roomPosition{ position }
+Room::Room(string const& decription, Item* item, Map* map, Vector2i position)
+    : m_item{ item }, m_description{ decription },  m_map{ map }, m_roomPosition{ position }
 {
 }
 
@@ -26,11 +26,13 @@ Room::~Room()
     if (m_map != nullptr)
     {
         delete m_map;
+        m_map = nullptr;
     }
 
     if (m_item != nullptr)
     {
         delete m_item;
+        m_item = nullptr;
     }
 }
 
@@ -79,7 +81,7 @@ void Room::SetStartingDirection(Vector2 direction)
     m_startingDirection = direction;
 }
 
-void Room::SetDescription(string description)
+void Room::SetDescription(string const& description)
 {
     m_description = description;
 }

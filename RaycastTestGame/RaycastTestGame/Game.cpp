@@ -35,16 +35,116 @@ OPTIONAL:
 using std::vector;
 
 Game::Game()
-	: m_oldTime{ 0.f }, m_time{ 0.f }, m_deltaTime{ 0.f }, 
+	: m_oldTime{ 0.f }, m_deltaTime{ 0.f }, 
 	m_gameIsRunning{ true },  m_player{ nullptr }, m_currentMap{ nullptr },
 	m_currentRoom{ nullptr }, m_rooms{ nullptr }
 {
-	m_useCommandInput = false;
+	m_useCommandInput = true;
 	m_playerFOV = 1.3f;
 	m_mainViewportOffset = Vector2i{ 10, 3 };
 	m_viewportResolution = { 128, 64 };
 	m_screenBufferResolution = Vector2i{ 512, 512 };
 	m_beginnerRoomPos = Vector2i{ 0, 0 };
+	m_roomsSize = { 2, 2 };
+
+	m_mapData = vector<MapData>();
+	m_mapData.emplace_back
+	(
+		MapData
+		{
+			Vector2i{ 24, 24 },
+			vector<uint64_t>{4295032840, 8590065672, 4295032840, 8590065672, 4295032840, 8590065672, 4295032840, 8590065672, 4295032840, 8590065672, 4295032840, 8590065668, 4295032836, 8590065670, 4295032836, 8590065668, 4295032838, 8590065668, 4295032838, 8590065668, 4295032836, 8590065668, 4295032838, 8590065668, 8590065672, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065672, 4295032836, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032836, 4295032840, 8590065664, 4295032835, 8590065667, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065672, 4295032840, 8590065668, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065670, 8590065672, 4295032832, 8590065664, 4295032835, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032838, 4295032840, 8590065664, 4295032835, 8590065667, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065672, 4295032840, 8590065668, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065668, 8590065672, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065672, 4295032836, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032838, 8590065670, 4295032838, 8590065664, 4295032838, 8590065668, 4295032838, 4295032840, 8590065672, 4295032840, 8590065672, 4295032832, 8590065672, 4295032840, 8590065672, 4295032840, 8590065672, 4295032840, 8590065668, 4295032836, 8590065668, 4295032836, 8590065668, 4295032836, 8590065670, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065670, 8590065671, 4295032839, 8590065671, 4295032839, 8590065664, 4295032839, 8590065671, 4295032839, 8590065671, 4295032832, 8590065672, 4295032832, 8590065672, 4295032832, 8590065672, 4295032832, 8590065672, 4295032836, 8590065664, 4295032836, 8590065664, 4295032838, 8590065664, 4295032838, 4295032839, 8590065671, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032839, 8590065672, 4295032832, 8590065672, 4295032832, 8590065672, 4295032832, 8590065672, 4295032840, 8590065670, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065670, 8590065671, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065672, 4295032838, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032836, 4295032839, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032840, 8590065670, 4295032832, 8590065670, 4295032832, 8590065670, 4295032832, 8590065670, 8590065671, 4295032839, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065671, 4295032840, 8590065664, 4295032840, 8590065664, 4295032840, 8590065664, 4295032840, 8590065672, 4295032838, 8590065668, 4295032838, 8590065664, 4295032838, 8590065670, 4295032838, 4295032839, 8590065671, 4295032839, 8590065671, 4295032832, 8590065671, 4295032839, 8590065671, 4295032839, 8590065672, 4295032840, 8590065668, 4295032832, 8590065670, 4295032840, 8590065668, 4295032840, 8590065667, 4295032835, 8590065667, 4295032832, 8590065667, 4295032835, 8590065667, 8590065666, 4295032834, 8590065666, 4295032834, 8590065664, 4295032834, 8590065666, 4295032834, 8590065666, 4295032836, 8590065670, 4295032836, 8590065664, 4295032832, 8590065670, 4295032832, 8590065670, 4295032835, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032835, 4295032834, 8590065666, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065666, 4295032834, 8590065668, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032836, 8590065667, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065667, 8590065666, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065666, 4295032836, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065668, 4295032835, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032835, 4295032833, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032833, 8590065668, 4295032836, 8590065668, 4295032836, 8590065668, 4295032838, 8590065664, 4295032838, 8590065667, 4295032835, 8590065664, 4295032832, 8590065664, 4295032835, 8590065667, 8590065666, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065666, 4295032834, 8590065666, 4295032833, 8590065666, 4295032834, 8590065666, 4295032838, 8590065670, 4295032832, 8590065664, 4295032837, 8590065664, 4295032837, 8590065664, 4295032837, 4295032834, 8590065666, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065666, 4295032834, 8590065666, 4295032832, 8590065664, 4295032832, 8590065666, 4295032834, 8590065664, 4295032837, 8590065664, 4295032837, 8590065664, 4295032832, 8590065664, 4295032837, 8590065669, 8590065666, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065666, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065666, 4295032837, 8590065664, 4295032837, 8590065664, 4295032837, 8590065664, 4295032837, 8590065664, 4295032837, 4295032833, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065669, 8590065666, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065666, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065666, 4295032837, 8590065664, 4295032837, 8590065664, 4295032837, 8590065664, 4295032837, 8590065664, 4295032837, 4295032834, 8590065666, 4295032832, 8590065664, 4295032832, 8590065664, 4295032832, 8590065666, 4295032834, 8590065666, 4295032832, 8590065664, 4295032832, 8590065666, 4295032834, 8590065664, 4295032837, 8590065664, 4295032837, 8590065664, 4295032832, 8590065664, 4295032837, 8590065669, 8590065666, 4295032834, 8590065666, 4295032834, 8590065665, 4295032834, 8590065666, 4295032834, 8590065666, 4295032834, 8590065666, 4295032833, 8590065666, 4295032834, 8590065666, 4295032837, 8590065669, 4295032837, 8590065669, 4295032837, 8590065669, 4295032837, 8590065669, 4295032837, },
+			Vector2{ 22.5f, 1.5f },
+			Vector2{ 0.f, -1.f },
+			Vector2i{ 0, 0 },
+			string(""),
+			vector<SpriteData>{ SpriteData{ Vector2{ 20.5f, 11.5f }, 19, Vector2{ 2.f, 2.f}, -40.f }, SpriteData{ Vector2{ 18.5f, 4.5f }, 19 }, SpriteData{ Vector2{ 10.5f, 4.5f }, 19 }, SpriteData{ Vector2{ 10.5f, 12.5f }, 19 }, SpriteData{ Vector2{ 3.5f, 6.5f }, 19 }, SpriteData{ Vector2{ 3.5f, 20.5f }, 19 }, SpriteData{ Vector2{ 3.5f, 14.5f }, 19 }, SpriteData{ Vector2{ 14.5f, 20.5f }, 19 }, SpriteData{ Vector2{ 18.5f, 10.5f }, 18 }, SpriteData{ Vector2{ 18.5f, 11.5f }, 18 }, SpriteData{ Vector2{ 18.5f, 12.5f }, 18 }, SpriteData{ Vector2{ 21.5f, 1.5f }, 17 }, SpriteData{ Vector2{ 15.5f, 1.5f }, 17 }, SpriteData{ Vector2{ 16.0f, 1.8f }, 17 }, SpriteData{ Vector2{ 16.2f, 1.2f }, 17 }, SpriteData{ Vector2{ 3.5f, 2.5f }, 17 }, SpriteData{ Vector2{ 9.5f, 15.5f }, 17 }, SpriteData{ Vector2{ 10.0f, 15.1f }, 17 }, SpriteData{ Vector2{ 10.5f, 15.8f }, 17 }},
+			vector<size_t>{9, 10, 11, 12, 13, 14, 15, 16},
+			vector<size_t>{12, 14},
+			vector<size_t>{10, 11},
+			nullptr
+		}
+	);
+
+	m_mapData.emplace_back
+	(
+		MapData
+		{
+			Vector2i{5, 5},
+			vector<uint64_t>{4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032832, 4295032832, 4295032832, 4295032833, 4295032833, 4295032832, 4295032832, 4295032832, 4295032833, 4295032833, 4295032832, 4295032832, 4295032832, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833},
+			Vector2{ 2.5f, 3.5f },
+			Vector2{ 0.f, -1.f },
+			Vector2i{ 1, 0 },
+			string("What is this hell...?"),
+			vector<SpriteData>{SpriteData{Vector2{ 2.5f, 2.5f }, 1}},
+			vector<size_t>{1},
+			vector<size_t>{2},
+			vector<size_t>{3},
+			nullptr
+		}
+	);
+
+	m_mapData.emplace_back
+	(
+		MapData
+		{
+			Vector2i{3, 3},
+			vector<uint64_t>{4295032833, 4295032833, 4295032833, 4295032833, 4295032832, 4295032833, 4295032833, 4295032833, 4295032833},
+			Vector2{1.5f, 1.5f},
+			Vector2{ 1.f, 0.f },
+			Vector2i{ 0, 1 },
+			string("Trollge"),
+			vector<SpriteData>{},
+			vector<size_t>{8},
+			vector<size_t>{8},
+			vector<size_t>{8},
+			nullptr
+		}
+	);
+
+	m_mapData.emplace_back
+	(
+		MapData
+		{
+			Vector2i{7, 7},
+			vector<uint64_t>{4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032832, 4295032832, 4295032832, 4295032832, 4295032832, 4295032833, 4295032833, 4295032832, 4295032832, 4295032832, 4295032832, 4295032832, 4295032833, 4295032833, 4295032832, 4295032832, 4295032832, 4295032832, 4295032832, 4295032833, 4295032833, 4295032832, 4295032832, 4295032832, 4295032832, 4295032832, 4295032833, 4295032833, 4295032832, 4295032832, 4295032832, 4295032832, 4295032832, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833, 4295032833},
+			Vector2{ 5.5f, 5.5f },
+			Vector2{ 0.f, -1.f },
+			Vector2i{1, 1},
+			string("bonafied monafied B)"),
+			vector<SpriteData>{SpriteData{Vector2{ 3.5f, 3.5f }, 7}},
+			vector<size_t>{4},
+			vector<size_t>{5},
+			vector<size_t>{6},
+			new Cat()
+		}
+	);
+
+	m_texturePaths = vector<string>
+	{
+		"images\\adachitrue.jpeg",
+		"images\\adachifalse.jpeg",
+		"images\\adachimabye.jpeg",
+		"images\\tart_wall.png",
+		"images\\tart_floor.png",
+		"images\\tart_roof.png",
+		"images\\bonafiedmonafied.png",
+		"images\\trollface.png",
+		"images\\wolftex\\eagle.png",
+		"images\\wolftex\\redbrick.png",
+		"images\\wolftex\\purplestone.png",
+		"images\\wolftex\\greystone.png",
+		"images\\wolftex\\bluestone.png",
+		"images\\wolftex\\mossy.png",
+		"images\\wolftex\\wood.png",
+		"images\\wolftex\\colorstone.png",
+		"images\\wolftex\\barrel.png",
+		"images\\wolftex\\pillar.png",
+		"images\\wolftex\\greenlight.png",
+		"images\\coffeecup.png",
+		"images\\lobotomy.jpeg",
+		"images\\smalladachi.png"
+	};
 }
 
 int Game::Run()
@@ -60,8 +160,8 @@ int Game::Run()
 	while (m_gameIsRunning)
 	{
 		// Gets the delta time by comparing the current time to the last time and convert into seconds
-		m_deltaTime = (clock() - m_oldTime) / 1000.f;
-		m_oldTime = clock();
+		m_deltaTime = (static_cast<float>(clock()) - m_oldTime) / 1000.f;
+		m_oldTime = static_cast<float>(clock());
 
 		exitCode = Tick(m_deltaTime);
 
@@ -94,364 +194,29 @@ int Game::BeginPlay()
 	// Emplace textures
 	m_textureList.emplace_back(new Texture()); // Error Texture at 0
 
-	m_textureList.emplace_back(new Texture{ "images\\adachitrue.jpeg" });
-	m_textureList.emplace_back(new Texture{ "images\\adachifalse.jpeg" });
-	m_textureList.emplace_back(new Texture{ "images\\adachimabye.jpeg" });
-
-	m_textureList.emplace_back(new Texture{ "images\\tart_wall.png" });
-	m_textureList.emplace_back(new Texture{ "images\\tart_floor.png" });
-	m_textureList.emplace_back(new Texture{ "images\\tart_roof.png" });
-
-	m_textureList.emplace_back(new Texture{ "images\\bonafiedmonafied.png" });
-
-	m_textureList.emplace_back(new Texture{ "images\\trollface.png" });
-
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\eagle.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\redbrick.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\purplestone.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\greystone.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\bluestone.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\mossy.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\wood.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\colorstone.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\barrel.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\pillar.png" });
-	m_textureList.emplace_back(new Texture{ "images\\wolftex\\greenlight.png" });
-
-	m_textureList.emplace_back(new Texture{ "images\\coffeecup.png" });
-	m_textureList.emplace_back(new Texture{ "images\\lobotomy.jpeg" });
-	m_textureList.emplace_back(new Texture{ "images\\smalladachi.png" });
-
-	
-	////THIS WAS FOR TESTING TEXTURES LOADING PROPERLY
-	////KEEPING COMMENTED JUST IN CASE IT IS NEEDED IN THE FUTURE
-
-	//Texture testTexture = Texture("images\\bonafiedmonafied.png");
-
-	//Viewport* testViewport = new Viewport();
-
-	//testViewport->SetColorABuffer(testTexture.GetSize(), testTexture.GetTexture());
-
-	//DrawColorViewport(testViewport);
-
-	//delete testViewport;
-
-	//return 0;
+	for (string const& texturePath: m_texturePaths)
+	{
+		m_textureList.emplace_back(new Texture{ texturePath.c_str() });
+	}
 
 	// Create Rooms
+
+	// Create 2D Array of Room pointers
+
+	m_rooms = new Room * *[m_roomsSize.y];
+
+	for (int y = 0; y < m_roomsSize.y; y++)
 	{
-		// Create 2D Array of Room pointers
-		m_roomsSize = Vector2i{2, 2};
-
-		m_rooms = new Room **[m_roomsSize.y];
-
-		for (int y = 0; y < m_roomsSize.y; y++)
+		m_rooms[y] = new Room * [m_roomsSize.x];
+		for (int x = 0; x < m_roomsSize.x; x++)
 		{
-			m_rooms[y] = new Room * [m_roomsSize.x];
-			for (int x = 0; x < m_roomsSize.x; x++)
-			{
-				m_rooms[y][x] = nullptr;
-			}
+			m_rooms[y][x] = nullptr;
 		}
-
-		// Create Room 1
-
-		Room* room1 = new Room();
-
-		Vector2i* roomSize = new Vector2i{ 24, 24 };
-
-		// Create Map
-		// Wall data of the map
-		uint16_t tempMapWall[24 * 24] =
-		{
-		  8,8,8,8,8,8,8,8,8,8,8,4,4,6,4,4,6,4,6,4,4,4,6,4,
-		  8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,0,0,0,0,0,0,4,
-		  8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,6,
-		  8,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
-		  8,0,3,3,0,0,0,0,0,8,8,4,0,0,0,0,0,0,0,0,0,0,0,4,
-		  8,0,0,0,0,0,0,0,0,0,8,4,0,0,0,0,0,6,6,6,0,6,4,6,
-		  8,8,8,8,0,8,8,8,8,8,8,4,4,4,4,4,4,6,0,0,0,0,0,6,
-		  7,7,7,7,0,7,7,7,7,0,8,0,8,0,8,0,8,4,0,4,0,6,0,6,
-		  7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,0,0,0,0,0,6,
-		  7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,0,0,0,0,4,
-		  7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,6,0,6,0,6,0,6,
-		  7,7,0,0,0,0,0,0,7,8,0,8,0,8,0,8,8,6,4,6,0,6,6,6,
-		  7,7,7,7,0,7,7,7,7,8,8,4,0,6,8,4,8,3,3,3,0,3,3,3,
-		  2,2,2,2,0,2,2,2,2,4,6,4,0,0,6,0,6,3,0,0,0,0,0,3,
-		  2,2,0,0,0,0,0,2,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3,
-		  2,0,0,0,0,0,0,0,2,4,0,0,0,0,0,0,4,3,0,0,0,0,0,3,
-		  1,0,0,0,0,0,0,0,1,4,4,4,4,4,6,0,6,3,3,0,0,0,3,3,
-		  2,0,0,0,0,0,0,0,2,2,2,1,2,2,2,6,6,0,0,5,0,5,0,5,
-		  2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5,
-		  2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5,
-		  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
-		  2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,5,0,5,0,5,0,5,0,5,
-		  2,2,0,0,0,0,0,2,2,2,0,0,0,2,2,0,5,0,5,0,0,0,5,5,
-		  2,2,2,2,1,2,2,2,2,2,2,1,2,2,2,5,5,5,5,5,5,5,5,5
-		};
-
-		// Create truncated 2D of ints as this is how map data reads information
-		uint16_t* tempMapData = new uint16_t[roomSize->x * roomSize->y];
-		for (int i = 0; i < roomSize->x * roomSize->y; i++)
-		{
-			tempMapData[i] = tempMapWall[i];
-		}
-
-		// Create new map
-		room1->SetMap(new Map{ roomSize->x, roomSize->y });
-
-		// Set the wall contents of the map
-		room1->GetMap()->SetContentDataType(tempMapData, MapDataType::WALL, *roomSize);
-
-		// Delete 2D array as data is assigned to map
-		delete[] tempMapData;
-
-		// Set roof and floor data to checkerboard pattern
-		for (int x = 0; x < roomSize->x; x++)
-		{
-			for (int y = 0; y < roomSize->y; y++)
-			{
-				room1->GetMap()->SetContentsFromLocation(x, y, ((x + y) % 2 == 0) ? 1 : 2, MapDataType::FLOOR);
-				room1->GetMap()->SetContentsFromLocation(x, y, ((x + y) % 2 == 0) ? 1 : 2, MapDataType::ROOF);
-			}
-		}
-
-		delete roomSize;
-
-		// Set player starting position and direction
-		room1->SetStartingPosition(Vector2{ 22.5f, 1.5f });
-		room1->SetStartingDirection(Vector2{ -1.f, 0.f });
-
-		// Set description of the room
-		room1->SetDescription(string("Basic Room :D"));
-
-		// Set position of the room on the map
-		room1->SetRoomPosition(Vector2i{ 0, 0 });
-
-		// Add Sprites to map
-
-		// Create sprite* so the sprite properties can be edited
-		// Set the sprite pointer to a new sprite in the position in the map and texture
-		Sprite* sprite = new Sprite(Vector2{ 20.5f, 11.5f }, m_textureList[19]);
-
-		// Set Y offset and scale of sprite
-		sprite->SetYOffset(-40.f);
-		sprite->SetScale(Vector2{ 2, 2 });
-
-		// Add sprites to map
-		room1->GetMap()->AddSprite(sprite);
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 18.5f, 4.5f }, m_textureList[19] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 10.5f, 4.5f }, m_textureList[19] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 10.5f, 12.5f }, m_textureList[19] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 3.5f, 6.5f }, m_textureList[19] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 3.5f, 20.5f }, m_textureList[19] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 3.5f, 14.5f }, m_textureList[19] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 14.5f, 20.5f }, m_textureList[19] });
-
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 18.5f, 10.5f }, m_textureList[18] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 18.5f, 11.5f }, m_textureList[18] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 18.5f, 12.5f }, m_textureList[18] });
-
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 21.5f, 1.5f }, m_textureList[17] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 15.5f, 1.5f }, m_textureList[17] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 16.0f, 1.8f }, m_textureList[17] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 16.2f, 1.2f }, m_textureList[17] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 3.5f, 2.5f }, m_textureList[17] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 9.5f, 15.5f }, m_textureList[17] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 10.0f, 15.1f }, m_textureList[17] });
-		room1->GetMap()->AddSprite(new Sprite{ Vector2{ 10.5f, 15.8f }, m_textureList[17] });
-
-		// Set textures for room 1
-		room1->GetMap()->EmplaceLayerTexture(9, MapDataType::WALL);
-		room1->GetMap()->EmplaceLayerTexture(10, MapDataType::WALL);
-		room1->GetMap()->EmplaceLayerTexture(11, MapDataType::WALL);
-		room1->GetMap()->EmplaceLayerTexture(12, MapDataType::WALL);
-		room1->GetMap()->EmplaceLayerTexture(13, MapDataType::WALL);
-		room1->GetMap()->EmplaceLayerTexture(14, MapDataType::WALL);
-		room1->GetMap()->EmplaceLayerTexture(15, MapDataType::WALL);
-		room1->GetMap()->EmplaceLayerTexture(16, MapDataType::WALL);
-
-		room1->GetMap()->EmplaceLayerTexture(12, MapDataType::FLOOR);
-		room1->GetMap()->EmplaceLayerTexture(14, MapDataType::FLOOR);
-
-		room1->GetMap()->EmplaceLayerTexture(10, MapDataType::ROOF);
-		room1->GetMap()->EmplaceLayerTexture(11, MapDataType::ROOF);
-
-		// Add item to the room
-		room1->AddRandomItem();
-
-		// Set the room in the Room 2D array
-		SetRoom(room1);
-
-		// Create Room2
-
-		/*
-		
-			ALL THE SAME STUFF BUT REPEATED FOR EACH ROOM
-		
-		*/
-
-		Room* room2 = new Room();
-
-		roomSize = new Vector2i{ 5, 5 };
-
-		uint16_t temp2MapWall[5 * 5] =
-		{
-			1,1,1,1,1,
-			1,0,0,0,1,
-			1,0,0,0,1,
-			1,0,0,0,1,
-			1,1,1,1,1
-		};
-
-		tempMapData = new uint16_t[roomSize->x * roomSize->y];
-		for (int i = 0; i < roomSize->x * roomSize->y; i++)
-		{
-			tempMapData[i] = temp2MapWall[i];
-		}
-
-		room2->SetMap(new Map{ roomSize->x, roomSize->y });
-
-		room2->GetMap()->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i{ roomSize->x, roomSize->y });
-
-		// Set roof and floor data to 1
-		for (int x = 0; x < roomSize->x; x++)
-		{
-			for (int y = 0; y < roomSize->y; y++)
-			{
-				room2->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::FLOOR);
-				room2->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::ROOF);
-			}
-		}
-
-		delete roomSize;
-
-		delete[] tempMapData;
-
-		room2->GetMap()->AddSprite(new Sprite{ Vector2{ 2.5f, 2.5f }, m_textureList[1] });
-
-		room2->SetStartingPosition(Vector2{ 2.5f, 3.5f });
-		room2->SetStartingDirection(Vector2{ 0.f, -1.f });
-
-		room2->SetDescription(string{ "What is this hell...?" });
-
-		room2->SetRoomPosition(Vector2i{ 1, 0 });
-
-		// Set texture for each number (1 in this context)
-		room2->GetMap()->EmplaceLayerTexture(1, MapDataType::WALL);
-		room2->GetMap()->EmplaceLayerTexture(2, MapDataType::FLOOR);
-		room2->GetMap()->EmplaceLayerTexture(3, MapDataType::ROOF);
-
-		SetRoom(room2);
-
-
-		// Create Room 3
-
-		Room* room3 = new Room();
-
-		roomSize = new Vector2i{ 3,3 };
-
-		uint16_t temp3MapWall[3 * 3] =
-		{
-			1,1,1,
-			1,0,1,
-			1,1,1
-		};
-
-		tempMapData = new uint16_t[roomSize->x * roomSize->y];
-		for (int i = 0; i < roomSize->x * roomSize->y; i++)
-		{
-			tempMapData[i] = temp3MapWall[i];
-		}
-
-		room3->SetMap(new Map(roomSize->x, roomSize->y));
-
-		room3->GetMap()->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i{ roomSize->x, roomSize->y });
-
-		room3->AddRandomItem();
-
-		delete[] tempMapData;
-
-		// Set roof and floor data to 1
-		for (int x = 0; x < roomSize->x; x++)
-		{
-			for (int y = 0; y < roomSize->y; y++)
-			{
-				room3->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::FLOOR);
-				room3->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::ROOF);
-			}
-		}
-
-		delete roomSize;
-
-		room3->GetMap()->EmplaceLayerTexture(8, MapDataType::WALL);
-		room3->GetMap()->EmplaceLayerTexture(8, MapDataType::FLOOR);
-		room3->GetMap()->EmplaceLayerTexture(8, MapDataType::ROOF);
-
-		room3->SetStartingPosition(Vector2{1.5f, 1.5f});
-		room3->SetStartingDirection(Vector2{ 1.f, 0.f });
-
-		room3->SetDescription(string("Trollge"));
-
-		room3->SetRoomPosition(Vector2i{ 0, 1 });
-
-		SetRoom(room3);
-
-		// Create Room 4
-		Room* room4 = new Room();
-
-		roomSize = new Vector2i{ 7, 7 };
-
-		uint16_t temp4MapWall[7 * 7] =
-		{
-			1,1,1,1,1,1,1,
-			1,0,0,0,0,0,1,
-			1,0,0,0,0,0,1,
-			1,0,0,0,0,0,1,
-			1,0,0,0,0,0,1,
-			1,0,0,0,0,0,1,
-			1,1,1,1,1,1,1
-		};
-
-		tempMapData = new uint16_t[roomSize->x * roomSize->y];
-		for (int i = 0; i < roomSize->x * roomSize->y; i++)
-		{
-			tempMapData[i] = temp4MapWall[i];
-		}
-
-		room4->SetMap(new Map{ roomSize->x, roomSize->y });
-
-		room4->GetMap()->SetContentDataType(tempMapData, MapDataType::WALL, Vector2i{ roomSize->x, roomSize->y });
-
-		room4->AddItem(new Cat());
-
-		delete[] tempMapData;
-
-		room4->GetMap()->EmplaceLayerTexture(4, MapDataType::WALL);
-		room4->GetMap()->EmplaceLayerTexture(5, MapDataType::FLOOR);
-		room4->GetMap()->EmplaceLayerTexture(6, MapDataType::ROOF);
-
-		for (int x = 0; x < roomSize->x; x++)
-		{
-			for (int y = 0; y < roomSize->y; y++)
-			{
-				room4->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::FLOOR);
-				room4->GetMap()->SetContentsFromLocation(x, y, 1, MapDataType::ROOF);
-			}
-		}
-
-		delete roomSize;
-
-		room4->GetMap()->AddSprite(new Sprite(Vector2{ 3.5f, 3.5f }, m_textureList[7]));
-
-		room4->SetStartingPosition(Vector2{ 5.5f, 5.5f });
-		room4->SetStartingDirection(Vector2{ 0.f, -1.f });
-
-		room4->SetDescription(string("bonafied monafied B)"));
-
-		room4->SetRoomPosition(Vector2i{ 1, 1 });
-
-		SetRoom(room4);
+	}
+
+	for (MapData map : m_mapData)
+	{
+		CreateRoom(map);
 	}
 
 	// Create Player Camera & Viewport
@@ -504,6 +269,8 @@ int Game::EndPlay()
 		{
 			delete m_textureList[i];
 		}
+
+		m_textureList[i] = nullptr;
 	}
 
 	// Delete all Rooms
@@ -537,8 +304,7 @@ int Game::Tick(float deltaTime)
 	Camera* mainCam = m_player->GetCamera();
 	Viewport* mainViewport = mainCam->GetViewport();
 
-	int& width = mainViewport->size.x;
-	int& height = mainViewport->size.y;
+	int const& height = mainViewport->size.y;
 
 	unsigned int fps = (1.f / deltaTime);
 
@@ -575,7 +341,7 @@ int Game::Tick(float deltaTime)
 			SetConsoleCursorPos(0, (height + mainViewport->position.y + 3));
 
 			// Call comand input function
-			CommandInput(command, m_player, mainCam, m_currentMap);
+			CommandInput(command, m_player, m_currentMap);
 
 			// Make cursor invisible
 			SetCursorVis(false);
@@ -583,8 +349,7 @@ int Game::Tick(float deltaTime)
 	}
 	else
 	{
-		//OldKeyboardInput(m_player, mainCam, m_currentMap, m_deltaTime);
-		KeyboardInput(m_player, mainCam, m_currentMap);
+		KeyboardInput(m_player, m_currentMap);
 	}
 
 	// Print out data to console
@@ -600,8 +365,6 @@ int Game::Tick(float deltaTime)
 	std::cout << "\033[2K"; // Erase current line
 	std::cout << std::format("Player Direction: [{}, {}]", m_player->direction.x, m_player->direction.y);
 
-	//mainViewport->ClearViewport(true);
-
 	// Run Raycaster
 	Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList);
 
@@ -612,7 +375,6 @@ int Game::Tick(float deltaTime)
 
 void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures)
 {
-	SetConsoleBufferResolution(1024, 1024);
 	// Raycasting Loop
 
 	// Create Zbuffer for sprite so it can find the walls distance to the camera
@@ -631,7 +393,7 @@ void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*
 	}
 
 	// Cast sprite
-	SpriteCasting(viewport, player, camera, textures, map, zBuffer);
+	SpriteCasting(viewport, player, camera, map, zBuffer);
 
 	// Delete 2 Buffer
 	delete[] zBuffer;
@@ -705,8 +467,8 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float d
 		float plNewDirX = plDirX * cos(rotSpeed) - plDirY * sin(rotSpeed);
 		float plNewDirY = plDirX * sin(rotSpeed) + plDirY * cos(rotSpeed);
 
-		float newCamSizeX = camera->size.x * cos(rotSpeed) - camera->size.y * sin(rotSpeed);;
-		float newCamSizeY = camera->size.x * sin(rotSpeed) + camera->size.y * cos(rotSpeed);;
+		float newCamSizeX = camera->size.x * cos(rotSpeed) - camera->size.y * sin(rotSpeed);
+		float newCamSizeY = camera->size.x * sin(rotSpeed) + camera->size.y * cos(rotSpeed);
 
 		plDirX = plNewDirX;
 		plDirY = plNewDirY;
@@ -725,10 +487,10 @@ void Game::OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float d
 	delete[] wallData;
 }
 
-void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
+void Game::KeyboardInput(Player*& player, Map*& map)
 {
-	float& plDirX = player->direction.x;
-	float& plDirY = player->direction.y;
+	float const& plDirX = player->direction.x;
+	float const& plDirY = player->direction.y;
 
 	// Keyboard Inputs
 	// Move Forward if not crash into wall
@@ -765,10 +527,10 @@ void Game::KeyboardInput(Player*& player, Camera*& camera, Map*& map)
 
 }
 
-void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& map)
+void Game::CommandInput(string command, Player*& player, Map*& map)
 {
-	float& plDirX = player->direction.x;
-	float& plDirY = player->direction.y;
+	float const& plDirX = player->direction.x;
+	float const& plDirY = player->direction.y;
 
 	// Convert string to lowercase
 	command = StringToLower(command);
@@ -943,6 +705,60 @@ void Game::CommandInput(string command, Player*& player, Camera*& camera, Map*& 
 	}
 }
 
+void Game::CreateRoom(MapData& mapData)
+{
+	Room* room = new Room();
+
+	Vector2i const& roomSize = mapData.mapSize;
+
+	Map* map = new Map(roomSize);
+
+	map->SetContents(mapData.mapData, roomSize);
+
+	for (SpriteData const& sprite : mapData.sprites)
+	{
+		map->AddSprite(new Sprite{sprite.position, m_textureList[sprite.textureIndex], sprite.scale, sprite.offset});
+	}
+
+	for (int tex : mapData.wallTextures)
+	{
+		map->EmplaceLayerTexture(tex, MapDataType::WALL);
+	}
+
+	for (int tex : mapData.floorTextures)
+	{
+		map->EmplaceLayerTexture(tex, MapDataType::FLOOR);
+	}
+
+	for (int tex : mapData.roofTextures)
+	{
+		map->EmplaceLayerTexture(tex, MapDataType::ROOF);
+	}
+
+	room->SetMap(map);
+
+	if (mapData.item != nullptr)
+	{
+		room->AddItem(mapData.item);
+	}
+	else
+	{
+		room->AddRandomItem();
+	}
+
+	room->SetStartingPosition(mapData.startingPostion);
+	room->SetStartingDirection(mapData.startingDirection);
+
+	if (!mapData.description.empty())
+	{
+		room->SetDescription(mapData.description);
+	}
+
+	room->SetRoomPosition(mapData.mapPosition);
+
+	SetRoom(room);
+}
+
 void Game::ChangeRoom(Room* room)
 {
 	// If room exists
@@ -1012,7 +828,7 @@ Room* Game::GetRoomFromPos(Vector2i position)
 	return nullptr;
 }
 
-void Game::SetRoom(Room* room)
+void Game::SetRoom(Room* room) const
 {
 	Vector2i position = room->GetPos();
 	/*

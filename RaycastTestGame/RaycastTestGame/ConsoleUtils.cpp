@@ -32,12 +32,12 @@ void SetConsoleInfo(Vector2i position, Vector2i size)
 
 void SetConsoleCursorPos(short x, short y)
 {
-	COORD pos = { static_cast<short>(x), static_cast<short>(y) };
+	COORD pos = { x, y };
 
 	SetConsoleCursorPosition(console, pos);
 }
 
-void SetConsoleBufferResolution(unsigned short x, unsigned short y)
+void SetConsoleBufferResolution( short x,  short y)
 {
 	COORD size = { x, y };
 	SetConsoleScreenBufferSize(console, size);
@@ -46,18 +46,18 @@ void SetConsoleBufferResolution(unsigned short x, unsigned short y)
 void SetConsoleColor(unsigned char textColor, unsigned char bgColor)
 {
 	// bitwise combine text color and bg color
-	SetConsoleTextAttribute(console, (textColor) | bgColor);
+	SetConsoleTextAttribute(console, textColor | bgColor);
 }
 
 void ClearConsoleColor()
 {
 	// Set console color to black bg and black fg
-	SetConsoleTextAttribute(console, (0) | 1);
+	SetConsoleTextAttribute(console, 0 | 1);
 }
 
 void SetCursorVis(bool visibility)
 {
-	CONSOLE_CURSOR_INFO cursorInfo;
+	CONSOLE_CURSOR_INFO cursorInfo{ 0 };
 	cursorInfo.bVisible = visibility;
 	SetConsoleCursorInfo(console, &cursorInfo);
 }
@@ -65,7 +65,7 @@ void SetCursorVis(bool visibility)
 void ToggleANSI(bool enabled)
 {
 	// Create DWORD var that stores console flags
-	DWORD consoleFlags = (enabled) ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : ~ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	DWORD consoleFlags = enabled ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : ~ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 	// Add current flags to 
 	GetConsoleMode(console, &consoleFlags);
@@ -82,16 +82,14 @@ void DrawColorViewport(Viewport* viewport)
 	Color* buffer = viewport->GetColorScreenBuffer();
 
 	// Create References for cleaner programming
-	int& posX = viewport->position.x;
-	int& posY = viewport->position.y;
-	int& width = viewport->size.x;
-	int& height = viewport->size.y;
+	int const& posY = viewport->position.y;
+	int const& width = viewport->size.x;
+	int const& height = viewport->size.y;
 
 	// Create Empty String
 	string outputString;
 	outputString.reserve(height * (width * 15 + 13));
 
-	//CreateColorStringRange(viewport, buffer, 0, height, outputString);
 
 	// Create thread vector container threadcount amount of threads and reserve that size
 
@@ -112,8 +110,7 @@ void DrawColorViewport(Viewport* viewport)
 				viewport,
 				std::ref(buffer),
 				(height / threadCount) * i, // Starting point
-				(height / threadCount) * (i + 1), // Ending point
-				std::ref(outputString)
+				(height / threadCount) * (i + 1) // Ending point
 			)
 		);
 	}
@@ -133,20 +130,20 @@ void DrawColorViewport(Viewport* viewport)
 
 	// Reset color
 	outputString.append("\033[" + std::to_string(height + posY) + ";0H");
-	WriteConsoleA(console, outputString.c_str(), outputString.size(), NULL, NULL);
+	WriteConsoleA(console, outputString.c_str(), outputString.size(), nullptr, nullptr);
 
 }
 
-void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax, string& outputString)
+void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax)
 {
-	int& width = viewport->size.x;
+	int const& width = viewport->size.x;
 
 	string tmpOutputString;
 	tmpOutputString.reserve(yMax * (width * 15 + 13));
 
 	// Create References for cleaner programming
-	int& posX = viewport->position.x;
-	int& posY = viewport->position.y;
+	int const& posX = viewport->position.x;
+	int const& posY = viewport->position.y;
 
 	// For each row
 	// THIS PART IS DOOKIE SLOW
@@ -168,11 +165,10 @@ void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yM
 
 	tmpOutputString.append("\033[0m");
 
-	//outputString.append(tmpOutputString);
-	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), NULL, NULL);
+	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), nullptr, nullptr);
 }
 
-string StringToLower(string input)
+string StringToLower(string const& input)
 {
 	// Create output string
 	string output = input;
@@ -190,7 +186,7 @@ string StringToLower(string input)
 	return output;
 }
 
-string StringCapitalise(string input)
+string StringCapitalise(string const& input)
 {
 	// Create output string
 	string output = input;

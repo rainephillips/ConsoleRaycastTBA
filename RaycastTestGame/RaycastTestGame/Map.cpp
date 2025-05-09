@@ -61,12 +61,38 @@ vector<Sprite*>& Map::GetSpriteData()
 	return m_staticSpriteData;
 }
 
-unsigned int Map::GetSpriteAmt()
+unsigned int Map::GetSpriteAmt() const
 {
 	return m_staticSpriteData.size();
 }
 
 void Map::SetContents(uint64_t* mapData, Vector2i size)
+{
+	// If map data exists
+	if (m_mapData != nullptr)
+	{
+		// If map size is different delete map and make new one with correct size
+		if (m_size != size)
+		{
+			delete m_mapData;
+
+			m_mapData = new uint64_t[size.x * size.y];
+
+			m_size = size;
+		}
+
+		// For each cell assign data
+		for (int column = 0; column < size.y; column++)
+		{
+			for (int row = 0; row < size.x; row++)
+			{
+				m_mapData[column * size.x + row] = mapData[column * size.x + row];
+			}
+		}
+	}
+}
+
+void Map::SetContents(vector<uint64_t> mapData, Vector2i size)
 {
 	// If map data exists
 	if (m_mapData != nullptr)
@@ -219,4 +245,9 @@ Texture* Map::GetTexture(unsigned short texture, MapDataType layer, vector<Textu
 uint64_t* Map::GetMapData()
 {
 	return m_mapData;
+}
+
+uint64_t Map::GetDataFromMapPosition(int x, int y) const
+{
+	return m_mapData[y * m_size.x + x];
 }

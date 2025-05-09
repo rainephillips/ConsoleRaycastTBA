@@ -22,7 +22,7 @@ Color::Color(byte r, byte g, byte b)
 
 }
 
-ColorA Color::RGBToRGBA()
+ColorA Color::RGBToRGBA() const
 {
 	return ColorA{r, g, b, 255};
 }
@@ -53,9 +53,9 @@ ColorA::ColorA(byte r, byte g, byte b, byte a)
 {
 }
 
-Color ColorA::RGBAToRGB()
+Color ColorA::RGBAToRGB() const
 {
-	return Color(r, g, b);
+	return (r, g, b);
 }
 
 Color ColorA::LayerRGBAOnRGB(Color layerColor) const

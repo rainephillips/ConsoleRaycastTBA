@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "Vector2.h";
+#include "Vector2.h"
 
 class Map;
 class Item;
@@ -15,7 +15,7 @@ class Room
 {
 public:
 	Room();
-	Room(string decription, Item* item, Map* map, Vector2i position);
+	Room(string const& decription, Item* item, Map* map, Vector2i position);
 	~Room();
 
 public:
@@ -29,7 +29,7 @@ public:
 
 	void SetStartingPosition(Vector2 position);
 	void SetStartingDirection(Vector2 direction);
-	void SetDescription(string description);
+	void SetDescription(string const& description);
 	void SetRoomPosition(Vector2i position);
 	
 	void AddRandomItem();

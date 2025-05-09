@@ -20,10 +20,10 @@ public:
 	ColorA* GetNewErrorTexture();
 
 	ColorA* GetTexture();
-	ColorA GetColorFromLocation(int x, int y);
+	ColorA GetColorFromLocation(int x, int y) const;
 	Vector2i GetSize() const;
 
-protected:
+private:
 	ColorA* m_textureData;
 	Vector2i m_size;
 };

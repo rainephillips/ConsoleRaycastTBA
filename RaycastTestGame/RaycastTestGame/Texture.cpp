@@ -193,7 +193,7 @@ ColorA* Texture::GetTexture()
 	return m_textureData;
 }
 
-ColorA Texture::GetColorFromLocation(int x, int y)
+ColorA Texture::GetColorFromLocation(int x, int y) const
 {
 	// If in boundaries
 	if (x < m_size.x && x >= 0 && y < m_size.y && y >= 0)

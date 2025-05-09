@@ -27,6 +27,7 @@ public:
 
 public:
 	void SetContents(uint64_t* mapData, Vector2i size);
+	void SetContents(vector<uint64_t> mapData, Vector2i size);
 
 	void SetContentsFromLocation(int x, int y, uint16_t value, MapDataType layer);
 
@@ -36,6 +37,7 @@ public:
 	void ClearSpriteData();
 
 	void AddSprite(Sprite* sprite);
+
 	void SetLayerTexture(size_t texturePos, unsigned short position, MapDataType layer);
 	void EmplaceLayerTexture(size_t texturePos, MapDataType layer);
 
@@ -44,9 +46,10 @@ public:
 	Vector2i& GetMapSize();
 
 	vector<Sprite*>& GetSpriteData();
-	unsigned int GetSpriteAmt();
+	unsigned int GetSpriteAmt() const;
 
 	uint64_t* GetMapData();
+	uint64_t GetDataFromMapPosition(int x, int y) const;
 	uint16_t* GetDataTypeBuffer(MapDataType dataType);
 
 private:

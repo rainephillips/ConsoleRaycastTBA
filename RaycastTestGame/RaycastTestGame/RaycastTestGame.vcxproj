@@ -139,10 +139,12 @@
     <ClCompile Include="Lamp.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="MapData.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Raycast.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="SpriteData.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="Viewport.cpp" />
@@ -154,6 +156,7 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="ConsoleUtils.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="MapData.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="Lamp.h" />
     <ClInclude Include="Map.h" />
@@ -161,6 +164,7 @@
     <ClInclude Include="Raycast.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="SpriteData.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Tween.h" />

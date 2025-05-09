@@ -93,21 +93,20 @@ void Player::AddSpells()
 	m_spells.emplace_back("psi");
 }
 
-int Player::SearchForSpell(string spell)
+int Player::SearchForSpell(string const & spell)
 {
 	// BINARY SEARCH FOR SPELL STRING
-	int lowIndex = 0;
-	int highIndex = m_spells.size() - 1;
+	size_t lowIndex = 0;
+	size_t highIndex = m_spells.size() - 1;
 
 	// WHILE THERE ARE MORE VALUES TO CHECK
 	while (lowIndex <= highIndex)
 	{
 		// Assign midpoint
-		int midpoint = (lowIndex + highIndex) / 2;
+		size_t midpoint = (lowIndex + highIndex) / 2;
 
 		// Compare the 2 strings to see if before after or exact same in ascii order
-
-		switch (strcmp(spell.c_str(), m_spells[midpoint].c_str()))
+		switch (spell.compare(m_spells[midpoint]))
 		{
 			// If identical found
 			case 0:
@@ -139,12 +138,12 @@ int Player::SearchForSpell(string spell)
 	return -1;
 }
 
-bool Player::IsMoving()
+bool Player::IsMoving() const
 {
-	return (m_playerTweens.size() > 0);
+	return (!m_playerTweens.empty());
 }
 
-bool Player::CheckCollision(Vector2 position, Map*& map, bool xAxis) const
+bool Player::CheckCollision(Vector2 nextPosition, Map*& map, bool xAxis) const
 {
 	// Get wall data
 	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
@@ -154,51 +153,51 @@ bool Player::CheckCollision(Vector2 position, Map*& map, bool xAxis) const
 
 	// If location is intesecting with a wall
 	// Return true if not colliding
-	bool result = (xAxis) ? (wallData[static_cast<int>(this->position.y) * mapSize.x + static_cast<int>(this->position.x + position.x)] == 0) : 
-							(wallData[static_cast<int>(this->position.y + position.y) * mapSize.x + static_cast<int>(this->position.x)] == 0);
+	bool result = xAxis ? (wallData[static_cast<int>(position.y) * mapSize.x + static_cast<int>(position.x + nextPosition.x)] == 0) :
+							(wallData[static_cast<int>(position.y + nextPosition.y) * mapSize.x + static_cast<int>(position.x)] == 0);
 	
 	delete[] wallData;
 
 	return result;
 }
 
-void Player::PlayerMoveAttempt(Vector2 position, Map*& map)
+void Player::PlayerMoveAttempt(Vector2 nextPosition, Map*& map)
 {
 	
 	// If Colliding on x axis
-	if (CheckCollision(position, map, true))
+	if (CheckCollision(nextPosition, map, true))
 	{
 		// Tween x movement
-		AddTween(new Tween<float>(this->position.x, this->position.x + position.x, std::ref(this->position.x), m_movementSpeed, true));
+		AddTween(new Tween<float>(position.x, position.x + nextPosition.x, std::ref(position.x), m_movementSpeed, true));
 	}
 	else
 	{
 		// Tween ram into wall and bounce back
-		AddTween(new Tween<float>(this->position.x, this->position.x + position.x * 0.45f, std::ref(this->position.x), m_movementSpeed / 2, false));
-		AddTween(new Tween<float>(this->position.x + position.x * 0.45f, this->position.x, std::ref(this->position.x), m_movementSpeed / 2, true));
+		AddTween(new Tween<float>(position.x, position.x + nextPosition.x * 0.45f, std::ref(position.x), m_movementSpeed / 2, false));
+		AddTween(new Tween<float>(position.x + nextPosition.x * 0.45f, position.x, std::ref(position.x), m_movementSpeed / 2, true));
 	}
 
 	// If colliding on y axis
-	if (CheckCollision(position, map, false))
+	if (CheckCollision(nextPosition, map, false))
 	{
 		// Tween y movement
-		AddTween(new Tween<float>(this->position.y, this->position.y + position.y, std::ref(this->position.y), m_movementSpeed, true));
+		AddTween(new Tween<float>(position.y, position.y + nextPosition.y, std::ref(position.y), m_movementSpeed, true));
 	}
 	else
 	{
 		// Tween ram into wall and bounce back
-		AddTween(new Tween<float>(this->position.y, this->position.y + position.y * 0.45f, std::ref(this->position.y), m_movementSpeed / 2, false));
-		AddTween(new Tween<float>(this->position.y + position.y * 0.45f, this->position.y, std::ref(this->position.y), m_movementSpeed / 2, true));
+		AddTween(new Tween<float>(position.y, position.y + nextPosition.y * 0.45f, std::ref(position.y), m_movementSpeed / 2, false));
+		AddTween(new Tween<float>(position.y + nextPosition.y * 0.45f, position.y, std::ref(position.y), m_movementSpeed / 2, true));
 	}
 }
 
 void Player::TurnPlayer(float rotation)
 {
-	float plNewDirX = direction.x * cos(rotation) - direction.y * sin(rotation);
-	float plNewDirY = direction.x * sin(rotation) + direction.y * cos(rotation);
+	float plNewDirX = direction.x * cosf(rotation) - direction.y * sinf(rotation);
+	float plNewDirY = direction.x * sinf(rotation) + direction.y * cosf(rotation);
 
-	float newCamSizeX = m_camera->size.x * cos(rotation) - m_camera->size.y * sin(rotation);
-	float newCamSizeY = m_camera->size.x * sin(rotation) + m_camera->size.y * cos(rotation);
+	float newCamSizeX = m_camera->size.x * cosf(rotation) - m_camera->size.y * sinf(rotation);
+	float newCamSizeY = m_camera->size.x * sinf(rotation) + m_camera->size.y * cosf(rotation);
 
 	// Rotate Player
 	AddTween(new Tween<float>(direction.x, plNewDirX, std::ref(direction.x), m_rotationSpeed, true));
@@ -219,7 +218,7 @@ float Player::GetRotationSpeed() const
 	return m_rotationSpeed;
 }
 
-bool Player::FindSpell(string spell)
+bool Player::FindSpell(string const& spell)
 {
 	return !(SearchForSpell(spell) == -1);
 }
