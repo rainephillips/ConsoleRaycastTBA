@@ -12,7 +12,6 @@
 #include "Raycast.h"
 #include "Sprite.h"
 #include "Texture.h"
-#include "Viewport.h"
 
 // ASSESMENT HEADERS
 
@@ -39,7 +38,7 @@ Game::Game()
 	m_gameIsRunning{ true },  m_player{ nullptr }, m_currentMap{ nullptr },
 	m_currentRoom{ nullptr }, m_rooms{ nullptr }
 {
-	m_useCommandInput = true;
+	m_useCommandInput = false;
 	m_playerFOV = 1.3f;
 	m_mainViewportOffset = Vector2i{ 10, 3 };
 	m_viewportResolution = { 128, 64 };
@@ -232,7 +231,7 @@ int Game::BeginPlay()
 	// Console Settings
 
 	// Set the buffer size of the console (how many characters it can display at once
-	SetConsoleBufferResolution(m_screenBufferResolution.x, m_screenBufferResolution.y);
+	SetConsoleViewportResolution(m_screenBufferResolution.x, m_screenBufferResolution.y);
 
 	// Hides the cursor from the console
 	SetCursorVis(false);
@@ -242,11 +241,11 @@ int Game::BeginPlay()
 
 	// Get viewport & camera
 	Camera* camera = m_player->GetCamera();
-	Viewport* viewport = camera->GetViewport();
+	ConsoleViewport* viewport = camera->GetViewport();
 
 	// Move the console cursor to the end of the viewport so that it 
 	// doesn't get overwritten when the viewport is drawn
-	SetConsoleCursorPos(0, (viewport->size.y + viewport->position.y + 3));
+	SetConsoleCursorPos(0, (viewport->height + viewport->y + 3));
 
 	// Set Beginner Room
 
@@ -255,7 +254,7 @@ int Game::BeginPlay()
 	// First Frame Draw
 
 	Raycaster(viewport, m_player, camera, m_currentMap, m_textureList);
-	DrawColorViewport(viewport);
+	DrawConsoleViewport(viewport);
 
 	return EXIT_SUCCESS;
 }
@@ -302,9 +301,9 @@ int Game::Tick(float deltaTime)
 {
 	// Define camera and
 	Camera* mainCam = m_player->GetCamera();
-	Viewport* mainViewport = mainCam->GetViewport();
+	ConsoleViewport* mainViewport = mainCam->GetViewport();
 
-	int const& height = mainViewport->size.y;
+	int const& height = mainViewport->height;
 
 	unsigned int fps = (1.f / deltaTime);
 
@@ -321,7 +320,7 @@ int Game::Tick(float deltaTime)
 			SetCursorVis(true);
 
 			// Set console cursor pos to 2 rows below viewport bottom
-			SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+			SetConsoleCursorPos(0, (height + mainViewport->y + 1));
 
 			std::cout << "\033[2K"; // Erase current line
 
@@ -338,7 +337,7 @@ int Game::Tick(float deltaTime)
 			m_oldTime = clock();
 
 			// Move console 4 rows below console
-			SetConsoleCursorPos(0, (height + mainViewport->position.y + 3));
+			SetConsoleCursorPos(0, (height + mainViewport->y + 3));
 
 			// Call comand input function
 			CommandInput(command, m_player, m_currentMap);
@@ -353,41 +352,41 @@ int Game::Tick(float deltaTime)
 	}
 
 	// Print out data to console
-	SetConsoleCursorPos(0, (height + mainViewport->position.y)); // Move position of the cursor
+	SetConsoleCursorPos(0, (height + mainViewport->y)); // Move position of the cursor
 	std::cout << "\033[2K"; // Erase current line
 	std::cout << "FPS: " << fps; // Output fps
 
-	SetConsoleCursorPos(0, (height + mainViewport->position.y + 1));
+	SetConsoleCursorPos(0, (height + mainViewport->y + 1));
 	std::cout << "\033[2K"; // Erase current line
 	std::cout << std::format("Player Position: [{}, {}]", static_cast<int>(m_player->position.x), static_cast<int>(m_player->position.y));
 
-	SetConsoleCursorPos(0, (height + mainViewport->position.y + 2));
+	SetConsoleCursorPos(0, (height + mainViewport->y + 2));
 	std::cout << "\033[2K"; // Erase current line
 	std::cout << std::format("Player Direction: [{}, {}]", m_player->direction.x, m_player->direction.y);
 
 	// Run Raycaster
 	Raycaster(mainViewport, m_player, mainCam, m_currentMap, m_textureList);
 
-	DrawColorViewport(mainViewport);
+	DrawConsoleViewport(mainViewport);
 
 	return 0;
 }
 
-void Game::Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures)
+void Game::Raycaster(ConsoleViewport* viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures)
 {
 	// Raycasting Loop
 
 	// Create Zbuffer for sprite so it can find the walls distance to the camera
-	float* zBuffer = new float[viewport->size.x];
+	float* zBuffer = new float[viewport->width];
 
 	// Run floor raycast for every row
-	for (int y = 0; y < viewport->size.y; y++)
+	for (int y = 0; y < viewport->height; y++)
 	{
 		FloorRaycast(y, viewport, player, camera, map, textures);
 	}
 	
 	// Run wall raycast for ever column
-	for (int x = 0; x < viewport->size.x; x++)
+	for (int x = 0; x < viewport->width; x++)
 	{
 		WallRaycast(x, viewport, player, camera, map, textures, zBuffer);
 	}

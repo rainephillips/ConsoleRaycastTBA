@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,12 +143,14 @@
     <ClCompile Include="MapData.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Raycast.cpp" />
+    <ClCompile Include="render\buffer\ConsolePixelBuffer.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+    </ClCompile>
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SpriteData.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vector2.cpp" />
-    <ClCompile Include="Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoxOfDonuts.h" />
@@ -162,6 +165,7 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Raycast.h" />
+    <ClInclude Include="render\buffer\ConsolePixelBuffer.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteData.h" />
@@ -169,7 +173,9 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Tween.h" />
     <ClInclude Include="Vector2.h" />
-    <ClInclude Include="Viewport.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="render\buffer\CBufferColorLUT.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,7 +2,7 @@
 
 #include "Vector2.h"
 
-class Viewport;
+#include "render/buffer/ConsolePixelBuffer.h"
 
 class Camera
 {
@@ -13,12 +13,12 @@ public:
 	~Camera();
 
 public:
-	Viewport* GetViewport();
+	ConsoleViewport* GetViewport();
 
 public:
 	Vector2 size;
 
 private:
-	Viewport* m_viewport;
+	ConsoleViewport m_viewport;
 };
 

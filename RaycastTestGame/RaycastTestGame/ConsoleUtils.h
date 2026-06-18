@@ -6,10 +6,10 @@
 #define PI 3.14159f
 #define DEG_TO_RAD(degree) ((degree) * PI / 180.f)
 
+#include "render/buffer/ConsolePixelBuffer.h"
+
 struct Color;
 struct Vector2i;
-class Viewport;
-
 using std::string;
 
 // CONSOLE SETTINGS
@@ -18,7 +18,7 @@ void SetConsoleInfo(Vector2i position, Vector2i size);
 
 void SetConsoleCursorPos(short x, short y);
 
-void SetConsoleBufferResolution( short x,  short y);
+void SetConsoleViewportResolution( short x,  short y);
 
 void SetConsoleInfo(Vector2i position, Vector2i size);
 
@@ -32,9 +32,7 @@ void ToggleANSI(bool enabled);
 
 // COLOR DRAWING
 
-void DrawColorViewport(Viewport* viewport);
-
-void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax);
+void DrawConsoleViewport(ConsoleViewport* viewport);
 
 // STRING UTILITIES
 

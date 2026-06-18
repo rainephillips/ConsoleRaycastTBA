@@ -6,7 +6,6 @@
 
 #include "Windows.h"
 #include "Vector2.h"
-#include "Viewport.h"
 
 using std::vector;
 using std::thread;
@@ -37,7 +36,7 @@ void SetConsoleCursorPos(short x, short y)
 	SetConsoleCursorPosition(console, pos);
 }
 
-void SetConsoleBufferResolution( short x,  short y)
+void SetConsoleViewportResolution( short x,  short y)
 {
 	COORD size = { x, y };
 	SetConsoleScreenBufferSize(console, size);
@@ -65,107 +64,23 @@ void SetCursorVis(bool visibility)
 void ToggleANSI(bool enabled)
 {
 	// Create DWORD var that stores console flags
-	DWORD consoleFlags = enabled ? ENABLE_VIRTUAL_TERMINAL_PROCESSING : ~ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	DWORD consoleFlags;
 
 	// Add current flags to 
 	GetConsoleMode(console, &consoleFlags);
+
+	if (enabled)
+		consoleFlags |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	else
+		consoleFlags &= ~ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 	// Set console flags
 	SetConsoleMode(console, consoleFlags);
 }
 
-// COLOR RENDERING
-
-void DrawColorViewport(Viewport* viewport)
+void DrawConsoleViewport(ConsoleViewport* viewport)
 {
-	// Get the 2D Color Array Buffer for the viewport
-	Color* buffer = viewport->GetColorScreenBuffer();
-
-	// Create References for cleaner programming
-	int const& posY = viewport->position.y;
-	int const& width = viewport->size.x;
-	int const& height = viewport->size.y;
-
-	// Create Empty String
-	string outputString;
-	outputString.reserve(height * (width * 15 + 13));
-
-
-	// Create thread vector container threadcount amount of threads and reserve that size
-
-	// The threads render 1/threadcount the viewport (ie 4 would mean each thread handles 1/4 of the viewport)
-	int threadCount = 4;
-	vector<thread*> threadContainer;
-	threadContainer.reserve(threadCount);
-
-	// For each thread
-	for (int i = 0; i < threadCount; i++)
-	{
-		threadContainer.emplace_back
-		(
-			new thread
-			(
-				CreateColorStringRange, // Function Pointer
-				// Parameters
-				viewport,
-				std::ref(buffer),
-				(height / threadCount) * i, // Starting point
-				(height / threadCount) * (i + 1) // Ending point
-			)
-		);
-	}
-
-	for (int i = 0; i < threadCount; i++)
-	{
-		threadContainer[i]->join(); // Wait for all threads to finish
-	}
-
-	for (int i = 0; i < threadCount; i++)
-	{
-		delete threadContainer[i]; // Delete thread
-	}
-
-	// Empty thread container
-	threadContainer.clear();
-
-	// Reset color
-	outputString.append("\033[" + std::to_string(height + posY) + ";0H");
-	WriteConsoleA(console, outputString.c_str(), outputString.size(), nullptr, nullptr);
-
-}
-
-void CreateColorStringRange(Viewport* viewport, Color*& buffer, int yMin, int yMax)
-{
-	int const& width = viewport->size.x;
-
-	string tmpOutputString;
-	tmpOutputString.reserve(yMax * (width * 15 + 13));
-
-	// Create References for cleaner programming
-	int const& posX = viewport->position.x;
-	int const& posY = viewport->position.y;
-
-	// For each row
-	// THIS PART IS DOOKIE SLOW
-	for (int y = yMin; y < yMax; y++)
-	{
-		// Reposition Cursor using ANSI escape
-		tmpOutputString.append("\033[" + std::to_string(y + posY) + ";" + std::to_string(posX) + "H");
-
-		for (int x = 0; x < width; x++)
-		{
-			// Get Color from y and x cord
-			Color currentColor = buffer[y * width + x];
-
-			// Set a blank ' ' (space) character with the background of the
-			// RGB Color value using ANSII Escape
-			tmpOutputString.append(currentColor.ToANSIEscape());
-		}
-	}
-
-	tmpOutputString.append("\033[0m");
-
-	WriteConsoleA(console, tmpOutputString.c_str(), tmpOutputString.size(), nullptr, nullptr);
+	WriteConsoleA(console, viewport->data, viewport->size, nullptr, nullptr);
 }
 
 string StringToLower(string const& input)

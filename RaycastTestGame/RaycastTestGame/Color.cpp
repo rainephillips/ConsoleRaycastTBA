@@ -29,6 +29,7 @@ ColorA Color::RGBToRGBA() const
 
 string Color::ToANSIEscape()
 {
+	// 48 Set background color 2 as 24Bit color
 	return std::format("\033[48;2;{};{};{}m ", r, g, b);
 }
 

@@ -8,13 +8,12 @@
 #include "Player.h"
 #include "Texture.h"
 #include "Sprite.h"
-#include "Viewport.h"
 
 // RAYCASTING ENGINE HEAVILY BASED ON LODE'S TUTORIAL
 // seen at https://lodev.org/cgtutor/raycasting.html
 // Modified to include more object oriented programming
 
-void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures)
+void FloorRaycast(int y, ConsoleViewport* viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures)
 {
 
 	float& plPosX = player->position.x;
@@ -28,8 +27,8 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 
 	Vector2i& mapSize = map->GetMapSize();
 
-	int& width = viewport->size.x;
-	int& height = viewport->size.y;
+	CBufferSize_T& width = viewport->width;
+	CBufferSize_T& height = viewport->height;
 
 	uint16_t* floorData = map->GetDataTypeBuffer(MapDataType::FLOOR);
 	uint16_t* roofData = map->GetDataTypeBuffer(MapDataType::ROOF);
@@ -115,19 +114,21 @@ void FloorRaycast(int y, Viewport*& viewport, Player*& player, Camera*& camera, 
 		// Drawing floor
 		ColorA floorColor = floorTexture->GetColorFromLocation(floorTexturePos.x, floorTexturePos.y);
 		floorColor /= 1.75f; // Dim the color
-		viewport->AddColorAToBuffer(x, y, floorColor);
+		//viewport->AddColorAToBuffer(x, y, floorColor);
+		WriteConsoleViewportPixel(viewport, x, y, floorColor.r, floorColor.g, floorColor.b);
 		
 		// Drawing ceiling
 		ColorA ceilingColor = ceilTexture->GetColorFromLocation(ceilTexturePos.x, ceilTexturePos.y);
 		ceilingColor /= 1.33f; // Dim the color as before
-		viewport->AddColorAToBuffer(x, height - y - 1, ceilingColor);
+		//viewport->AddColorAToBuffer(x, height - y - 1, ceilingColor);
+		WriteConsoleViewportPixel(viewport, x, height - y - 1, ceilingColor.r, ceilingColor.g, ceilingColor.b);
 	}
 
 	delete[] floorData;
 	delete[] roofData;
 }
 
-void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, float*& zBuffer)
+void WallRaycast(int x, ConsoleViewport* viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*>& textures, float*& zBuffer)
 {
 	float const& plPosX = player->position.x;
 	float const& plPosY = player->position.y;
@@ -135,8 +136,8 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	float const& plDirX = player->direction.x;
 	float const& plDirY = player->direction.y;
 
-	int const& width = viewport->size.x;
-	int const& height = viewport->size.y;
+	CBufferSize_T& width = viewport->width;
+	CBufferSize_T& height = viewport->height;
 
 	uint16_t* wallData = map->GetDataTypeBuffer(MapDataType::WALL);
 	Vector2i mapSize = map->GetMapSize();
@@ -287,7 +288,8 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 		}
 		texPosY += texStep;
 
-		viewport->AddColorAToBuffer(x, y, color);
+		//viewport->AddColorAToBuffer(x, y, color);
+		WriteConsoleViewportPixel(viewport, x, y, color.r, color.g, color.b);
 	}
 	
 
@@ -297,7 +299,7 @@ void WallRaycast(int x, Viewport*& viewport, Player*& player, Camera*& camera, M
 	delete[] wallData;
 }
 
-void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, Map* map, float*& zBuffer)
+void SpriteCasting(ConsoleViewport* viewport, Player*& player, Camera*& camera, Map* map, float*& zBuffer)
 {
 	float const& plPosX = player->position.x;
 	float const& plPosY = player->position.y;
@@ -308,8 +310,8 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, Map* m
 	float const& plDirX = player->direction.x;
 	float const& plDirY = player->direction.y;
 
-	int const& width = viewport->size.x;
-	int const& height = viewport->size.y;
+	CBufferSize_T& width = viewport->width;
+	CBufferSize_T& height = viewport->height;
 
 	int spriteAmt = map->GetSpriteAmt();
 
@@ -420,7 +422,8 @@ void SpriteCasting(Viewport*& viewport, Player*& player, Camera*& camera, Map* m
 					texturePos.y = ((d * textureSize.y) / spriteHeight) / 256;
 
 					ColorA color = spriteTexture->GetTexture()[texturePos.y * textureSize.x + texturePos.x];
-					viewport->AddColorAToBuffer(stripe, y, color);
+					//viewport->AddColorAToBuffer(stripe, y, color);
+					WriteConsoleViewportPixel(viewport, stripe, y, color.r, color.g, color.b);
 				}
 			}
 		}

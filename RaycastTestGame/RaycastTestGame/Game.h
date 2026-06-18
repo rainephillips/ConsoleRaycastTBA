@@ -6,13 +6,13 @@
 
 #include "MapData.h"
 
+#include "render/buffer/ConsolePixelBuffer.h"
+
 class Camera;
 class Map;
 class Player;
 class Texture;
 class Room;
-class Viewport;
-
 using std::string;
 using std::thread;
 using std::vector;
@@ -33,7 +33,7 @@ private:
 	int Tick(float deltaTime);
 
 
-	void Raycaster(Viewport*& viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures);
+	void Raycaster(ConsoleViewport* viewport, Player*& player, Camera*& camera, Map*& map, vector<Texture*> textures);
 	void OldKeyboardInput(Player*& player, Camera*& camera, Map*& map, float deltaTime);
 	void KeyboardInput(Player*& player, Map*& map);
 	void CommandInput(string command, Player*& player, Map*& map);

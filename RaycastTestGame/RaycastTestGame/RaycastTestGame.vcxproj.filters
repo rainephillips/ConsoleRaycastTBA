@@ -31,6 +31,18 @@
     <Filter Include="Header Files\ConsoleRenderer">
       <UniqueIdentifier>{30ac5163-11e7-4815-aa27-9a5edd408aa4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\render">
+      <UniqueIdentifier>{ac8beeb2-2e66-4b40-95d6-973b5e12289c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\render\buffer">
+      <UniqueIdentifier>{c9d2e00f-c5e8-43f7-8788-d071d1996e4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\render">
+      <UniqueIdentifier>{d65a2bc6-3806-42ff-a426-6a2ccf7f1d01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\render\buffer">
+      <UniqueIdentifier>{6f71c700-0b55-47b9-a431-db91ad772632}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -72,9 +84,6 @@
     <ClCompile Include="Raycast.cpp">
       <Filter>Source Files\ConsoleRenderer</Filter>
     </ClCompile>
-    <ClCompile Include="Viewport.cpp">
-      <Filter>Source Files\ConsoleRenderer</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files\ConsoleRenderer</Filter>
     </ClCompile>
@@ -89,6 +98,9 @@
     </ClCompile>
     <ClCompile Include="SpriteData.cpp">
       <Filter>Source Files\DataTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="render\buffer\ConsolePixelBuffer.c">
+      <Filter>Source Files\render\buffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,9 +143,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files\ConsoleRenderer</Filter>
     </ClInclude>
-    <ClInclude Include="Viewport.h">
-      <Filter>Header Files\ConsoleRenderer</Filter>
-    </ClInclude>
     <ClInclude Include="Raycast.h">
       <Filter>Header Files\ConsoleRenderer</Filter>
     </ClInclude>
@@ -152,5 +161,13 @@
     <ClInclude Include="SpriteData.h">
       <Filter>Header Files\DataTypes</Filter>
     </ClInclude>
+    <ClInclude Include="render\buffer\ConsolePixelBuffer.h">
+      <Filter>Header Files\render\buffer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="render\buffer\CBufferColorLUT.inl">
+      <Filter>Header Files\render\buffer</Filter>
+    </None>
   </ItemGroup>
 </Project>
